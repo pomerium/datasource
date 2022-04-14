@@ -1,0 +1,60 @@
+package internal_test
+
+import (
+	"context"
+	"fmt"
+	"net/http"
+	"net/http/httptest"
+	"net/url"
+	"os"
+	"path"
+	"testing"
+
+	"github.com/gorilla/mux"
+	"github.com/stretchr/testify/require"
+
+	"github.com/pomerium/datasource/bamboohr/internal"
+)
+
+func TestAPI(t *testing.T) {
+	ctx := context.Background()
+	r := mux.NewRouter()
+	r.Path("/api/gateway.php/{company}/v1/reports/custom").
+		Methods(http.MethodPost).
+		HandlerFunc(serveJSON("employees", "company", http.StatusOK))
+	srv := httptest.NewServer(r)
+
+	base, err := url.Parse(srv.URL)
+	require.NoError(t, err, srv.URL)
+
+	req := internal.EmployeeRequest{
+		Auth: internal.Auth{
+			BaseURL:   base.ResolveReference(&url.URL{Path: "/api/gateway.php/"}),
+			Subdomain: "test",
+		},
+		CurrentOnly: false,
+		Fields:      []string{"id"},
+	}
+	_, err = internal.GetEmployees(ctx, req)
+	require.NoError(t, err, "get employees")
+}
+
+func serveJSON(prefix, key string, statusCode int) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		value := mux.Vars(r)[key]
+		if value == "" {
+			w.WriteHeader(http.StatusBadRequest)
+			_, _ = w.Write([]byte(fmt.Sprintf("expected %s in vars, got none", key)))
+			return
+		}
+		p := path.Join("testdata", fmt.Sprintf("%s-%s-%s.json", prefix, key, value))
+		data, err := os.ReadFile(p)
+		if err != nil {
+			w.WriteHeader(http.StatusNotFound)
+			_, _ = w.Write([]byte(err.Error()))
+			return
+		}
+		w.WriteHeader(statusCode)
+		_, _ = w.Write(data)
+	}
+}

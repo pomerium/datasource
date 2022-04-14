@@ -1,0 +1,27 @@
+{
+  "title": "This is my report",
+  "fields": [
+    {
+      "id": "firstName",
+      "type": "text",
+      "name": "First Name"
+    },
+    {
+      "id": "lastName",
+      "type": "text",
+      "name": "Last Name"
+    },
+    {
+      "id": "91",
+      "type": "employee",
+      "name": "Supervisor"
+    }
+  ],
+  "employees": [
+    {
+      "firstName": "John",
+      "lastName": "Doe",
+      "91": "Jane Doe"
+    }
+  ]
+}
