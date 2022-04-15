@@ -1,4 +1,4 @@
-module github.com/pomerium/datasource/bamboohr
+module github.com/pomerium/datasource
 
 go 1.18
 

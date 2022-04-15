@@ -1,4 +1,4 @@
-package internal
+package bamboohr
 
 import (
 	"bytes"
@@ -9,6 +9,8 @@ import (
 	"net/http"
 	"net/url"
 	"path"
+
+	"github.com/pomerium/datasource/internal/util"
 )
 
 // Auth is API server auth parameters
@@ -99,7 +101,7 @@ func GetEmployees(ctx context.Context, param EmployeeRequest) ([]map[string]inte
 		return employees, nil
 	}
 
-	if err = Remap(employees, param.Remap); err != nil {
+	if err = util.Remap(employees, param.Remap); err != nil {
 		return nil, fmt.Errorf("remap employee fields: %w", err)
 	}
 

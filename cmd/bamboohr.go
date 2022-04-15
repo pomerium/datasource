@@ -11,10 +11,11 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/spf13/cobra"
 
-	"github.com/pomerium/datasource/bamboohr/internal"
+	"github.com/pomerium/datasource/internal/bamboohr"
+	"github.com/pomerium/datasource/internal/server"
 )
 
-type serveCmd struct {
+type bambooCmd struct {
 	BambooAPIKey             string   `validate:"required"`
 	BambooSubdomain          string   `validate:"required"`
 	BambooEmployeeFields     []string `validate:"required"`
@@ -34,8 +35,8 @@ var (
 	DefaultBambooEmployeeFieldsRemap = []string{"email=id"}
 )
 
-func serveCommand(log zerolog.Logger) *cobra.Command {
-	cmd := &serveCmd{
+func bambooCommand(log zerolog.Logger) *cobra.Command {
+	cmd := &bambooCmd{
 		Command: cobra.Command{
 			Use:   "serve",
 			Short: "run BambooHR connector",
@@ -48,7 +49,7 @@ func serveCommand(log zerolog.Logger) *cobra.Command {
 	return &cmd.Command
 }
 
-func (cmd *serveCmd) setupFlags() {
+func (cmd *bambooCmd) setupFlags() {
 	flags := cmd.Flags()
 	flags.StringVar(&cmd.BambooSubdomain, "bamboohr-subdomain", "", "subdomain")
 	flags.StringSliceVar(&cmd.BambooEmployeeFields, "bamboohr-employee-fields", DefaultBambooEmployeeFields, "employee fields")
@@ -57,7 +58,7 @@ func (cmd *serveCmd) setupFlags() {
 	flags.StringVar(&cmd.AccessToken, "access-token", "", "all requests must contain Token header matching this token")
 }
 
-func (cmd *serveCmd) exec(c *cobra.Command, _ []string) error {
+func (cmd *bambooCmd) exec(c *cobra.Command, _ []string) error {
 	if err := validator.New().Struct(cmd); err != nil {
 		return err
 	}
@@ -80,8 +81,8 @@ func (cmd *serveCmd) exec(c *cobra.Command, _ []string) error {
 	return http.Serve(l, srv)
 }
 
-func (cmd *serveCmd) newServer() (http.Handler, error) {
-	auth := internal.Auth{
+func (cmd *bambooCmd) newServer() (http.Handler, error) {
+	auth := bamboohr.Auth{
 		APIKey:    cmd.BambooAPIKey,
 		Subdomain: cmd.BambooSubdomain,
 	}
@@ -94,13 +95,15 @@ func (cmd *serveCmd) newServer() (http.Handler, error) {
 	if err := checkFieldsInList(cmd.BambooEmployeeFields, remap); err != nil {
 		return nil, fmt.Errorf("remap fields ")
 	}
-	emplReq := internal.EmployeeRequest{
+	emplReq := bamboohr.EmployeeRequest{
 		Auth:        auth,
 		CurrentOnly: true,
 		Fields:      cmd.BambooEmployeeFields,
 		Remap:       remap,
 	}
-	return internal.NewServer(emplReq, cmd.AccessToken, cmd.Logger), nil
+	srv := bamboohr.NewServer(emplReq, cmd.Logger)
+	srv.Use(server.TokenMiddleware(cmd.AccessToken))
+	return srv, nil
 }
 
 func keyRemap(m []string) (map[string]string, error) {

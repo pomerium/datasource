@@ -1,4 +1,4 @@
-package internal_test
+package bamboohr_test
 
 import (
 	"context"
@@ -13,7 +13,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/require"
 
-	"github.com/pomerium/datasource/bamboohr/internal"
+	"github.com/pomerium/datasource/internal/bamboohr"
 )
 
 func TestAPI(t *testing.T) {
@@ -27,15 +27,15 @@ func TestAPI(t *testing.T) {
 	base, err := url.Parse(srv.URL)
 	require.NoError(t, err, srv.URL)
 
-	req := internal.EmployeeRequest{
-		Auth: internal.Auth{
+	req := bamboohr.EmployeeRequest{
+		Auth: bamboohr.Auth{
 			BaseURL:   base.ResolveReference(&url.URL{Path: "/api/gateway.php/"}),
 			Subdomain: "test",
 		},
 		CurrentOnly: false,
 		Fields:      []string{"id"},
 	}
-	_, err = internal.GetEmployees(ctx, req)
+	_, err = bamboohr.GetEmployees(ctx, req)
 	require.NoError(t, err, "get employees")
 }
 

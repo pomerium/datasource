@@ -7,14 +7,15 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/pomerium/datasource/bamboohr/internal"
 	"github.com/rs/zerolog"
+
+	"github.com/pomerium/datasource/internal"
 )
 
 func main() {
 	log := makeLogger()
 	log.Info().Str("version", internal.FullVersion()).Msg("starting")
-	cmd := serveCommand(log)
+	cmd := bambooCommand(log)
 	if err := cmd.ExecuteContext(signalContext(log)); err != nil {
 		log.Fatal().Err(err).Msg("exit")
 	}

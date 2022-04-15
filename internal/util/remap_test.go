@@ -1,11 +1,12 @@
-package internal_test
+package util_test
 
 import (
 	"testing"
 
-	"github.com/pomerium/datasource/bamboohr/internal"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/pomerium/datasource/internal/util"
 )
 
 func TestRemap(t *testing.T) {
@@ -39,7 +40,7 @@ func TestRemap(t *testing.T) {
 		},
 	} {
 		t.Run(name, func(t *testing.T) {
-			err := internal.Remap(tc.src, tc.remap)
+			err := util.Remap(tc.src, tc.remap)
 			require.NoError(t, err)
 			assert.EqualValues(t, tc.dst, tc.src)
 		})
