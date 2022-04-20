@@ -79,7 +79,7 @@ func GetEmployees(ctx context.Context, client *http.Client, param PeopleRequest)
 		return nil, fmt.Errorf("prepare: %w", err)
 	}
 
-	res, err := doListRequest[Person](ctx, client, req)
+	res, err := doListRequest[Person](client, req)
 	if err != nil {
 		return nil, fmt.Errorf("do: %w", err)
 	}
@@ -87,7 +87,8 @@ func GetEmployees(ctx context.Context, client *http.Client, param PeopleRequest)
 	return res, nil
 }
 
-func doListRequest[T Kind](ctx context.Context, client *http.Client, req *http.Request) ([]T, error) {
+func doListRequest[T Kind](client *http.Client, req *http.Request) ([]T, error) {
+	ctx := req.Context()
 	var items []T
 
 	for {

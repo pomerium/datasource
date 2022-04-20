@@ -12,7 +12,7 @@ import (
 	"github.com/rs/zerolog"
 )
 
-// NewServer implements new BambooHR limited data exporter
+// NewServer implements new Zenefits limited data exporter
 func NewServer(req PeopleRequest, client *http.Client, log zerolog.Logger) *mux.Router {
 	srv := apiServer{req, client, log}
 

@@ -1,7 +1,7 @@
 //go:build tools
 // +build tools
 
-package bamboohr
+package datasource
 
 import (
 	_ "github.com/client9/misspell/cmd/misspell"
