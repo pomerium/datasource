@@ -1,6 +1,6 @@
 PREFIX?=$(shell pwd)
 NAME := pomerium-datasource
-PKG := github.com/pomerium/datasource/bamboohr
+PKG := github.com/pomerium/datasource
 
 
 BUILDDIR := ${PREFIX}/dist
