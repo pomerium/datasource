@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/rs/zerolog"
+	"github.com/spf13/cobra"
 
 	"github.com/pomerium/datasource/internal"
 )
@@ -15,8 +16,13 @@ import (
 func main() {
 	log := makeLogger()
 	log.Info().Str("version", internal.FullVersion()).Msg("starting")
-	cmd := bambooCommand(log)
-	if err := cmd.ExecuteContext(signalContext(log)); err != nil {
+
+	rootCmd := &cobra.Command{
+		Use:     "pomerium-datasource",
+		Version: internal.FullVersion(),
+	}
+	rootCmd.AddCommand(bambooCommand(log), zenefitsCommand(log))
+	if err := rootCmd.ExecuteContext(signalContext(log)); err != nil {
 		log.Fatal().Err(err).Msg("exit")
 	}
 }

@@ -1,5 +1,5 @@
 PREFIX?=$(shell pwd)
-NAME := bamboohr
+NAME := pomerium-datasource
 PKG := github.com/pomerium/datasource/bamboohr
 
 

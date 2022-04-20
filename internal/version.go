@@ -6,7 +6,7 @@ import (
 
 var (
 	// ProjectName is the canonical project name set by ldl flags
-	ProjectName = ""
+	ProjectName = "pomerium-ext-data-agent"
 	// ProjectURL is the canonical project url  set by ldl flags
 	ProjectURL = ""
 	// Version specifies Semantic versioning increment (MAJOR.MINOR.PATCH).

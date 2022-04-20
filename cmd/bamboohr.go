@@ -21,7 +21,7 @@ type bambooCmd struct {
 	BambooEmployeeFields     []string `validate:"required"`
 	BambooEmployeeFieldRemap []string `validate:"required"`
 	Address                  string   `validate:"required,tcp_addr"`
-	AccessToken              string   `validate:"required"`
+	BearerToken              string   `validate:"required"`
 	cobra.Command            `validate:"-"`
 	zerolog.Logger           `validate:"-"`
 }
@@ -38,7 +38,7 @@ var (
 func bambooCommand(log zerolog.Logger) *cobra.Command {
 	cmd := &bambooCmd{
 		Command: cobra.Command{
-			Use:   "serve",
+			Use:   "bamboohr",
 			Short: "run BambooHR connector",
 		},
 		Logger: log,
@@ -55,7 +55,8 @@ func (cmd *bambooCmd) setupFlags() {
 	flags.StringSliceVar(&cmd.BambooEmployeeFields, "bamboohr-employee-fields", DefaultBambooEmployeeFields, "employee fields")
 	flags.StringSliceVar(&cmd.BambooEmployeeFieldRemap, "bamboohr-employee-field-remap", DefaultBambooEmployeeFieldsRemap, "list of key=newKey to rename keys")
 	flags.StringVar(&cmd.BambooAPIKey, "bamboohr-api-key", "", "api key, see https://documentation.bamboohr.com/docs#section-authentication")
-	flags.StringVar(&cmd.AccessToken, "access-token", "", "all requests must contain Token header matching this token")
+	flags.StringVar(&cmd.BearerToken, "bearer-token", "", "all requests must contain Authorization: Bearer header matching this token")
+	flags.StringVar(&cmd.Address, "address", ":8080", "tcp address to listen to")
 }
 
 func (cmd *bambooCmd) exec(c *cobra.Command, _ []string) error {
@@ -102,7 +103,7 @@ func (cmd *bambooCmd) newServer() (http.Handler, error) {
 		Remap:       remap,
 	}
 	srv := bamboohr.NewServer(emplReq, cmd.Logger)
-	srv.Use(server.TokenMiddleware(cmd.AccessToken))
+	srv.Use(server.AuthorizationBearerMiddleware(cmd.BearerToken))
 	return srv, nil
 }
 

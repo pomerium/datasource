@@ -1,0 +1,185 @@
+{
+  "data": {
+    "data": [
+      {
+        "city": "San Francisco",
+        "company": {
+          "object": "/meta/ref/detail",
+          "ref_object": "/core/companies",
+          "url": "https://api.zenefits.com/core/companies/1"
+        },
+        "country": "USA",
+        "date_of_birth": null,
+        "department": {
+          "company": {
+            "object": "/meta/ref/detail",
+            "ref_object": "/core/companies",
+            "url": "https://api.zenefits.com/core/companies/1"
+          },
+          "id": "1",
+          "name": "Engineering",
+          "object": "/core/departments",
+          "people": {
+            "object": "/meta/ref/list",
+            "ref_object": "/core/people",
+            "url": "https://api.zenefits.com/core/departments/1/people"
+          }
+        },
+        "employments": {
+          "object": "/meta/ref/list",
+          "ref_object": "/core/employments",
+          "url": "https://api.zenefits.com/core/people/2/employments"
+        },
+        "first_name": "John",
+        "preferred_name": "Jono",
+        "id": "105024",
+        "employee_number": "1",
+        "last_name": "Doe",
+        "location": {
+          "city": "Beverly Hills",
+          "company": {
+            "object": "/meta/ref/detail",
+            "ref_object": "/core/companies",
+            "url": "https://api.zenefits.com/core/companies/1"
+          },
+          "country": "US",
+          "id": "1",
+          "name": "Beverly Hills",
+          "object": "/core/locations",
+          "people": {
+            "object": "/meta/ref/list",
+            "ref_object": "/core/people",
+            "url": "https://api.zenefits.com/core/locations/1/people"
+          },
+          "phone": "6505551234",
+          "state": "CA",
+          "street1": "303 2nd St.",
+          "street2": "Suite 450",
+          "zip": "90210"
+        },
+        "manager": {
+          "object": "/meta/ref/detail",
+          "ref_object": "/core/people",
+          "url": null
+        },
+        "object": "/core/people",
+        "postal_code": "94111",
+        "state": "CA",
+        "status": "active",
+        "street1": "101 1st St.",
+        "street2": "Apartment 400",
+        "subordinates": {
+          "object": "/meta/ref/list",
+          "ref_object": "/core/people",
+          "url": "https://api.zenefits.com/core/people/2/subordinates"
+        },
+        "title": "CEO",
+        "work_email": "johndoe@example.com",
+        "personal_email": "johndoe@gmail.com",
+        "work_phone": null,
+        "personal_phone": "(650) 555-1234",
+        "gender": "M",
+        "personal_pronoun": "he",
+        "photo_url": "https://secure.zenefits.com/file/0om8dpTQfGxCpMum2zAn",
+        "photo_thumbnail_url": "https://secure.zenefits.com/file/0om8dpTQfGxCpMum2zAn",
+        "federal_filing_status": "married",
+        "social_security_number": "123456789"
+      },
+      {
+        "banks": {
+          "object": "/meta/ref/list",
+          "ref_object": "/core/banks",
+          "url": "https://api.zenefits.com/core/people/3/banks"
+        },
+        "city": "San Francisco",
+        "company": {
+          "object": "/meta/ref/detail",
+          "ref_object": "/core/companies",
+          "url": "https://api.zenefits.com/core/companies/1"
+        },
+        "country": "USA",
+        "date_of_birth": null,
+        "department": {
+          "company": {
+            "object": "/meta/ref/detail",
+            "ref_object": "/core/companies",
+            "url": "https://api.zenefits.com/core/companies/1"
+          },
+          "id": "2",
+          "name": "Product",
+          "object": "/core/departments",
+          "people": {
+            "object": "/meta/ref/list",
+            "ref_object": "/core/people",
+            "url": "https://api.zenefits.com/core/departments/2/people"
+          }
+        },
+        "employments": {
+          "object": "/meta/ref/list",
+          "ref_object": "/core/employments",
+          "url": "https://api.zenefits.com/core/people/3/employments"
+        },
+        "first_name": "Jane",
+        "preferred_name": "Jane",
+        "id": "105026",
+        "employee_number": "2",
+        "last_name": "Doe",
+        "location": {
+          "city": null,
+          "company": {
+            "object": "/meta/ref/detail",
+            "ref_object": "/core/companies",
+            "url": "https://api.zenefits.com/core/companies/1"
+          },
+          "country": "US",
+          "id": "2",
+          "name": "123 First Street",
+          "object": "/core/locations",
+          "people": {
+            "object": "/meta/ref/list",
+            "ref_object": "/core/people",
+            "url": "https://api.zenefits.com/core/locations/2/people"
+          },
+          "phone": null,
+          "state": null,
+          "street1": null,
+          "street2": null,
+          "zip": null
+        },
+        "manager": {
+          "object": "/meta/ref/detail",
+          "ref_object": "/core/people",
+          "url": "https://api.zenefits.com/core/people/2"
+        },
+        "object": "/core/people",
+        "postal_code": "94111",
+        "state": "CA",
+        "status": "active",
+        "street1": "101 1st St.",
+        "street2": "Apartment 400",
+        "subordinates": {
+          "object": "/meta/ref/list",
+          "ref_object": "/core/people",
+          "url": "https://api.zenefits.com/core/people/3/subordinates"
+        },
+        "title": "Cofounder and CTO",
+        "work_email": "janedoe@example.com",
+        "personal_email": "janedoe@gmail.com",
+        "work_phone": null,
+        "personal_phone": "(650) 555-4321",
+        "gender": "",
+        "personal_pronoun": null,
+        "photo_url": "https://secure.zenefits.com/file/0om8dpTQfGxCpMum2zAn",
+        "photo_thumbnail_url": "https://secure.zenefits.com/file/0om8dpTQfGxCpMum2zAn",
+        "federal_filing_status": "married",
+        "social_security_number": "123456798"
+      }
+    ],
+    "next_url": null,
+    "object": "/meta/list",
+    "url": "https://api.zenefits.com/core/people"
+  },
+  "error": "null",
+  "object": "/meta/response",
+  "status": 200
+}
