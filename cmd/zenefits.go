@@ -41,7 +41,7 @@ func (cmd *zenefitsCmd) setupFlags() {
 	flags := cmd.Flags()
 	flags.StringVar(&cmd.APIKey, "zenefits-api-key", "", "Bearer API token https://developers.zenefits.com/v1.0/docs/auth")
 	flags.StringVar(&cmd.BearerToken, "bearer-token", "", "all requests must contain Authorization: Bearer header matching this token")
-	flags.StringVar(&cmd.Address, "address", "localhost:8080", "tcp address to listen to")
+	flags.StringVar(&cmd.Address, "address", "localhost:8080", "tcp address to listen on")
 }
 
 func (cmd *zenefitsCmd) exec(c *cobra.Command, _ []string) error {
