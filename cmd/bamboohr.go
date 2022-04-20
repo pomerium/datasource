@@ -113,7 +113,10 @@ func (cmd *bambooCmd) newServer(remap []util.FieldRemap) (http.Handler, error) {
 		Fields:      cmd.BambooEmployeeFields,
 		Remap:       remap,
 	}
-	client := server.NewDebugClient(http.DefaultClient, cmd.Logger)
+	client := http.DefaultClient
+	if cmd.Debug {
+		client = server.NewDebugClient(http.DefaultClient, cmd.Logger)
+	}
 	srv := bamboohr.NewServer(emplReq, client, cmd.Logger)
 	srv.Use(server.AuthorizationBearerMiddleware(cmd.BearerToken))
 	return srv, nil
