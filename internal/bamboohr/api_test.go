@@ -11,9 +11,11 @@ import (
 	"testing"
 
 	"github.com/gorilla/mux"
+	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/require"
 
 	"github.com/pomerium/datasource/internal/bamboohr"
+	"github.com/pomerium/datasource/internal/server"
 )
 
 func TestAPI(t *testing.T) {
@@ -35,7 +37,8 @@ func TestAPI(t *testing.T) {
 		CurrentOnly: false,
 		Fields:      []string{"id"},
 	}
-	_, err = bamboohr.GetEmployees(ctx, req)
+	client := server.NewDebugClient(http.DefaultClient, zerolog.New(os.Stdout))
+	_, err = bamboohr.GetEmployees(ctx, client, req)
 	require.NoError(t, err, "get employees")
 }
 

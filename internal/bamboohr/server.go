@@ -9,8 +9,8 @@ import (
 )
 
 // NewServer implements new BambooHR limited data exporter
-func NewServer(emplReq EmployeeRequest, log zerolog.Logger) *mux.Router {
-	srv := apiServer{EmployeeRequest: emplReq, Logger: log}
+func NewServer(emplReq EmployeeRequest, client *http.Client, log zerolog.Logger) *mux.Router {
+	srv := apiServer{emplReq, client, log}
 
 	r := mux.NewRouter()
 	r.Path("/employees").Methods(http.MethodGet).HandlerFunc(srv.getEmployees)
@@ -20,11 +20,12 @@ func NewServer(emplReq EmployeeRequest, log zerolog.Logger) *mux.Router {
 
 type apiServer struct {
 	EmployeeRequest
+	*http.Client
 	zerolog.Logger
 }
 
 func (srv *apiServer) getEmployees(w http.ResponseWriter, r *http.Request) {
-	data, err := GetEmployees(r.Context(), srv.EmployeeRequest)
+	data, err := GetEmployees(r.Context(), srv.Client, srv.EmployeeRequest)
 	if err != nil {
 		srv.serveError(w, err, "get employees")
 		return
