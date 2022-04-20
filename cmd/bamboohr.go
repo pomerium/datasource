@@ -29,7 +29,8 @@ type bambooCmd struct {
 var (
 	// DefaultBambooEmployeeFields
 	// note `id` is always returned anyway by the API
-	DefaultBambooEmployeeFields = []string{"workEmail", "department", "firstName", "lastName"}
+	DefaultBambooEmployeeFields = []string{"workEmail", "department", "division", "status",
+		"firstName", "lastName", "country", "state"}
 	// RestrictedBambooEmployeeFields prohibit certain sensitive fields from being exposed
 	RestrictedBambooEmployeeFields = []string{"national_id", "sin", "ssn", "nin"}
 	// DefaultBambooEmployeeFieldsRemap
