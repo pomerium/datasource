@@ -11,16 +11,17 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/spf13/cobra"
 
-	"github.com/pomerium/datasource/bamboohr/internal"
+	"github.com/pomerium/datasource/internal/bamboohr"
+	"github.com/pomerium/datasource/internal/server"
 )
 
-type serveCmd struct {
+type bambooCmd struct {
 	BambooAPIKey             string   `validate:"required"`
 	BambooSubdomain          string   `validate:"required"`
 	BambooEmployeeFields     []string `validate:"required"`
 	BambooEmployeeFieldRemap []string `validate:"required"`
 	Address                  string   `validate:"required,tcp_addr"`
-	AccessToken              string   `validate:"required"`
+	BearerToken              string   `validate:"required"`
 	cobra.Command            `validate:"-"`
 	zerolog.Logger           `validate:"-"`
 }
@@ -34,10 +35,10 @@ var (
 	DefaultBambooEmployeeFieldsRemap = []string{"email=id"}
 )
 
-func serveCommand(log zerolog.Logger) *cobra.Command {
-	cmd := &serveCmd{
+func bambooCommand(log zerolog.Logger) *cobra.Command {
+	cmd := &bambooCmd{
 		Command: cobra.Command{
-			Use:   "serve",
+			Use:   "bamboohr",
 			Short: "run BambooHR connector",
 		},
 		Logger: log,
@@ -48,16 +49,17 @@ func serveCommand(log zerolog.Logger) *cobra.Command {
 	return &cmd.Command
 }
 
-func (cmd *serveCmd) setupFlags() {
+func (cmd *bambooCmd) setupFlags() {
 	flags := cmd.Flags()
 	flags.StringVar(&cmd.BambooSubdomain, "bamboohr-subdomain", "", "subdomain")
 	flags.StringSliceVar(&cmd.BambooEmployeeFields, "bamboohr-employee-fields", DefaultBambooEmployeeFields, "employee fields")
 	flags.StringSliceVar(&cmd.BambooEmployeeFieldRemap, "bamboohr-employee-field-remap", DefaultBambooEmployeeFieldsRemap, "list of key=newKey to rename keys")
 	flags.StringVar(&cmd.BambooAPIKey, "bamboohr-api-key", "", "api key, see https://documentation.bamboohr.com/docs#section-authentication")
-	flags.StringVar(&cmd.AccessToken, "access-token", "", "all requests must contain Token header matching this token")
+	flags.StringVar(&cmd.BearerToken, "bearer-token", "", "all requests must contain Authorization: Bearer header matching this token")
+	flags.StringVar(&cmd.Address, "address", ":8080", "tcp address to listen to")
 }
 
-func (cmd *serveCmd) exec(c *cobra.Command, _ []string) error {
+func (cmd *bambooCmd) exec(c *cobra.Command, _ []string) error {
 	if err := validator.New().Struct(cmd); err != nil {
 		return err
 	}
@@ -80,8 +82,8 @@ func (cmd *serveCmd) exec(c *cobra.Command, _ []string) error {
 	return http.Serve(l, srv)
 }
 
-func (cmd *serveCmd) newServer() (http.Handler, error) {
-	auth := internal.Auth{
+func (cmd *bambooCmd) newServer() (http.Handler, error) {
+	auth := bamboohr.Auth{
 		APIKey:    cmd.BambooAPIKey,
 		Subdomain: cmd.BambooSubdomain,
 	}
@@ -94,13 +96,15 @@ func (cmd *serveCmd) newServer() (http.Handler, error) {
 	if err := checkFieldsInList(cmd.BambooEmployeeFields, remap); err != nil {
 		return nil, fmt.Errorf("remap fields ")
 	}
-	emplReq := internal.EmployeeRequest{
+	emplReq := bamboohr.EmployeeRequest{
 		Auth:        auth,
 		CurrentOnly: true,
 		Fields:      cmd.BambooEmployeeFields,
 		Remap:       remap,
 	}
-	return internal.NewServer(emplReq, cmd.AccessToken, cmd.Logger), nil
+	srv := bamboohr.NewServer(emplReq, cmd.Logger)
+	srv.Use(server.AuthorizationBearerMiddleware(cmd.BearerToken))
+	return srv, nil
 }
 
 func keyRemap(m []string) (map[string]string, error) {

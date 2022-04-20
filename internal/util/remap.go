@@ -1,4 +1,4 @@
-package internal
+package util
 
 import "fmt"
 
@@ -10,6 +10,22 @@ func Remap(src []map[string]interface{}, fieldMap map[string]string) error {
 		}
 	}
 	return nil
+}
+
+// Filter removes fields that are not part of the list
+func Filter(src []map[string]interface{}, fields []string) {
+	keep := make(map[string]struct{})
+	for _, field := range fields {
+		keep[field] = struct{}{}
+	}
+
+	for _, m := range src {
+		for k := range m {
+			if _, there := keep[k]; !there {
+				delete(m, k)
+			}
+		}
+	}
 }
 
 func remap(src map[string]interface{}, fieldMap map[string]string) error {
