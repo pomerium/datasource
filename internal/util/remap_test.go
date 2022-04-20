@@ -11,10 +11,10 @@ import (
 
 func TestRemap(t *testing.T) {
 	for name, tc := range map[string]struct {
-		remap    map[string]string
+		remap    []util.FieldRemap
 		src, dst []map[string]interface{}
 	}{
-		"no remap": {
+		"none": {
 			remap: nil,
 			src: []map[string]interface{}{{
 				"a": 1,
@@ -25,9 +25,9 @@ func TestRemap(t *testing.T) {
 				"a": 1,
 			}},
 		},
-		"simple remap": {
-			remap: map[string]string{
-				"a": "k",
+		"simple": {
+			remap: []util.FieldRemap{
+				{"a", "k"},
 			},
 			src: []map[string]interface{}{{
 				"a": 1,
@@ -36,6 +36,20 @@ func TestRemap(t *testing.T) {
 			dst: []map[string]interface{}{{
 				"b": 2,
 				"k": 1,
+			}},
+		},
+		"overlapping": {
+			remap: []util.FieldRemap{
+				{"id", "new_id"},
+				{"email", "id"},
+			},
+			src: []map[string]interface{}{{
+				"id":    1,
+				"email": "me@corp.com",
+			}},
+			dst: []map[string]interface{}{{
+				"new_id": 1,
+				"id":     "me@corp.com",
 			}},
 		},
 	} {

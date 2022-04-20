@@ -49,7 +49,7 @@ type EmployeeRequest struct {
 	// https://documentation.bamboohr.com/docs/field-types
 	Fields []string
 	// Remap instructs to remap certain fields in each entry
-	Remap map[string]string
+	Remap []util.FieldRemap
 }
 
 func (req EmployeeRequest) RequestURL() *url.URL {
@@ -64,7 +64,7 @@ func (req EmployeeRequest) RequestURL() *url.URL {
 }
 
 // EmployeeDirectory returns full list of employees
-func GetEmployees(ctx context.Context, param EmployeeRequest) ([]map[string]interface{}, error) {
+func GetEmployees(ctx context.Context, client *http.Client, param EmployeeRequest) ([]map[string]interface{}, error) {
 	body, err := getEmployeesRequestBody(param.Fields)
 	if err != nil {
 		return nil, fmt.Errorf("build request body: %w", err)
@@ -79,7 +79,7 @@ func GetEmployees(ctx context.Context, param EmployeeRequest) ([]map[string]inte
 	req.Header.Add("content-type", "application/json")
 	req.Header.Add("accept", "application/json")
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := client.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("request: %w", err)
 	}
@@ -111,7 +111,7 @@ func GetEmployees(ctx context.Context, param EmployeeRequest) ([]map[string]inte
 func getEmployeesRequestBody(fields []string) (io.ReadCloser, error) {
 	var buf bytes.Buffer
 	req := struct {
-		Fields []string `json:"filters"`
+		Fields []string `json:"fields"`
 	}{fields}
 	if err := json.NewEncoder(&buf).Encode(req); err != nil {
 		return nil, err
