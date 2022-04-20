@@ -15,7 +15,6 @@ import (
 
 func main() {
 	log := makeLogger()
-	log.Info().Str("version", internal.FullVersion()).Msg("starting")
 
 	rootCmd := &cobra.Command{
 		Use:     "pomerium-datasource",

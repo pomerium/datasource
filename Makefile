@@ -13,10 +13,10 @@ ifneq ($(GITUNTRACKEDCHANGES),)
 	BUILDMETA := dirty
 endif
 
-CTIMEVAR=-X $(PKG)/version.GitCommit=$(GITCOMMIT) \
-	-X $(PKG)/internal/.BuildMeta=$(BUILDMETA) \
-	-X $(PKG)/internal/version.ProjectName=$(NAME) \
-	-X $(PKG)/internal/version.ProjectURL=$(PKG)
+CTIMEVAR=-X $(PKG)/internal.GitCommit=$(GITCOMMIT) \
+	-X $(PKG)/internal.BuildMeta=$(BUILDMETA) \
+	-X $(PKG)/internal.ProjectName=$(NAME) \
+	-X $(PKG)/internal.ProjectURL=$(PKG)
 
 GO ?= "go"
 GO_LDFLAGS=-ldflags "-s -w $(CTIMEVAR)"
