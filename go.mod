@@ -7,7 +7,7 @@ require (
 	github.com/go-playground/validator/v10 v10.10.1
 	github.com/golangci/golangci-lint v1.45.2
 	github.com/gorilla/mux v1.8.0
-	github.com/mitchellh/mapstructure v1.4.3
+	github.com/mitchellh/mapstructure v1.5.0
 	github.com/rs/zerolog v1.26.1
 	github.com/spf13/cobra v1.4.0
 	github.com/stretchr/testify v1.7.1
