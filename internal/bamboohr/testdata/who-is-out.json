@@ -1,0 +1,10 @@
+[
+  {
+    "id": 2,
+    "type": "timeOff",
+    "employeeId": 12,
+    "name": "Jane Doe",
+    "start": "2022-04-20",
+    "end": "2022-04-21"
+  }
+]

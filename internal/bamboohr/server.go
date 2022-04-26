@@ -13,7 +13,8 @@ func NewServer(emplReq EmployeeRequest, client *http.Client, log zerolog.Logger)
 	srv := apiServer{emplReq, client, log}
 
 	r := mux.NewRouter()
-	r.Path("/employees").Methods(http.MethodGet).HandlerFunc(srv.getEmployees)
+	r.Path("/employees/all").Methods(http.MethodGet).HandlerFunc(srv.getAllEmployees)
+	r.Path("/employees/available").Methods(http.MethodGet).HandlerFunc(srv.getAvailableEmployees)
 
 	return r
 }
@@ -24,18 +25,36 @@ type apiServer struct {
 	zerolog.Logger
 }
 
-func (srv *apiServer) getEmployees(w http.ResponseWriter, r *http.Request) {
-	data, err := GetEmployees(r.Context(), srv.Client, srv.EmployeeRequest)
+func (srv *apiServer) getAllEmployees(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	employees, err := GetAllEmployees(ctx, srv.Client, srv.EmployeeRequest)
 	if err != nil {
 		srv.serveError(w, err, "get employees")
 		return
 	}
-	srv.serveJSON(w, data)
+
+	srv.serveJSON(w, employees)
+}
+
+func (srv *apiServer) getAvailableEmployees(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	employees, err := GetAvailableEmployees(ctx, srv.Client, srv.EmployeeRequest)
+	if err != nil {
+		srv.serveError(w, err, "get employees")
+		return
+	}
+
+	srv.serveJSON(w, employees)
 }
 
 func (srv *apiServer) serveError(w http.ResponseWriter, err error, msg string) {
 	srv.Err(err).Msg(msg)
 	w.WriteHeader(http.StatusInternalServerError)
+	_, _ = w.Write([]byte(msg))
+	_, _ = w.Write([]byte("\n"))
+	_, _ = w.Write([]byte(err.Error()))
 }
 
 func (srv *apiServer) serveJSON(w http.ResponseWriter, src interface{}) {

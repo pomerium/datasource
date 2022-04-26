@@ -1,27 +1,38 @@
 {
-  "title": "This is my report",
+  "title": "Report",
   "fields": [
-    {
-      "id": "firstName",
-      "type": "text",
-      "name": "First Name"
-    },
-    {
-      "id": "lastName",
-      "type": "text",
-      "name": "Last Name"
-    },
-    {
-      "id": "91",
-      "type": "employee",
-      "name": "Supervisor"
-    }
+    { "id": "firstName" },
+    { "id": "lastName" },
+    { "id": "workEmail" },
+    { "id": "department" },
+    { "id": "division" },
+    { "id": "country" },
+    { "id": "state" },
+    { "id": "status" },
+    { "id": "id" }
   ],
   "employees": [
     {
+      "id": "1",
       "firstName": "John",
       "lastName": "Doe",
-      "91": "Jane Doe"
+      "workEmail": "john.doe@corp.com",
+      "department": "Human Resources",
+      "division": "HR",
+      "country": "USA",
+      "state": "CA",
+      "status": "Active"
+    },
+    {
+      "id": "2",
+      "firstName": "Jane",
+      "lastName": "Doe",
+      "workEmail": "jane.doe@corp.com",
+      "department": "Human Resources",
+      "division": "HR",
+      "country": "USA",
+      "state": "CA",
+      "status": "Active"
     }
   ]
 }

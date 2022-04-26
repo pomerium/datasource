@@ -34,11 +34,9 @@ func TestAPI(t *testing.T) {
 			BaseURL:   base.ResolveReference(&url.URL{Path: "/api/gateway.php/"}),
 			Subdomain: "test",
 		},
-		CurrentOnly: false,
-		Fields:      []string{"id"},
 	}
 	client := server.NewDebugClient(http.DefaultClient, zerolog.New(os.Stdout))
-	_, err = bamboohr.GetEmployees(ctx, client, req)
+	_, err = bamboohr.GetAllEmployees(ctx, client, req)
 	require.NoError(t, err, "get employees")
 }
 

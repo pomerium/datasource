@@ -9,7 +9,10 @@ import (
 	"net/http"
 	"net/url"
 	"path"
+	"strings"
+	"time"
 
+	"github.com/mitchellh/mapstructure"
 	"github.com/pomerium/datasource/internal/util"
 )
 
@@ -39,17 +42,10 @@ func (a Auth) RequestURL(rel string) *url.URL {
 	return &u
 }
 
-// EmployeeRequest requests
+// EmployeeRequest requests employees
 type EmployeeRequest struct {
 	Auth
-	// CurrentOnly returns only currently active employees
-	CurrentOnly bool
-	// Fields specifies fields that should be returned
-	// https://documentation.bamboohr.com/docs/list-of-field-names
-	// https://documentation.bamboohr.com/docs/field-types
-	Fields []string
-	// Remap instructs to remap certain fields in each entry
-	Remap []util.FieldRemap
+	Location *time.Location
 }
 
 func (req EmployeeRequest) RequestURL() *url.URL {
@@ -57,15 +53,34 @@ func (req EmployeeRequest) RequestURL() *url.URL {
 
 	vals := make(url.Values)
 	vals.Add("format", "json")
-	vals.Add("onlyCurrent", fmt.Sprint(req.CurrentOnly))
+	vals.Add("onlyCurrent", "true")
 	u.RawQuery = vals.Encode()
 
 	return u
 }
 
-// EmployeeDirectory returns full list of employees
-func GetEmployees(ctx context.Context, client *http.Client, param EmployeeRequest) ([]map[string]interface{}, error) {
-	body, err := getEmployeesRequestBody(param.Fields)
+// Employee represents BambooHR employee record
+type Employee struct {
+	ID         json.Number `json:"bamboo_id" mapstructure:"id"`
+	Email      string      `json:"id" mapstructure:"workEmail"`
+	Department string      `json:"department" mapstructure:"department"`
+	Divison    string      `json:"division" mapstructure:"division"`
+	Status     string      `json:"status" mapstructure:"status"`
+	FirstName  string      `json:"first_name" mapstructure:"firstName"`
+	LastName   string      `json:"last_name" mapstructure:"lastName"`
+	Country    string      `json:"country" mapstructure:"country"`
+	State      string      `json:"state" mapstructure:"state"`
+}
+
+var (
+	// JSON tags represent how data is produced to the outside consumer
+	// mapstructure tags match the internal BambooHR field naming
+	employeeRequestFields = util.GetStructTagNames(Employee{}, "mapstructure")
+)
+
+// GetAllEmployees returns full list of employees in active status
+func GetAllEmployees(ctx context.Context, client *http.Client, param EmployeeRequest) ([]Employee, error) {
+	body, err := getEmployeesRequestBody()
 	if err != nil {
 		return nil, fmt.Errorf("build request body: %w", err)
 	}
@@ -97,34 +112,63 @@ func GetEmployees(ctx context.Context, client *http.Client, param EmployeeReques
 		return nil, fmt.Errorf("get employees: %w", err)
 	}
 
-	if param.Remap == nil {
-		return employees, nil
-	}
-
-	if err = util.Remap(employees, param.Remap); err != nil {
-		return nil, fmt.Errorf("remap employee fields: %w", err)
-	}
-
 	return employees, nil
 }
 
-func getEmployeesRequestBody(fields []string) (io.ReadCloser, error) {
+func getEmployeesRequestBody() (io.ReadCloser, error) {
 	var buf bytes.Buffer
 	req := struct {
 		Fields []string `json:"fields"`
-	}{fields}
+	}{
+		Fields: employeeRequestFields,
+	}
 	if err := json.NewEncoder(&buf).Encode(req); err != nil {
 		return nil, err
 	}
 	return io.NopCloser(&buf), nil
 }
 
-func parseEmployeesResponse(src io.Reader) ([]map[string]interface{}, error) {
+type field struct {
+	ID string `json:"id"`
+}
+
+func parseEmployeesResponse(src io.Reader) ([]Employee, error) {
 	var dst struct {
+		Fields    []field                  `json:"fields"`
 		Employees []map[string]interface{} `json:"employees"`
 	}
 	if err := json.NewDecoder(src).Decode(&dst); err != nil {
 		return nil, err
 	}
-	return dst.Employees, nil
+
+	if err := checkFieldsPresent(employeeRequestFields, dst.Fields); err != nil {
+		return nil, err
+	}
+
+	var out []Employee
+	if err := mapstructure.Decode(dst.Employees, &out); err != nil {
+		return out, nil
+	}
+
+	return out, nil
+}
+
+func checkFieldsPresent(want []string, got []field) error {
+	fields := make(map[string]struct{}, len(got))
+	for _, f := range got {
+		fields[f.ID] = struct{}{}
+	}
+
+	var missing []string
+	for _, f := range want {
+		if _, there := fields[f]; !there {
+			missing = append(missing, f)
+		}
+	}
+
+	if len(missing) == 0 {
+		return nil
+	}
+
+	return fmt.Errorf("missing %s fields in the response", strings.Join(missing, ","))
 }
