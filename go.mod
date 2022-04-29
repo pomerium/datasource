@@ -4,6 +4,7 @@ go 1.18
 
 require (
 	github.com/client9/misspell v0.3.4
+	github.com/gabriel-vasile/mimetype v1.4.0
 	github.com/go-playground/validator/v10 v10.10.1
 	github.com/golangci/golangci-lint v1.45.2
 	github.com/gorilla/mux v1.8.0
@@ -151,6 +152,7 @@ require (
 	gitlab.com/bosi/decorder v0.2.1 // indirect
 	golang.org/x/crypto v0.0.0-20220214200702-86341886e292 // indirect
 	golang.org/x/mod v0.6.0-dev.0.20220106191415-9b9b3d81d5e3 // indirect
+	golang.org/x/net v0.0.0-20211112202133-69e39bad7dc2 // indirect
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
 	golang.org/x/sys v0.0.0-20220209214540-3681064d5158 // indirect
 	golang.org/x/text v0.3.7 // indirect

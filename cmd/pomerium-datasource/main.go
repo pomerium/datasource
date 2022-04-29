@@ -8,26 +8,29 @@ import (
 	"time"
 
 	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 
 	"github.com/pomerium/datasource/internal"
 )
 
 func main() {
-	log := makeLogger()
+	logger := makeLogger()
 
 	rootCmd := &cobra.Command{
 		Use:     "pomerium-datasource",
 		Version: internal.FullVersion(),
 	}
-	rootCmd.AddCommand(bambooCommand(log), zenefitsCommand(log))
-	if err := rootCmd.ExecuteContext(signalContext(log)); err != nil {
-		log.Fatal().Err(err).Msg("exit")
+	rootCmd.AddCommand(bambooCommand(logger), zenefitsCommand(logger), ip2LocationCmd)
+	if err := rootCmd.ExecuteContext(signalContext(logger)); err != nil {
+		logger.Fatal().Err(err).Msg("exit")
 	}
 }
 
 func makeLogger() zerolog.Logger {
-	return zerolog.New(zerolog.NewConsoleWriter())
+	logger := zerolog.New(zerolog.NewConsoleWriter())
+	log.Logger = logger
+	return logger
 }
 
 func signalContext(log zerolog.Logger) context.Context {
