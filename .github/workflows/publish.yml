@@ -45,4 +45,4 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           secrets: |
-            "download_token=${{ secrets.LOCATION2IP_DOWNLOAD_TOKEN }}"
+            "download_token=${{ secrets.IP2LOCATION_DOWNLOAD_TOKEN }}"
