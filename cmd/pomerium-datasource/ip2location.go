@@ -40,6 +40,6 @@ var ip2LocationCmd = &cobra.Command{
 }
 
 func init() {
-	ip2LocationCmd.Flags().StringVar(&ip2LocationArgs.address, "address", "localhost:8080",
+	ip2LocationCmd.Flags().StringVar(&ip2LocationArgs.address, "address", ":8080",
 		"the tcp address to listen on")
 }
