@@ -27,4 +27,4 @@ FROM gcr.io/distroless/base-debian11
 COPY --from=build /build/bin/* /bin/
 COPY --from=curl /download/IP2LOCATION-LITE-DB3.CSV.ZIP /usr/share/IP2LOCATION-LITE-DB3.CSV.ZIP
 
-ENTRYPOINT ["/bin/pomerium-datasource"]
+ENTRYPOINT ["/bin/pomerium-datasource", "ip2location", "/usr/share/IP2LOCATION-LITE-DB3.CSV.ZIP"]
