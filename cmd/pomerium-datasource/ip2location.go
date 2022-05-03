@@ -27,6 +27,10 @@ var ip2LocationCmd = &cobra.Command{
 		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
+		log.Info().
+			Str("address", ip2LocationArgs.address).
+			Str("file", ip2LocationArgs.file).
+			Msg("starting ip2location http server")
 		srv := ip2location.NewServer(ip2location.WithFile(ip2LocationArgs.file))
 		err := server.RunHTTPServer(cmd.Context(), ip2LocationArgs.address, srv)
 		if err != nil {
@@ -36,6 +40,6 @@ var ip2LocationCmd = &cobra.Command{
 }
 
 func init() {
-	ip2LocationCmd.Flags().StringVar(&ip2LocationArgs.address, "address", "localhost:8080",
+	ip2LocationCmd.Flags().StringVar(&ip2LocationArgs.address, "address", ":8080",
 		"the tcp address to listen on")
 }
