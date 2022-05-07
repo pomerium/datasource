@@ -8,11 +8,14 @@ import (
 	"net/url"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/mitchellh/mapstructure"
 	"github.com/pomerium/datasource/internal/server"
 	"github.com/pomerium/datasource/internal/zenefits"
+	"github.com/rs/zerolog"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
@@ -22,6 +25,9 @@ func TestAPI(t *testing.T) {
 	r.Path("/core/people").
 		Methods(http.MethodGet).
 		HandlerFunc(serveJSON("testdata/people.json", http.StatusOK))
+	r.Path("/time_off/vacation_requests").
+		Methods(http.MethodGet).
+		HandlerFunc(serveJSON("testdata/vacations.json", http.StatusOK))
 	r.Use(server.AuthorizationBearerMiddleware("test"))
 	srv := httptest.NewServer(r)
 
@@ -29,18 +35,31 @@ func TestAPI(t *testing.T) {
 	require.NoError(t, err, srv.URL)
 
 	client := server.NewBearerTokenClient(http.DefaultClient, "test")
-	req := zenefits.PeopleRequest{
-		Auth: zenefits.Auth{
-			BaseURL: base.ResolveReference(&url.URL{Path: "/core/"}),
-		},
+	client = server.NewDebugClient(client, zerolog.New(os.Stdout))
+	auth := zenefits.Auth{
+		BaseURL: base,
 	}
-	resp, err := zenefits.GetEmployees(ctx, client, req)
-	require.NoError(t, err, "get employees")
 
-	var dst []map[string]interface{}
-	require.NoError(t, mapstructure.Decode(resp, &dst))
-	_, err = json.Marshal(dst)
-	require.NoError(t, err)
+	t.Run("people", func(t *testing.T) {
+		resp, err := zenefits.GetEmployees(ctx, client, zenefits.PeopleRequest{Auth: auth})
+		require.NoError(t, err, "get employees")
+
+		var dst []map[string]interface{}
+		require.NoError(t, mapstructure.Decode(resp, &dst))
+		_, err = json.Marshal(dst)
+		require.NoError(t, err)
+	})
+
+	t.Run("vacations", func(t *testing.T) {
+		resp, err := zenefits.GetVacations(ctx, client, zenefits.VacationRequest{
+			Auth:  auth,
+			Start: time.Date(2002, 05, 06, 0, 0, 0, 0, time.UTC),
+			End:   time.Date(2002, 05, 06, 0, 0, 0, 0, time.UTC),
+		})
+		require.NoError(t, err, "get vacations")
+		_, there := resp["26455996"]
+		assert.True(t, there)
+	})
 }
 
 func serveJSON(p string, statusCode int) func(w http.ResponseWriter, r *http.Request) {

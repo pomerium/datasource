@@ -36,6 +36,20 @@ func (d DateTime) MarshalJSON() ([]byte, error) {
 	return json.Marshal(d.tm.Format(d.layout))
 }
 
+// String returns string representation in the target layout
+func (d DateTime) String() string {
+	if d.tm.IsZero() {
+		return ""
+	}
+
+	return d.tm.Format(d.layout)
+}
+
+// NewDateTime creates new date time object
+func NewDateTime(tm time.Time, layout string) DateTime {
+	return DateTime{tm, layout}
+}
+
 // DateTimeDecodeHook parses date time that's supplied in a non-standard layout
 // if layout does not contain a time zone, a location need be provided
 func DateTimeDecodeHook(layout string, location *time.Location) mapstructure.DecodeHookFuncType {
