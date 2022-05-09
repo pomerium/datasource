@@ -39,7 +39,7 @@ jobs:
         run: gcloud auth configure-docker
 
       - name: Build
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v3
         with:
           context: .
           file: pomerium-datasource-ip2location.dockerfile
