@@ -1,0 +1,21 @@
+{
+  "status": 200,
+  "object": "/meta/response",
+  "data": {
+    "url": "https://api.zenefits.com/time_off/vacation_requests",
+    "next_url": null,
+    "object": "/meta/list",
+    "data": [
+      {
+        "end_date": "2022-05-06",
+        "object": "/time_off/vacation_requests",
+        "start_date": "2022-05-03",
+        "person": {
+          "id": "26455996"
+        },
+        "id": "21135013"
+      }
+    ]
+  },
+  "error": null
+}

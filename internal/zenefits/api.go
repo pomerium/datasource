@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"time"
 )
 
 // Auth is API server auth parameters
@@ -25,7 +26,7 @@ func (a Auth) RequestURL(rel string) *url.URL {
 		base = &url.URL{
 			Scheme: "https",
 			Host:   "api.zenefits.com",
-			Path:   "/core/",
+			Path:   "/",
 		}
 	}
 	u := base.ResolveReference(&url.URL{Path: rel})
@@ -37,11 +38,10 @@ type PeopleRequest struct {
 	DepartmentID *string
 	Status       *string
 	LocationID   *string
-	Fields       []string
 }
 
 func (req *PeopleRequest) getURL() string {
-	u := req.Auth.RequestURL("people")
+	u := req.Auth.RequestURL("core/people")
 
 	param := make(url.Values)
 	param.Set("includes", "department location")
@@ -85,6 +85,57 @@ func GetEmployees(ctx context.Context, client *http.Client, param PeopleRequest)
 	}
 
 	return res, nil
+}
+
+type VacationRequest struct {
+	Auth
+	Start, End time.Time
+}
+
+const DateLayout = "2006-01-02"
+
+func (req *VacationRequest) getURL() string {
+	u := req.Auth.RequestURL("time_off/vacation_requests")
+
+	param := make(url.Values)
+	param.Set("includes", "person")
+	param.Set("status", "approved")
+	// periods are inclusive, and we are only interested for current vacations
+	param.Set("start_date_before", req.Start.Format(DateLayout))
+	param.Set("end_date_after", req.End.Format(DateLayout))
+
+	u.RawQuery = param.Encode()
+
+	return u.String()
+}
+
+func (req *VacationRequest) GetRequest(ctx context.Context) (*http.Request, error) {
+	r, err := http.NewRequestWithContext(ctx, http.MethodGet, req.getURL(), http.NoBody)
+	if err != nil {
+		return nil, err
+	}
+	r.Header.Add("accept", "application/json")
+	return r, nil
+}
+
+// GetVacations returns IDs of users that are currently on vacation
+func GetVacations(ctx context.Context, client *http.Client, param VacationRequest) (map[string]struct{}, error) {
+	req, err := param.GetRequest(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("prepare: %w", err)
+	}
+
+	vacations, err := doListRequest[Vacation](client, req)
+	if err != nil {
+		return nil, fmt.Errorf("do: %w", err)
+	}
+
+	ooo := make(map[string]struct{}, len(vacations))
+	for _, v := range vacations {
+		ooo[v.Person.ID] = struct{}{}
+	}
+
+	return ooo, nil
 }
 
 func doListRequest[T Kind](client *http.Client, req *http.Request) ([]T, error) {

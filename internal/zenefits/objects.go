@@ -19,7 +19,7 @@ type List[T Kind] struct {
 
 // Kind represents an object kind
 type Kind interface {
-	Person | Department | Location
+	Person | Department | Location | Vacation
 }
 
 // Person see https://developers.zenefits.com/docs/people
@@ -48,6 +48,11 @@ type Person struct {
 	City    string `json:"city" mapstructure:"home_city,omitempty"`
 	Street1 string `json:"street1" mapstructure:"home_street1,omitempty"`
 	Street2 string `json:"street2" mapstructure:"home_street2,omitempty"`
+}
+
+// Vacation see https://developers.zenefits.com/docs/vacation-requests
+type Vacation struct {
+	Person Person `json:"person"`
 }
 
 // Department see https://developers.zenefits.com/docs/department

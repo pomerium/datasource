@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/rs/zerolog"
@@ -18,6 +19,10 @@ type zenefitsCmd struct {
 
 	BearerToken string `validate:"required"`
 	Address     string `validate:"required"`
+
+	TimeZone string
+
+	Debug bool
 
 	cobra.Command  `validate:"-"`
 	zerolog.Logger `validate:"-"`
@@ -42,6 +47,8 @@ func (cmd *zenefitsCmd) setupFlags() {
 	flags.StringVar(&cmd.APIKey, "zenefits-api-key", "", "Bearer API token https://developers.zenefits.com/v1.0/docs/auth")
 	flags.StringVar(&cmd.BearerToken, "bearer-token", "", "all requests must contain Authorization: Bearer header matching this token")
 	flags.StringVar(&cmd.Address, "address", "localhost:8080", "tcp address to listen on")
+	flags.StringVar(&cmd.TimeZone, "time-zone", "UTC", "timezone, required for vacation data")
+	flags.BoolVar(&cmd.Debug, "debug", false, "turns debug mode on that would dump requests and responses")
 }
 
 func (cmd *zenefitsCmd) exec(c *cobra.Command, _ []string) error {
@@ -62,9 +69,18 @@ func (cmd *zenefitsCmd) exec(c *cobra.Command, _ []string) error {
 
 func (cmd *zenefitsCmd) newServer() (http.Handler, error) {
 	client := server.NewBearerTokenClient(http.DefaultClient, cmd.APIKey)
-	req := zenefits.PeopleRequest{}
+	if cmd.Debug {
+		client = server.NewDebugClient(client, cmd.Logger)
+	}
 
-	srv := zenefits.NewServer(req, client, cmd.Logger)
+	location, err := time.LoadLocation(cmd.TimeZone)
+	if err != nil {
+		return nil, fmt.Errorf("time zone %s: %w", cmd.TimeZone, err)
+	}
+
+	srv := zenefits.NewServer(zenefits.PeopleRequest{}, client,
+		zenefits.WithLogger(cmd.Logger),
+		zenefits.WithRemoveOnVacation(location))
 	srv.Use(server.AuthorizationBearerMiddleware(cmd.BearerToken))
 	return srv, nil
 }

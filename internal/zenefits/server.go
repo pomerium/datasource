@@ -5,16 +5,20 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/mitchellh/mapstructure"
-	"github.com/pomerium/datasource/internal/util"
 	"github.com/rs/zerolog"
 )
 
 // NewServer implements new Zenefits limited data exporter
-func NewServer(req PeopleRequest, client *http.Client, log zerolog.Logger) *mux.Router {
-	srv := apiServer{req, client, log}
+func NewServer(req PeopleRequest, client *http.Client, options ...Option) *mux.Router {
+	srv := &apiServer{pr: req, client: client, log: zerolog.Nop()}
+
+	for _, opt := range options {
+		opt(srv)
+	}
 
 	r := mux.NewRouter()
 	r.Path("/employees").Methods(http.MethodGet).HandlerFunc(srv.serveEmployees)
@@ -23,9 +27,27 @@ func NewServer(req PeopleRequest, client *http.Client, log zerolog.Logger) *mux.
 }
 
 type apiServer struct {
-	PeopleRequest
-	*http.Client
-	zerolog.Logger
+	pr               PeopleRequest
+	removeOnVacation bool
+	location         *time.Location
+	client           *http.Client
+	log              zerolog.Logger
+}
+
+// Option to customize
+type Option func(*apiServer)
+
+func WithLogger(log zerolog.Logger) Option {
+	return func(as *apiServer) {
+		as.log = log
+	}
+}
+
+func WithRemoveOnVacation(location *time.Location) Option {
+	return func(as *apiServer) {
+		as.location = location
+		as.removeOnVacation = true
+	}
 }
 
 func (srv *apiServer) serveEmployees(w http.ResponseWriter, r *http.Request) {
@@ -39,9 +61,16 @@ func (srv *apiServer) serveEmployees(w http.ResponseWriter, r *http.Request) {
 }
 
 func (srv *apiServer) getEmployeesJSON(ctx context.Context) ([]map[string]interface{}, error) {
-	persons, err := GetEmployees(ctx, srv.Client, srv.PeopleRequest)
+	persons, err := GetEmployees(ctx, srv.client, srv.pr)
 	if err != nil {
-		return nil, fmt.Errorf("api: %w", err)
+		return nil, fmt.Errorf("get people: %w", err)
+	}
+
+	if srv.removeOnVacation {
+		persons, err = srv.filterOOO(ctx, persons)
+		if err != nil {
+			return nil, fmt.Errorf("get vacation: %w", err)
+		}
 	}
 
 	var dst []map[string]interface{}
@@ -49,21 +78,38 @@ func (srv *apiServer) getEmployeesJSON(ctx context.Context) ([]map[string]interf
 		return nil, fmt.Errorf("transform response: %w", err)
 	}
 
-	if len(srv.PeopleRequest.Fields) > 0 {
-		util.Filter(dst, srv.PeopleRequest.Fields)
+	return dst, nil
+}
+
+func (srv *apiServer) filterOOO(ctx context.Context, persons []Person) ([]Person, error) {
+	ooo, err := GetVacations(ctx, srv.client, VacationRequest{
+		Auth:  srv.pr.Auth,
+		Start: time.Now().In(srv.location),
+		End:   time.Now().In(srv.location).Add(time.Hour * 2),
+	})
+	if err != nil {
+		return nil, fmt.Errorf("get vacations: %w", err)
+	}
+
+	dst := make([]Person, 0, len(persons))
+	for _, p := range persons {
+		if _, there := ooo[p.ID]; there {
+			continue
+		}
+		dst = append(dst, p)
 	}
 
 	return dst, nil
 }
 
 func (srv *apiServer) serveError(w http.ResponseWriter, err error, msg string) {
-	srv.Err(err).Msg(msg)
+	srv.log.Err(err).Msg(msg)
 	w.WriteHeader(http.StatusInternalServerError)
 }
 
 func (srv *apiServer) serveJSON(w http.ResponseWriter, src interface{}) {
 	w.Header().Add("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(src); err != nil {
-		srv.Err(err).Msg("json marshal")
+		srv.log.Err(err).Msg("json marshal")
 	}
 }
