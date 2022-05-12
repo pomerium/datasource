@@ -6,7 +6,7 @@ require (
 	github.com/client9/misspell v0.3.4
 	github.com/gabriel-vasile/mimetype v1.4.0
 	github.com/go-playground/validator/v10 v10.11.0
-	github.com/golangci/golangci-lint v1.46.0
+	github.com/golangci/golangci-lint v1.46.1
 	github.com/gorilla/mux v1.8.0
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/rs/zerolog v1.26.1
