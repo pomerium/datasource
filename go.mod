@@ -11,7 +11,7 @@ require (
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/rs/zerolog v1.27.0
 	github.com/spf13/cobra v1.4.0
-	github.com/stretchr/testify v1.7.3
+	github.com/stretchr/testify v1.7.4
 )
 
 require (
@@ -20,6 +20,7 @@ require (
 	github.com/Antonboom/nilnil v0.1.1 // indirect
 	github.com/BurntSushi/toml v1.1.0 // indirect
 	github.com/Djarvur/go-err113 v0.0.0-20210108212216-aea10b59be24 // indirect
+	github.com/GaijinEntertainment/go-exhaustruct/v2 v2.1.0 // indirect
 	github.com/Masterminds/semver v1.5.0 // indirect
 	github.com/OpenPeeDeeP/depguard v1.1.0 // indirect
 	github.com/alexkohler/prealloc v1.0.0 // indirect
@@ -42,6 +43,7 @@ require (
 	github.com/ettle/strcase v0.1.1 // indirect
 	github.com/fatih/color v1.13.0 // indirect
 	github.com/fatih/structtag v1.2.0 // indirect
+	github.com/firefart/nonamedreturns v1.0.1 // indirect
 	github.com/fsnotify/fsnotify v1.5.4 // indirect
 	github.com/fzipp/gocyclo v0.5.1 // indirect
 	github.com/go-critic/go-critic v0.6.3 // indirect
@@ -92,6 +94,7 @@ require (
 	github.com/ldez/tagliatelle v0.3.1 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/leonklingele/grouper v1.1.0 // indirect
+	github.com/lufeee/execinquery v1.2.1 // indirect
 	github.com/magiconair/properties v1.8.6 // indirect
 	github.com/maratori/testpackage v1.0.1 // indirect
 	github.com/matoous/godox v0.0.0-20210227103229-6504466cf951 // indirect
@@ -109,6 +112,7 @@ require (
 	github.com/nishanths/predeclared v0.2.2 // indirect
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
 	github.com/pelletier/go-toml v1.9.5 // indirect
+	github.com/pelletier/go-toml/v2 v2.0.0 // indirect
 	github.com/phayes/checkstyle v0.0.0-20170904204023-bfd46e6a821d // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
@@ -120,6 +124,7 @@ require (
 	github.com/quasilyte/go-ruleguard v0.3.16-0.20220213074421-6aa060fab41a // indirect
 	github.com/quasilyte/gogrep v0.0.0-20220120141003-628d8b3623b5 // indirect
 	github.com/quasilyte/regex/syntax v0.0.0-20200407221936-30656e2c4a95 // indirect
+	github.com/quasilyte/stdinfo v0.0.0-20220114132959-f7386bf02567 // indirect
 	github.com/ryancurrah/gomodguard v1.2.3 // indirect
 	github.com/ryanrolds/sqlclosecheck v0.3.0 // indirect
 	github.com/sanposhiho/wastedassign/v2 v2.0.6 // indirect
@@ -136,6 +141,7 @@ require (
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/spf13/viper v1.11.0 // indirect
 	github.com/ssgreg/nlreturn/v2 v2.2.1 // indirect
+	github.com/stbenjam/no-sprintf-host-port v0.1.1 // indirect
 	github.com/stretchr/objx v0.4.0 // indirect
 	github.com/subosito/gotenv v1.2.0 // indirect
 	github.com/sylvia7788/contextcheck v1.0.4 // indirect
@@ -151,6 +157,7 @@ require (
 	github.com/yeya24/promlinter v0.2.0 // indirect
 	gitlab.com/bosi/decorder v0.2.1 // indirect
 	golang.org/x/crypto v0.0.0-20220411220226-7b82a4e95df4 // indirect
+	golang.org/x/exp/typeparams v0.0.0-20220218215828-6cf2b201936e // indirect
 	golang.org/x/mod v0.6.0-dev.0.20220106191415-9b9b3d81d5e3 // indirect
 	golang.org/x/net v0.0.0-20220412020605-290c469a71a5 // indirect
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
