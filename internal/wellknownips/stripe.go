@@ -39,3 +39,24 @@ func FetchStripeIPRanges(
 
 	return &ranges, nil
 }
+
+const (
+	StripeASNumber    = "5091"
+	StripeCountryCode = "US"
+	StripeASName      = "STRIPE"
+)
+
+// RecordsFromStripeIPRanges converts StripeIPRanges into records.
+func RecordsFromStripeIPRanges(in *StripeIPRanges) []Record {
+	var records []Record
+	for _, ip := range in.WebHooks {
+		records = append(records, Record{
+			ID:          ip + "/32",
+			ASNumber:    StripeASNumber,
+			CountryCode: StripeCountryCode,
+			ASName:      StripeASName,
+			Service:     "WEBHOOKS",
+		})
+	}
+	return records
+}

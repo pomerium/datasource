@@ -43,3 +43,24 @@ func FetchAmazonAWSIPRanges(
 
 	return &ranges, nil
 }
+
+const (
+	AmazonASNumber    = "16509"
+	AmazonCountryCode = "US"
+	AmazonASName      = "AMAZON-02"
+)
+
+// RecordsFromAmazonAWSIPRanges converts AmazonAWSIPRanges records to Well-Known IP Records.
+func RecordsFromAmazonAWSIPRanges(in *AmazonAWSIPRanges) []Record {
+	var records []Record
+	for _, prefix := range in.Prefixes {
+		records = append(records, Record{
+			ID:          prefix.IPPrefix,
+			ASNumber:    AmazonASNumber,
+			CountryCode: AmazonCountryCode,
+			ASName:      AmazonASName,
+			Service:     prefix.Service,
+		})
+	}
+	return records
+}

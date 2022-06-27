@@ -13,3 +13,24 @@ var AppleDomainVerificationIPAddresses = []string{
 	"17.179.144.224/27",
 	"17.253.0.0/16",
 }
+
+const (
+	// AppleASNumber is the Apple ASNumber.
+	AppleASNumber    = "714"
+	AppleCountryCode = "US"
+	AppleASName      = "APPLE-ENGINEERING"
+)
+
+// RecordsFromAppleDomainVerificationIPAddresses converts AppleDomainVerificationIPAddresses into records.
+func RecordsFromAppleDomainVerificationIPAddresses(in []string) []Record {
+	var records []Record
+	for _, prefix := range in {
+		records = append(records, Record{
+			ID:          prefix,
+			ASNumber:    AppleASNumber,
+			CountryCode: AppleCountryCode,
+			ASName:      AppleASName,
+		})
+	}
+	return records
+}

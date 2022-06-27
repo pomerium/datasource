@@ -46,3 +46,26 @@ func FetchAzureIPRanges(
 
 	return &ranges, nil
 }
+
+const (
+	MicrosoftASNumber    = "8075"
+	MicrosoftCountryCode = "US"
+	MicrosoftASName      = "MICROSOFT-CORP-MSN-AS-BLOCK"
+)
+
+// RecordsFromAzureIPRanges converts AzureIPRanges into records.
+func RecordsFromAzureIPRanges(in *AzureIPRanges) []Record {
+	var records []Record
+	for _, value := range in.Values {
+		for _, prefix := range value.Properties.AddressPrefixes {
+			records = append(records, Record{
+				ID:          prefix,
+				ASNumber:    MicrosoftASNumber,
+				CountryCode: MicrosoftCountryCode,
+				ASName:      MicrosoftASName,
+				Service:     value.Name,
+			})
+		}
+	}
+	return records
+}

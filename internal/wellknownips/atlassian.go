@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
+	"strings"
 )
 
 // AtlassianIPRanges are the Atlassian IP ranges.
@@ -41,4 +42,25 @@ func FetchAtlassianIPRanges(
 	}
 
 	return &ranges, nil
+}
+
+const (
+	AtlassianASNumber    = "133530"
+	AtlassianCountryCode = "AU"
+	AtlassianASName      = "ATLASSIAN PTY LTD"
+)
+
+// RecordsFromAtlassianIPRanges converts AtlassianIPRanges into records.
+func RecordsFromAtlassianIPRanges(in *AtlassianIPRanges) []Record {
+	var records []Record
+	for _, item := range in.Items {
+		records = append(records, Record{
+			ID:          item.CIDR,
+			ASNumber:    AtlassianASNumber,
+			CountryCode: AtlassianCountryCode,
+			ASName:      AtlassianASName,
+			Service:     strings.Join(item.Product, " "),
+		})
+	}
+	return records
 }

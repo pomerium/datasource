@@ -46,3 +46,39 @@ func FetchGitHubMeta(
 
 	return &meta, nil
 }
+
+const (
+	GitHubASNumber    = "36459"
+	GitHubCountryCode = "US"
+	GitHubASName      = "GITHUB"
+)
+
+// RecordsFromGitHubMeta converts GitHubMeta into records.
+func RecordsFromGitHubMeta(in *GitHubMeta) []Record {
+	var records []Record
+	for _, item := range []struct {
+		name     string
+		prefixes []string
+	}{
+		{"hooks", in.Hooks},
+		{"web", in.Web},
+		{"api", in.API},
+		{"git", in.Git},
+		{"packages", in.Packages},
+		{"pages", in.Pages},
+		{"importer", in.Importer},
+		{"actions", in.Actions},
+		{"dependabot", in.Dependabot},
+	} {
+		for _, prefix := range item.prefixes {
+			records = append(records, Record{
+				ID:          prefix,
+				ASNumber:    GitHubASNumber,
+				CountryCode: GitHubCountryCode,
+				ASName:      GitHubASName,
+				Service:     item.name,
+			})
+		}
+	}
+	return records
+}
