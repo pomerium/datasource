@@ -21,7 +21,12 @@ func main() {
 		Use:     "pomerium-datasource",
 		Version: internal.FullVersion(),
 	}
-	rootCmd.AddCommand(bambooCommand(logger), zenefitsCommand(logger), ip2LocationCmd)
+	rootCmd.AddCommand(
+		bambooCommand(logger),
+		zenefitsCommand(logger),
+		ip2LocationCmd,
+		wellKnownIPsCmd,
+	)
 	if err := rootCmd.ExecuteContext(signalContext(logger)); err != nil {
 		logger.Fatal().Err(err).Msg("exit")
 	}
