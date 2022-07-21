@@ -15,7 +15,7 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: |
-            gcr.io/pomerium-registry/pomerium-datasource-ip2location
+            docker.cloudsmith.io/pomerium/datasource/datasource
           tags: |
             type=ref,event=branch
             type=ref,event=pr
