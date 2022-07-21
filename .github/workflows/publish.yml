@@ -6,6 +6,35 @@ on:
       - main
 
 jobs:
+  cloudsmith:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Build
+        run: |
+          docker build --file pomerium-datasource.dockerfile --tag docker.cloudsmith.io/pomerium/datasource/datasource:latest .
+      - name: Save
+        run: |
+          docker save -o pomerium-datasource.docker docker.cloudsmith.io/pomerium/datasource/datasource:latest
+      - name: Install Cloudsmith CLI
+        run: |
+          pip3 install cloudsmith-cli
+      - name: Publish to cloudsmith
+        env:
+          CLOUDSMITH_API_KEY: ${{ secrets.CLOUDSMITH_API_KEY }}
+        run: |
+          TAGS="sha-${GITHUB_SHA::7}"
+          TAGS="$TAGS,$( echo "$GITHUB_REF_NAME" | sed -e 's|/|-|g' )"
+          if [ "$GITHUB_REF_NAME" == "main" ]; then
+            TAGS="$TAGS,latest"
+          fi
+          cloudsmith push docker \
+            --tags "$TAGS" \
+            pomerium/datasource \
+            pomerium-datasource.docker
+
   dockerhub:
     runs-on: ubuntu-latest
     steps:
