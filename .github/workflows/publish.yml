@@ -2,8 +2,8 @@ name: Publish
 
 on:
   push:
-    branches:
-      - main
+    # branches:
+    #   - main
 
 jobs:
   cloudsmith:
@@ -75,8 +75,6 @@ jobs:
           file: pomerium-datasource.dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
-          cache-from: type=registry,ref=docker.cloudsmith.io/pomerium/datasource/datasource:buildcache
-          cache-to: type=registry,ref=docker.cloudsmith.io/pomerium/datasource/datasource:buildcache,mode=max
 
   gcr:
     runs-on: ubuntu-latest
