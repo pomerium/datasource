@@ -1,4 +1,4 @@
-project_name: pomerium-datasources
+project_name: pomerium-datasource
 
 release:
   prerelease: auto
@@ -17,8 +17,8 @@ before:
 
 builds:
   - id: datasource
-    main: ./cmd/datasource
-    binary: datasource
+    main: ./cmd/pomerium-datasource
+    binary: pomerium-datasource
     goarch:
       - amd64
       - arm
