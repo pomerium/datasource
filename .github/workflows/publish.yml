@@ -4,7 +4,7 @@ on:
   push:
 
 jobs:
-  cloudsmith:
+  dockerhub:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -32,7 +32,6 @@ jobs:
       - name: Log in to cloudsmith registry
         uses: docker/login-action@v2
         with:
-          registry: docker.cloudsmith.io
           username: ${{ secrets.DOCKERHUB_USER }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
