@@ -19,7 +19,6 @@ type bambooCmd struct {
 	BambooSubdomain string `validate:"required,hostname,excludesrune=."`
 	BambooTimeZone  string `validate:"required"`
 	Address         string `validate:"required"`
-	BearerToken     string `validate:"required"`
 	Debug           bool
 	cobra.Command   `validate:"-"`
 	zerolog.Logger  `validate:"-"`
@@ -44,7 +43,6 @@ func (cmd *bambooCmd) setupFlags() {
 	flags.StringVar(&cmd.BambooSubdomain, "bamboohr-subdomain", "", "BambooHR subdomain, i.e. if your instance is corp.bamboohr.com, then subdomain is corp")
 	flags.StringVar(&cmd.BambooAPIKey, "bamboohr-api-key", "", "api key, see https://documentation.bamboohr.com/docs#section-authentication")
 	flags.StringVar(&cmd.BambooTimeZone, "bamboohr-time-zone", "UTC", "BambooHR global time zone, see Settings > Account > General Settings > Time Zone ")
-	flags.StringVar(&cmd.BearerToken, "bearer-token", "", "all requests must contain Authorization: Bearer header matching this token")
 	flags.BoolVar(&cmd.Debug, "debug", false, "turns debug mode on that would dump requests and responses")
 	flags.StringVar(&cmd.Address, "address", ":8080", "tcp address to listen to")
 }
@@ -85,6 +83,5 @@ func (cmd *bambooCmd) newServer() (http.Handler, error) {
 		client = server.NewDebugClient(http.DefaultClient, cmd.Logger)
 	}
 	srv := bamboohr.NewServer(emplReq, client, cmd.Logger)
-	srv.Use(server.AuthorizationBearerMiddleware(cmd.BearerToken))
 	return srv, nil
 }

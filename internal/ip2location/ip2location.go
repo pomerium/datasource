@@ -32,7 +32,7 @@ func fileToJSON(dst *jsonutil.JSONArrayStream, fileName string) (err error) {
 	if err != nil {
 		return err
 	}
-	_, err = f.Seek(0, os.SEEK_SET)
+	_, err = f.Seek(0, io.SeekStart)
 	if err != nil {
 		return err
 	}

@@ -28,14 +28,12 @@ func TestAPI(t *testing.T) {
 	r.Path("/time_off/vacation_requests").
 		Methods(http.MethodGet).
 		HandlerFunc(serveJSON("testdata/vacations.json", http.StatusOK))
-	r.Use(server.AuthorizationBearerMiddleware("test"))
 	srv := httptest.NewServer(r)
 
 	base, err := url.Parse(srv.URL)
 	require.NoError(t, err, srv.URL)
 
-	client := server.NewBearerTokenClient(http.DefaultClient, "test")
-	client = server.NewDebugClient(client, zerolog.New(os.Stdout))
+	client := server.NewDebugClient(http.DefaultClient, zerolog.New(os.Stdout))
 	auth := zenefits.Auth{
 		BaseURL: base,
 	}
