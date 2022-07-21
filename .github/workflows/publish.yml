@@ -22,6 +22,7 @@ jobs:
             type=ref,event=branch
             type=ref,event=pr
             type=sha
+            type=raw,value=latest,enable={{is_default_branch}}
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -43,6 +44,8 @@ jobs:
           file: pomerium-datasource.dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
+          cache-from: type=registry,ref=docker.cloudsmith.io/pomerium/datasource/datasource:buildcache
+          cache-to: type=registry,ref=docker.cloudsmith.io/pomerium/datasource/datasource:buildcache,mode=max
 
   gcr:
     runs-on: ubuntu-latest

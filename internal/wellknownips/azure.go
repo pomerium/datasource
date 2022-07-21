@@ -1,9 +1,11 @@
 package wellknownips
 
 import (
+	"compress/gzip"
 	"context"
 	"encoding/json"
-	"net/http"
+
+	"github.com/pomerium/datasource/internal/wellknownips/files"
 )
 
 // AzureIPRanges are the definitions of the ip ranges for services in Azure.
@@ -18,28 +20,24 @@ type AzureIPRanges struct {
 	} `json:"values"`
 }
 
-// DefaultAzureIPRangesURL is the default Azure IP Ranges URL.
-var DefaultAzureIPRangesURL = "https://download.microsoft.com/download/7/1/D/71D86715-5596-4529-9B13-DA13A5DE5B63/ServiceTags_Public_20220718.json"
-
 // FetchAzureIPRanges fetches the Azure IP Ranges for all Azure services.
 func FetchAzureIPRanges(
 	ctx context.Context,
-	client *http.Client,
-	url string,
 ) (*AzureIPRanges, error) {
-	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
+	f, err := files.FS.Open("azure.json.gz")
 	if err != nil {
 		return nil, err
 	}
+	defer f.Close()
 
-	res, err := client.Do(req)
+	r, err := gzip.NewReader(f)
 	if err != nil {
 		return nil, err
 	}
-	defer res.Body.Close()
+	defer r.Close()
 
 	var ranges AzureIPRanges
-	err = json.NewDecoder(res.Body).Decode(&ranges)
+	err = json.NewDecoder(r).Decode(&ranges)
 	if err != nil {
 		return nil, err
 	}

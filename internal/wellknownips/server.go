@@ -111,7 +111,7 @@ func (srv *Server) serveHTTP(w http.ResponseWriter, r *http.Request) error {
 
 	recordLookup[MicrosoftASNumber] = nil
 	eg.Go(func() error {
-		azureRanges, err := FetchAzureIPRanges(ctx, transport.Client(), DefaultAzureIPRangesURL)
+		azureRanges, err := FetchAzureIPRanges(ctx)
 		if err != nil {
 			return fmt.Errorf("error fetching azure ip ranges: %w", err)
 		}
