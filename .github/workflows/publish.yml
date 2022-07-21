@@ -10,16 +10,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-
       - name: Build
-        uses: docker/build-push-action@v3
-        with:
-          context: .
-          file: pomerium-datasource.dockerfile
-          push: false
-          tags: docker.cloudsmith.io/pomerium/datasource/datasource:latest
+        run: |
+          docker build --file pomerium-datasource.dockerfile --tag docker.cloudsmith.io/pomerium/datasource/datasource:latest .
 
       - name: Save
         run: |
