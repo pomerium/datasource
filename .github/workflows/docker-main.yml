@@ -32,7 +32,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v4
         with:
-          images: pomerium/cli
+          images: pomerium/datasource
           tags: |
             type=sha,priority=1000
             type=ref,event=branch
