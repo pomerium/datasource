@@ -54,6 +54,21 @@ jobs:
         run: |
           pip3 install cloudsmith-cli
 
+      - name: Publish to Cloudsmith
+        env:
+          CLOUDSMITH_API_KEY: ${{ secrets.CLOUDSMITH_API_KEY }}
+        working-directory: dist/
+        run: |
+          VERSION=${{ steps.tagName.outputs.version }}
+          RPMS="pomerium-datasource-${VERSION}-1.aarch64.rpm pomerium-datasource-${VERSION}-1.x86_64.rpm pomerium-datasource-${VERSION}-1.armhf.rpm"
+          for pkg in $(echo $RPMS); do
+            cloudsmith push rpm pomerium/datasource/el/any-version $pkg
+          done
+
+          DEBS="pomerium-datasource_${VERSION}-1_amd64.deb pomerium-datasource_${VERSION}-1_arm64.deb pomerium-datasource_${VERSION}-1_armhf.deb"
+          for pkg in $(echo $DEBS); do
+            cloudsmith push deb pomerium/datasource/debian/any-version $pkg
+          don
       - name: Find latest tag
         id: latestTag
         run: |
