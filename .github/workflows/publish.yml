@@ -10,18 +10,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Docker meta
-        id: meta
-        uses: docker/metadata-action@v4
-        with:
-          sep-tags: ","
-          images: |
-            docker.cloudsmith.io/pomerium/datasource/datasource
-          tags: |
-            type=ref,event=branch
-            type=ref,event=pr
-            type=sha
-
       - name: Build
         run: |
           docker build --file pomerium-datasource.dockerfile --tag docker.cloudsmith.io/pomerium/datasource/datasource:latest .
@@ -39,7 +27,7 @@ jobs:
           CLOUDSMITH_API_KEY: ${{ secrets.CLOUDSMITH_API_KEY }}
         run: |
           cloudsmith push docker \
-            --tags "${{ steps.meta.outputs.tags }}" \
+            --tags "sha-${GITHUB_SHA::7}" \
             pomerium/datasource \
             pomerium-datasource.docker
 
