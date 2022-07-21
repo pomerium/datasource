@@ -98,6 +98,8 @@ nfpms:
 dockers:
   - image_templates:
       - "pomerium/datasource:amd64-{{ .Tag }}"
+      - "docker.cloudsmith.io/pomerium/datasource/pomerium-datasource:{{ .Tag }}"
+
     dockerfile: Dockerfile.release
     use: buildx
     build_flag_templates:
