@@ -1,0 +1,67 @@
+name: goreleaser
+permissions:
+  contents: write
+  issues: read
+  pull-requests: read
+on:
+  release:
+    types:
+      - published
+
+jobs:
+  goreleaser:
+    runs-on: ubuntu-latest
+    env:
+      DOCKER_CLI_EXPERIMENTAL: "enabled"
+    outputs:
+      tag: ${{ steps.tagName.outputs.tag }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Unshallow
+        run: git fetch --prune --unshallow
+
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.18.x
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - uses: azure/docker-login@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v3
+        with:
+          args: release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          APPARITOR_GITHUB_TOKEN: ${{ secrets.APPARITOR_GITHUB_TOKEN }}
+
+      - name: Get tag name
+        id: tagName
+        run: |
+          TAG=$(git describe --tags --exact-match)
+          echo ::set-output name=tag::${TAG}
+          echo ::set-output name=version::${TAG#v}
+
+      - name: Install Cloudsmith CLI
+        run: |
+          pip3 install cloudsmith-cli
+
+      - name: Find latest tag
+        id: latestTag
+        run: |
+          LATEST_TAG=$(git tag | grep -vi 'rc' | sort --version-sort | tail -1)
+          echo "::set-output name=tag::${LATEST_TAG}"
+
+      - name: Publish latest tag
+        if: "steps.latestTag.outputs.tag == steps.tagName.outputs.tag"
+        run: |
+          docker manifest create -a pomerium/datasource:latest pomerium/datasource:amd64-${{ steps.tagName.outputs.tag }} pomerium/datasource:arm64v8-${{ steps.tagName.outputs.tag }}
+          docker manifest push pomerium/datasource:latest
