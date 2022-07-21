@@ -17,8 +17,7 @@ import (
 type zenefitsCmd struct {
 	APIKey string `validate:"required"`
 
-	BearerToken string `validate:"required"`
-	Address     string `validate:"required"`
+	Address string `validate:"required"`
 
 	TimeZone string
 
@@ -45,7 +44,6 @@ func zenefitsCommand(log zerolog.Logger) *cobra.Command {
 func (cmd *zenefitsCmd) setupFlags() {
 	flags := cmd.Flags()
 	flags.StringVar(&cmd.APIKey, "zenefits-api-key", "", "Bearer API token https://developers.zenefits.com/v1.0/docs/auth")
-	flags.StringVar(&cmd.BearerToken, "bearer-token", "", "all requests must contain Authorization: Bearer header matching this token")
 	flags.StringVar(&cmd.Address, "address", "localhost:8080", "tcp address to listen on")
 	flags.StringVar(&cmd.TimeZone, "time-zone", "UTC", "timezone, required for vacation data")
 	flags.BoolVar(&cmd.Debug, "debug", false, "turns debug mode on that would dump requests and responses")
@@ -81,6 +79,5 @@ func (cmd *zenefitsCmd) newServer() (http.Handler, error) {
 	srv := zenefits.NewServer(zenefits.PeopleRequest{}, client,
 		zenefits.WithLogger(cmd.Logger),
 		zenefits.WithRemoveOnVacation(location))
-	srv.Use(server.AuthorizationBearerMiddleware(cmd.BearerToken))
 	return srv, nil
 }

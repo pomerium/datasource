@@ -19,7 +19,7 @@ type AzureIPRanges struct {
 }
 
 // DefaultAzureIPRangesURL is the default Azure IP Ranges URL.
-var DefaultAzureIPRangesURL = "https://download.microsoft.com/download/7/1/D/71D86715-5596-4529-9B13-DA13A5DE5B63/ServiceTags_Public_20220620.json"
+var DefaultAzureIPRangesURL = "https://download.microsoft.com/download/7/1/D/71D86715-5596-4529-9B13-DA13A5DE5B63/ServiceTags_Public_20220718.json"
 
 // FetchAzureIPRanges fetches the Azure IP Ranges for all Azure services.
 func FetchAzureIPRanges(
