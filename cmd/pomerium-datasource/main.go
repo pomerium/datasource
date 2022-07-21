@@ -11,7 +11,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 
-	"github.com/pomerium/datasource/internal"
+	"github.com/pomerium/datasource/internal/version"
 )
 
 func main() {
@@ -19,7 +19,7 @@ func main() {
 
 	rootCmd := &cobra.Command{
 		Use:     "pomerium-datasource",
-		Version: internal.FullVersion(),
+		Version: version.FullVersion(),
 	}
 	rootCmd.AddCommand(
 		bambooCommand(logger),

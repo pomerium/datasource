@@ -13,25 +13,21 @@ ifneq ($(GITUNTRACKEDCHANGES),)
 	BUILDMETA := dirty
 endif
 
-CTIMEVAR=-X $(PKG)/internal.GitCommit=$(GITCOMMIT) \
-	-X $(PKG)/internal.BuildMeta=$(BUILDMETA) \
-	-X $(PKG)/internal.ProjectName=$(NAME) \
-	-X $(PKG)/internal.ProjectURL=$(PKG)
+CTIMEVAR=-X $(PKG)/internal/version.GitCommit=$(GITCOMMIT) \
+	-X $(PKG)/internal/version.BuildMeta=$(BUILDMETA) \
+	-X $(PKG)/internal/version.ProjectName=$(NAME) \
+	-X $(PKG)/internal/version.ProjectURL=$(PKG)
 
 GO ?= "go"
 GO_LDFLAGS=-ldflags "-s -w $(CTIMEVAR)"
 GOOSARCHES = linux/amd64 darwin/amd64 windows/amd64
 
 .PHONY: all
-all: clean lint test build
+all: clean test build
 
 .PHONY: test
 test: ## test everything
 	go test ./...
-
-.PHONY: lint
-lint: ## run go mod tidy
-	go run github.com/golangci/golangci-lint/cmd/golangci-lint --timeout=120s run ./...
 
 .PHONY: tidy
 tidy: ## run go mod tidy

@@ -1,6 +1,9 @@
-package internal
+// Package version enables setting build-time version using ldflags.
+package version
 
 import (
+	"fmt"
+	"runtime"
 	"strings"
 )
 
@@ -15,6 +18,8 @@ var (
 	GitCommit = ""
 	// BuildMeta specifies release type (dev,rc1,beta,etc)
 	BuildMeta = ""
+
+	runtimeVersion = runtime.Version()
 )
 
 // FullVersion returns a version string.
@@ -29,4 +34,10 @@ func FullVersion() string {
 		sb.WriteString("+" + GitCommit)
 	}
 	return sb.String()
+}
+
+// UserAgent returns a user-agent string as specified in RFC 2616:14.43
+// https://tools.ietf.org/html/rfc2616
+func UserAgent() string {
+	return fmt.Sprintf("%s/%s (+%s; %s; %s)", ProjectName, Version, ProjectURL, GitCommit, runtimeVersion)
 }

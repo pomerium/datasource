@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/pomerium/datasource/internal"
+	"github.com/pomerium/datasource/internal/version"
 )
 
 type transport struct {
@@ -15,7 +15,7 @@ type transport struct {
 // RoundTrip executes a single HTTP transaction
 func (t *transport) RoundTrip(req *http.Request) (*http.Response, error) {
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", t.token))
-	req.Header.Set("User-Agent", fmt.Sprintf("%s/%s", internal.ProjectName, internal.Version))
+	req.Header.Set("User-Agent", fmt.Sprintf("%s/%s", version.ProjectName, version.Version))
 	return t.rt.RoundTrip(req)
 }
 
