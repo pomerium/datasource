@@ -1,4 +1,4 @@
-name: goreleaser
+name: release-tagged
 permissions:
   contents: write
   issues: read
@@ -7,9 +7,6 @@ on:
   release:
     types:
       - published
-  push:
-    branches:
-      - main
 
 jobs:
   goreleaser:
