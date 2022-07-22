@@ -62,39 +62,6 @@ checksum:
 snapshot:
   name_template: "{{ .Version }}+next+{{ .ShortCommit }}"
 
-nfpms:
-  - id: datasource
-
-    builds:
-      - datasource
-
-    package_name: datasource
-    vendor: Pomerium, Inc.
-    homepage: https://www.pomerium.com
-    description: A tool to fetch external data sources for Pomerium, an identity aware proxy.
-    maintainer: Pomerium <info@pomerium.com>
-    license: Apache 2.0
-    epoch: 1
-    release: 1
-    meta: false
-
-    formats:
-      - deb
-      - rpm
-
-    bindir: /usr/bin
-
-    overrides:
-      deb:
-        replacements:
-          arm64: arm64
-        file_name_template: '{{ .ProjectName }}_{{ .Version }}-{{ .Release }}_{{ .Arch }}{{ if .Arm }}{{if eq .Arm "7"}}hf{{ end }}{{ end }}'
-      rpm:
-        replacements:
-          arm64: aarch64
-          amd64: x86_64
-        file_name_template: '{{ .ProjectName }}-{{ .Version }}-{{ .Release }}.{{ .Arch }}{{ if .Arm }}{{if eq .Arm "7"}}hf{{ end }}{{ end }}'
-
 dockers:
   - image_templates:
       - "pomerium/datasource:amd64-{{ .Tag }}"
