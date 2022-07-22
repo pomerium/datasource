@@ -42,7 +42,7 @@ builds:
       - -X github.com/pomerium/datasource/internal/version.Version={{.Version}}
       - -X github.com/pomerium/datasource/internal/version.GitCommit={{.ShortCommit}}
       - -X github.com/pomerium/datasource/internal/version.BuildMeta={{.Timestamp}}
-      - -X github.com/pomerium/datasource/internal/version.ProjectName=pomerium-datasource
+      - -X github.com/pomerium/datasource/internal/version.ProjectName={{.ProjectName}}
       - -X github.com/pomerium/datasource/internal/version.ProjectURL=https://wwww.pomerium.com
 
 archives:
