@@ -1,4 +1,4 @@
-FROM golang:1.19.1-buster@sha256:d71125b5d1e299a8d9829eb09dbeb0cf576c461cbded210a9a6242d64072adc9  as build
+FROM golang:1.19.1-buster@sha256:4b2498de3f543907f4954584ce12558fc3cf80844907f3e7b9f7e98c3223b949  as build
 
 WORKDIR /build
 
