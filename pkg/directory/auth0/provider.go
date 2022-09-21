@@ -23,7 +23,7 @@ func New(options ...Option) *Provider {
 }
 
 func (p *Provider) getManagers(ctx context.Context) (RoleManager, UserManager, error) {
-	return p.cfg.newManagers(ctx, p.cfg.domain, p.cfg.serviceAccount)
+	return p.cfg.newManagers(ctx, p.cfg.serviceAccount)
 }
 
 // UserGroups fetches a slice of groups and users.

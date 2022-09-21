@@ -5,5 +5,4 @@ type ServiceAccount struct {
 	Domain       string
 	ClientID     string
 	ClientSecret string
-	Secret       string
 }

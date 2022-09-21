@@ -30,17 +30,17 @@ func WithGraphURL(graphURL *url.URL) Option {
 	}
 }
 
-// WithLoginURL sets the login URL for the configuration.
-func WithLoginURL(loginURL *url.URL) Option {
-	return func(cfg *config) {
-		cfg.loginURL = loginURL
-	}
-}
-
 // WithHTTPClient sets the http client to use for requests to the Azure APIs.
 func WithHTTPClient(httpClient *http.Client) Option {
 	return func(cfg *config) {
 		cfg.httpClient = httpClient
+	}
+}
+
+// WithLoginURL sets the login URL for the configuration.
+func WithLoginURL(loginURL *url.URL) Option {
+	return func(cfg *config) {
+		cfg.loginURL = loginURL
 	}
 }
 

@@ -20,16 +20,12 @@ type (
 		Roles(id string, opts ...management.RequestOption) (r *management.RoleList, err error)
 	}
 
-	newManagersFunc = func(ctx context.Context, domain string, serviceAccount *ServiceAccount) (RoleManager, UserManager, error)
+	newManagersFunc = func(ctx context.Context, serviceAccount *ServiceAccount) (RoleManager, UserManager, error)
 )
 
-func defaultNewManagersFunc(ctx context.Context, domain string, serviceAccount *ServiceAccount) (RoleManager, UserManager, error) {
-	// override the domain for the management api if supplied
-	if serviceAccount.Domain != "" {
-		domain = serviceAccount.Domain
-	}
-	m, err := management.New(domain,
-		management.WithClientCredentials(serviceAccount.ClientID, serviceAccount.Secret),
+func defaultNewManagersFunc(ctx context.Context, serviceAccount *ServiceAccount) (RoleManager, UserManager, error) {
+	m, err := management.New(serviceAccount.Domain,
+		management.WithClientCredentials(serviceAccount.ClientID, serviceAccount.ClientSecret),
 		management.WithContext(ctx))
 	if err != nil {
 		return nil, nil, fmt.Errorf("auth0: could not build management: %w", err)
@@ -38,20 +34,12 @@ func defaultNewManagersFunc(ctx context.Context, domain string, serviceAccount *
 }
 
 type config struct {
-	domain         string
 	serviceAccount *ServiceAccount
 	newManagers    newManagersFunc
 }
 
 // Option provides config for the Auth0 Provider.
 type Option func(cfg *config)
-
-// WithDomain sets the provider domain option.
-func WithDomain(domain string) Option {
-	return func(cfg *config) {
-		cfg.domain = domain
-	}
-}
 
 // WithServiceAccount sets the service account option.
 func WithServiceAccount(serviceAccount *ServiceAccount) Option {

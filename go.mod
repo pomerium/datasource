@@ -15,6 +15,8 @@ require (
 	github.com/rs/zerolog v1.28.0
 	github.com/spf13/cobra v1.5.0
 	github.com/stretchr/testify v1.8.0
+	github.com/tomnomnom/linkheader v0.0.0-20180905144013-02ca5825eb80
+	github.com/vektah/gqlparser v1.3.1
 	golang.org/x/oauth2 v0.0.0-20220822191816-0ebed06d0094
 	golang.org/x/sync v0.0.0-20220722155255-886fb9371eb4
 	gopkg.in/auth0.v5 v5.21.1

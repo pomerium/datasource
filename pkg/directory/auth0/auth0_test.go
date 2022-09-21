@@ -18,7 +18,6 @@ import (
 
 type mockNewRoleManagerFunc struct {
 	CalledWithContext        context.Context
-	CalledWithDomain         string
 	CalledWithServiceAccount *ServiceAccount
 
 	ReturnRoleManager RoleManager
@@ -26,9 +25,8 @@ type mockNewRoleManagerFunc struct {
 	ReturnError       error
 }
 
-func (m *mockNewRoleManagerFunc) f(ctx context.Context, domain string, serviceAccount *ServiceAccount) (RoleManager, UserManager, error) {
+func (m *mockNewRoleManagerFunc) f(ctx context.Context, serviceAccount *ServiceAccount) (RoleManager, UserManager, error) {
 	m.CalledWithContext = ctx
-	m.CalledWithDomain = domain
 	m.CalledWithServiceAccount = serviceAccount
 
 	return m.ReturnRoleManager, m.ReturnUserManager, m.ReturnError
@@ -59,7 +57,6 @@ func stringPtr(in string) *string {
 }
 
 func TestProvider_GetDirectory(t *testing.T) {
-	expectedDomain := "login.example.com"
 	expectedServiceAccount := &ServiceAccount{Domain: "login-example.auth0.com", ClientID: "c_id", Secret: "secret"}
 
 	tests := []struct {
@@ -390,7 +387,6 @@ func TestProvider_GetDirectory(t *testing.T) {
 			}
 
 			p := New(
-				WithDomain(expectedDomain),
 				WithServiceAccount(expectedServiceAccount),
 			)
 			p.cfg.newManagers = mNewManagersFunc.f
@@ -405,7 +401,6 @@ func TestProvider_GetDirectory(t *testing.T) {
 			assert.Equal(t, tc.expectedGroups, actualGroups)
 			assert.Equal(t, tc.expectedUsers, actualUsers)
 
-			assert.Equal(t, expectedDomain, mNewManagersFunc.CalledWithDomain)
 			assert.Equal(t, expectedServiceAccount, mNewManagersFunc.CalledWithServiceAccount)
 		})
 	}
