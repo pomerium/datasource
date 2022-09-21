@@ -62,9 +62,7 @@ func Test(t *testing.T) {
 
 	p := New(
 		WithURL(mustParseURL(srv.URL)),
-		WithServiceAccount(&ServiceAccount{
-			PrivateToken: "PRIVATE_TOKEN",
-		}),
+		WithPrivateToken("PRIVATE_TOKEN"),
 	)
 	groups, users, err := p.GetDirectory(context.Background())
 	assert.NoError(t, err)

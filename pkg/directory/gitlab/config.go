@@ -11,9 +11,9 @@ var defaultURL = &url.URL{
 }
 
 type config struct {
-	httpClient     *http.Client
-	serviceAccount *ServiceAccount
-	url            *url.URL
+	httpClient   *http.Client
+	privateToken string
+	url          *url.URL
 }
 
 // An Option updates the gitlab configuration.
@@ -26,10 +26,10 @@ func WithHTTPClient(httpClient *http.Client) Option {
 	}
 }
 
-// WithServiceAccount sets the service account in the config.
-func WithServiceAccount(serviceAccount *ServiceAccount) Option {
+// WithPrivateToken sets the private token in the config.
+func WithPrivateToken(privateToken string) Option {
 	return func(cfg *config) {
-		cfg.serviceAccount = serviceAccount
+		cfg.privateToken = privateToken
 	}
 }
 

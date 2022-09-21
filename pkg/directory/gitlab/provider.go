@@ -28,11 +28,7 @@ func New(options ...Option) *Provider {
 
 // UserGroups gets the directory user groups for gitlab.
 func (p *Provider) GetDirectory(ctx context.Context) ([]directory.Group, []directory.User, error) {
-	if p.cfg.serviceAccount == nil {
-		return nil, nil, fmt.Errorf("gitlab: service account not defined")
-	}
-
-	groups, err := p.listGroups(ctx, "")
+	groups, err := p.listGroups(ctx)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -71,7 +67,7 @@ func (p *Provider) GetDirectory(ctx context.Context) ([]directory.Group, []direc
 }
 
 // listGroups returns a map, with key is group ID, element is group name.
-func (p *Provider) listGroups(ctx context.Context, accessToken string) ([]directory.Group, error) {
+func (p *Provider) listGroups(ctx context.Context) ([]directory.Group, error) {
 	nextURL := p.cfg.url.ResolveReference(&url.URL{
 		Path: "/api/v4/groups",
 	}).String()
@@ -81,7 +77,7 @@ func (p *Provider) listGroups(ctx context.Context, accessToken string) ([]direct
 			ID   int    `json:"id"`
 			Name string `json:"name"`
 		}
-		hdrs, err := p.api(ctx, accessToken, nextURL, &result)
+		hdrs, err := p.api(ctx, nextURL, &result)
 		if err != nil {
 			return nil, fmt.Errorf("gitlab: error querying groups: %w", err)
 		}
@@ -104,7 +100,7 @@ func (p *Provider) listGroupMembers(ctx context.Context, groupID string) (users 
 	}).String()
 	for nextURL != "" {
 		var result []apiUserObject
-		hdrs, err := p.api(ctx, "", nextURL, &result)
+		hdrs, err := p.api(ctx, nextURL, &result)
 		if err != nil {
 			return nil, fmt.Errorf("gitlab: error querying group members: %w", err)
 		}
@@ -115,18 +111,14 @@ func (p *Provider) listGroupMembers(ctx context.Context, groupID string) (users 
 	return users, nil
 }
 
-func (p *Provider) api(ctx context.Context, accessToken string, uri string, out interface{}) (http.Header, error) {
+func (p *Provider) api(ctx context.Context, uri string, out interface{}) (http.Header, error) {
 	req, err := http.NewRequestWithContext(ctx, "GET", uri, nil)
 	if err != nil {
 		return nil, fmt.Errorf("gitlab: failed to create HTTP request: %w", err)
 	}
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("Content-Type", "application/json")
-	if accessToken != "" {
-		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", accessToken))
-	} else {
-		req.Header.Set("PRIVATE-TOKEN", p.cfg.serviceAccount.PrivateToken)
-	}
+	req.Header.Set("PRIVATE-TOKEN", p.cfg.privateToken)
 
 	res, err := p.cfg.httpClient.Do(req)
 	if err != nil {
