@@ -127,13 +127,11 @@ func TestProvider_GetDirectory(t *testing.T) {
 	mockAPI = newMockAPI(t, srv)
 
 	p := New(
+		WithClientID("CLIENT_ID"),
+		WithClientSecret("CLIENT_SECRET"),
+		WithDirectoryID("DIRECTORY_ID"),
 		WithGraphURL(mustParseURL(srv.URL)),
 		WithLoginURL(mustParseURL(srv.URL)),
-		WithServiceAccount(&ServiceAccount{
-			ClientID:     "CLIENT_ID",
-			ClientSecret: "CLIENT_SECRET",
-			DirectoryID:  "DIRECTORY_ID",
-		}),
 	)
 	groups, users, err := p.GetDirectory(context.Background())
 	assert.NoError(t, err)

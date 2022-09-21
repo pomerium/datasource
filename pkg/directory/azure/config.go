@@ -14,14 +14,37 @@ const (
 )
 
 type config struct {
-	graphURL       *url.URL
-	httpClient     *http.Client
-	loginURL       *url.URL
-	serviceAccount *ServiceAccount
+	clientID     string
+	clientSecret string
+	directoryID  string
+	graphURL     *url.URL
+	httpClient   *http.Client
+	loginURL     *url.URL
 }
 
 // An Option updates the provider configuration.
-type Option func(*config)
+type Option func(cfg *config)
+
+// WithClientID sets the client id in the config.
+func WithClientID(clientID string) Option {
+	return func(cfg *config) {
+		cfg.clientID = clientID
+	}
+}
+
+// WithClientSecret sets the client secret in the config.
+func WithClientSecret(clientSecret string) Option {
+	return func(cfg *config) {
+		cfg.clientSecret = clientSecret
+	}
+}
+
+// WithDirectoryID sets the directory in the config.
+func WithDirectoryID(directoryID string) Option {
+	return func(cfg *config) {
+		cfg.directoryID = directoryID
+	}
+}
 
 // WithGraphURL sets the graph URL for the configuration.
 func WithGraphURL(graphURL *url.URL) Option {
@@ -41,13 +64,6 @@ func WithHTTPClient(httpClient *http.Client) Option {
 func WithLoginURL(loginURL *url.URL) Option {
 	return func(cfg *config) {
 		cfg.loginURL = loginURL
-	}
-}
-
-// WithServiceAccount sets the service account to use to access Azure.
-func WithServiceAccount(serviceAccount *ServiceAccount) Option {
-	return func(cfg *config) {
-		cfg.serviceAccount = serviceAccount
 	}
 }
 

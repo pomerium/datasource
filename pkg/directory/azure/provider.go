@@ -34,10 +34,6 @@ func New(options ...Option) *Provider {
 
 // GetDirectory returns the directory users in azure active directory.
 func (p *Provider) GetDirectory(ctx context.Context) ([]directory.Group, []directory.User, error) {
-	if p.cfg.serviceAccount == nil {
-		return nil, nil, fmt.Errorf("azure: service account not defined")
-	}
-
 	err := p.dc.Sync(ctx)
 	if err != nil {
 		return nil, nil, err
@@ -103,12 +99,12 @@ func (p *Provider) getToken(ctx context.Context) (*oauth2.Token, error) {
 	}
 
 	tokenURL := p.cfg.loginURL.ResolveReference(&url.URL{
-		Path: fmt.Sprintf("/%s/oauth2/v2.0/token", p.cfg.serviceAccount.DirectoryID),
+		Path: fmt.Sprintf("/%s/oauth2/v2.0/token", p.cfg.directoryID),
 	})
 
 	req, err := http.NewRequestWithContext(ctx, "POST", tokenURL.String(), strings.NewReader(url.Values{
-		"client_id":     {p.cfg.serviceAccount.ClientID},
-		"client_secret": {p.cfg.serviceAccount.ClientSecret},
+		"client_id":     {p.cfg.clientID},
+		"client_secret": {p.cfg.clientSecret},
 		"scope":         {defaultLoginScope},
 		"grant_type":    {defaultLoginGrantType},
 	}.Encode()))
