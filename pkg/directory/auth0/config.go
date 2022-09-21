@@ -3,6 +3,7 @@ package auth0
 import (
 	"context"
 	"fmt"
+	"net/http"
 
 	"gopkg.in/auth0.v5/management"
 )
@@ -20,11 +21,12 @@ type (
 		Roles(id string, opts ...management.RequestOption) (r *management.RoleList, err error)
 	}
 
-	newManagersFunc = func(ctx context.Context, serviceAccount *ServiceAccount) (RoleManager, UserManager, error)
+	newManagersFunc = func(ctx context.Context, httpClient *http.Client, serviceAccount *ServiceAccount) (RoleManager, UserManager, error)
 )
 
-func defaultNewManagersFunc(ctx context.Context, serviceAccount *ServiceAccount) (RoleManager, UserManager, error) {
+func defaultNewManagersFunc(ctx context.Context, httpClient *http.Client, serviceAccount *ServiceAccount) (RoleManager, UserManager, error) {
 	m, err := management.New(serviceAccount.Domain,
+		management.WithClient(httpClient),
 		management.WithClientCredentials(serviceAccount.ClientID, serviceAccount.ClientSecret),
 		management.WithContext(ctx))
 	if err != nil {
@@ -35,11 +37,19 @@ func defaultNewManagersFunc(ctx context.Context, serviceAccount *ServiceAccount)
 
 type config struct {
 	serviceAccount *ServiceAccount
+	httpClient     *http.Client
 	newManagers    newManagersFunc
 }
 
 // Option provides config for the Auth0 Provider.
 type Option func(cfg *config)
+
+// WithHTTPClient sets the http client option.
+func WithHTTPClient(httpClient *http.Client) Option {
+	return func(cfg *config) {
+		cfg.httpClient = httpClient
+	}
+}
 
 // WithServiceAccount sets the service account option.
 func WithServiceAccount(serviceAccount *ServiceAccount) Option {
@@ -56,6 +66,7 @@ func withNewManagersFunc(f newManagersFunc) Option {
 
 func getConfig(options ...Option) *config {
 	cfg := new(config)
+	WithHTTPClient(http.DefaultClient)
 	withNewManagersFunc(defaultNewManagersFunc)(cfg)
 	for _, option := range options {
 		option(cfg)

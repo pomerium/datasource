@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/http"
 	"testing"
 
 	"github.com/golang/mock/gomock"
@@ -25,7 +26,7 @@ type mockNewRoleManagerFunc struct {
 	ReturnError       error
 }
 
-func (m *mockNewRoleManagerFunc) f(ctx context.Context, serviceAccount *ServiceAccount) (RoleManager, UserManager, error) {
+func (m *mockNewRoleManagerFunc) f(ctx context.Context, httpClient *http.Client, serviceAccount *ServiceAccount) (RoleManager, UserManager, error) {
 	m.CalledWithContext = ctx
 	m.CalledWithServiceAccount = serviceAccount
 
@@ -57,7 +58,7 @@ func stringPtr(in string) *string {
 }
 
 func TestProvider_GetDirectory(t *testing.T) {
-	expectedServiceAccount := &ServiceAccount{Domain: "login-example.auth0.com", ClientID: "c_id", Secret: "secret"}
+	expectedServiceAccount := &ServiceAccount{Domain: "login-example.auth0.com", ClientID: "c_id", ClientSecret: "secret"}
 
 	tests := []struct {
 		name                         string
