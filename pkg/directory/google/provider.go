@@ -2,7 +2,6 @@ package google
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"sort"
 	"sync"
@@ -150,16 +149,11 @@ func (p *Provider) getAPIClient(ctx context.Context) (*admin.Service, error) {
 		return p.apiClient, nil
 	}
 
-	apiCreds, err := json.Marshal(p.cfg.serviceAccount)
-	if err != nil {
-		return nil, fmt.Errorf("google: could not marshal service account json %w", err)
-	}
-
-	config, err := google.JWTConfigFromJSON(apiCreds, apiScopes...)
+	config, err := google.JWTConfigFromJSON(p.cfg.jsonKey, apiScopes...)
 	if err != nil {
 		return nil, fmt.Errorf("google: error reading jwt config: %w", err)
 	}
-	config.Subject = p.cfg.serviceAccount.ImpersonateUser
+	config.Subject = p.cfg.impersonateUser
 
 	ts := config.TokenSource(ctx)
 

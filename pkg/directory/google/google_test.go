@@ -160,11 +160,14 @@ func TestProvider_GetDirectory(t *testing.T) {
 	defer srv.Close()
 	mockAPI = newMockAPI(t, srv)
 
-	p := New(WithServiceAccount(&ServiceAccount{
-		Type:       "service_account",
-		PrivateKey: privateKey,
-		TokenURL:   srv.URL + "/token",
-	}), WithURL(srv.URL))
+	p := New(
+		WithJSONKey(encodeJSON(map[string]any{
+			"type":        "service_account",
+			"private_key": privateKey,
+			"token_uri":   srv.URL + "/token",
+		})),
+		WithURL(srv.URL),
+	)
 
 	dgs, dus, err := p.GetDirectory(ctx)
 	if !assert.NoError(t, err) {
@@ -178,4 +181,9 @@ func TestProvider_GetDirectory(t *testing.T) {
 		{ID: "inside-user1", Email: "user1@inside.test", GroupIDs: []string{"group1"}},
 		{ID: "outside-user1", Email: "user1@outside.test", GroupIDs: []string{"group1"}},
 	}, dus)
+}
+
+func encodeJSON(data any) []byte {
+	bs, _ := json.Marshal(data)
+	return bs
 }

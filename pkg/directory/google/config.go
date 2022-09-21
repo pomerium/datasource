@@ -7,9 +7,10 @@ const (
 )
 
 type config struct {
-	httpClient     *http.Client
-	serviceAccount *ServiceAccount
-	url            string
+	httpClient      *http.Client
+	impersonateUser string
+	jsonKey         []byte
+	url             string
 }
 
 // An Option changes the configuration for the Google directory provider.
@@ -22,10 +23,17 @@ func WithHTTPClient(httpClient *http.Client) Option {
 	}
 }
 
-// WithServiceAccount sets the service account in the Google configuration.
-func WithServiceAccount(serviceAccount *ServiceAccount) Option {
+// WithImpersonateUser sets the impersonate user in the config.
+func WithImpersonateUser(impersonateUser string) Option {
 	return func(cfg *config) {
-		cfg.serviceAccount = serviceAccount
+		cfg.impersonateUser = impersonateUser
+	}
+}
+
+// WithJSONKey sets the json key in the config.
+func WithJSONKey(jsonKey []byte) Option {
+	return func(cfg *config) {
+		cfg.jsonKey = jsonKey
 	}
 }
 
