@@ -7,6 +7,7 @@ require (
 	github.com/gabriel-vasile/mimetype v1.4.1
 	github.com/go-chi/chi/v5 v5.0.7
 	github.com/go-playground/validator/v10 v10.11.1
+	github.com/golang/mock v1.6.0
 	github.com/golangci/golangci-lint v1.49.0
 	github.com/gorilla/mux v1.8.0
 	github.com/gregjones/httpcache v0.0.0-20190611155906-901d90724c79
@@ -16,6 +17,7 @@ require (
 	github.com/stretchr/testify v1.8.0
 	golang.org/x/oauth2 v0.0.0-20220822191816-0ebed06d0094
 	golang.org/x/sync v0.0.0-20220722155255-886fb9371eb4
+	gopkg.in/auth0.v5 v5.21.1
 )
 
 require (
@@ -27,6 +29,7 @@ require (
 	github.com/GaijinEntertainment/go-exhaustruct/v2 v2.3.0 // indirect
 	github.com/Masterminds/semver v1.5.0 // indirect
 	github.com/OpenPeeDeeP/depguard v1.1.0 // indirect
+	github.com/PuerkitoBio/rehttp v1.0.0 // indirect
 	github.com/alexkohler/prealloc v1.0.0 // indirect
 	github.com/alingse/asasalint v0.0.11 // indirect
 	github.com/ashanbrown/forbidigo v1.3.0 // indirect
