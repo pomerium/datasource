@@ -21,13 +21,19 @@ type (
 		Roles(id string, opts ...management.RequestOption) (r *management.RoleList, err error)
 	}
 
-	newManagersFunc = func(ctx context.Context, httpClient *http.Client, serviceAccount *ServiceAccount) (RoleManager, UserManager, error)
+	newManagersFunc = func(
+		ctx context.Context,
+		cfg *config,
+	) (RoleManager, UserManager, error)
 )
 
-func defaultNewManagersFunc(ctx context.Context, httpClient *http.Client, serviceAccount *ServiceAccount) (RoleManager, UserManager, error) {
-	m, err := management.New(serviceAccount.Domain,
-		management.WithClient(httpClient),
-		management.WithClientCredentials(serviceAccount.ClientID, serviceAccount.ClientSecret),
+func defaultNewManagersFunc(
+	ctx context.Context,
+	cfg *config,
+) (RoleManager, UserManager, error) {
+	m, err := management.New(cfg.domain,
+		management.WithClient(cfg.httpClient),
+		management.WithClientCredentials(cfg.clientID, cfg.clientSecret),
 		management.WithContext(ctx))
 	if err != nil {
 		return nil, nil, fmt.Errorf("auth0: could not build management: %w", err)
@@ -36,25 +42,41 @@ func defaultNewManagersFunc(ctx context.Context, httpClient *http.Client, servic
 }
 
 type config struct {
-	serviceAccount *ServiceAccount
-	httpClient     *http.Client
-	newManagers    newManagersFunc
+	clientID     string
+	clientSecret string
+	domain       string
+	httpClient   *http.Client
+	newManagers  newManagersFunc
 }
 
 // Option provides config for the Auth0 Provider.
 type Option func(cfg *config)
 
+// WithClientID sets the client id in the config.
+func WithClientID(clientID string) Option {
+	return func(cfg *config) {
+		cfg.clientID = clientID
+	}
+}
+
+// WithClientSecret sets the client secret in the config.
+func WithClientSecret(clientSecret string) Option {
+	return func(cfg *config) {
+		cfg.clientSecret = clientSecret
+	}
+}
+
+// WithDomain sets the domain in the config.
+func WithDomain(domain string) Option {
+	return func(cfg *config) {
+		cfg.domain = domain
+	}
+}
+
 // WithHTTPClient sets the http client option.
 func WithHTTPClient(httpClient *http.Client) Option {
 	return func(cfg *config) {
 		cfg.httpClient = httpClient
-	}
-}
-
-// WithServiceAccount sets the service account option.
-func WithServiceAccount(serviceAccount *ServiceAccount) Option {
-	return func(cfg *config) {
-		cfg.serviceAccount = serviceAccount
 	}
 }
 

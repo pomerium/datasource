@@ -6,7 +6,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"net/http"
 	"testing"
 
 	"github.com/golang/mock/gomock"
@@ -18,17 +17,20 @@ import (
 )
 
 type mockNewRoleManagerFunc struct {
-	CalledWithContext        context.Context
-	CalledWithServiceAccount *ServiceAccount
+	CalledWithContext context.Context
+	CalledWithConfig  *config
 
 	ReturnRoleManager RoleManager
 	ReturnUserManager UserManager
 	ReturnError       error
 }
 
-func (m *mockNewRoleManagerFunc) f(ctx context.Context, httpClient *http.Client, serviceAccount *ServiceAccount) (RoleManager, UserManager, error) {
+func (m *mockNewRoleManagerFunc) f(
+	ctx context.Context,
+	cfg *config,
+) (RoleManager, UserManager, error) {
 	m.CalledWithContext = ctx
-	m.CalledWithServiceAccount = serviceAccount
+	m.CalledWithConfig = cfg
 
 	return m.ReturnRoleManager, m.ReturnUserManager, m.ReturnError
 }
@@ -58,7 +60,9 @@ func stringPtr(in string) *string {
 }
 
 func TestProvider_GetDirectory(t *testing.T) {
-	expectedServiceAccount := &ServiceAccount{Domain: "login-example.auth0.com", ClientID: "c_id", ClientSecret: "secret"}
+	expectedDomain := "login-example.auth0.com"
+	expectedClientID := "c_id"
+	expectedClientSecret := "secret"
 
 	tests := []struct {
 		name                         string
@@ -388,7 +392,9 @@ func TestProvider_GetDirectory(t *testing.T) {
 			}
 
 			p := New(
-				WithServiceAccount(expectedServiceAccount),
+				WithDomain(expectedDomain),
+				WithClientID(expectedClientID),
+				WithClientSecret(expectedClientSecret),
 			)
 			p.cfg.newManagers = mNewManagersFunc.f
 
@@ -402,7 +408,9 @@ func TestProvider_GetDirectory(t *testing.T) {
 			assert.Equal(t, tc.expectedGroups, actualGroups)
 			assert.Equal(t, tc.expectedUsers, actualUsers)
 
-			assert.Equal(t, expectedServiceAccount, mNewManagersFunc.CalledWithServiceAccount)
+			assert.Equal(t, expectedDomain, mNewManagersFunc.CalledWithConfig.domain)
+			assert.Equal(t, expectedClientID, mNewManagersFunc.CalledWithConfig.clientID)
+			assert.Equal(t, expectedClientSecret, mNewManagersFunc.CalledWithConfig.clientSecret)
 		})
 	}
 }
