@@ -28,10 +28,6 @@ func New(options ...Option) *Provider {
 
 // GetDirectory gets the directory user groups for github.
 func (p *Provider) GetDirectory(ctx context.Context) ([]directory.Group, []directory.User, error) {
-	if p.cfg.serviceAccount == nil {
-		return nil, nil, fmt.Errorf("github: service account not defined")
-	}
-
 	orgSlugs, err := p.listOrgs(ctx)
 	if err != nil {
 		return nil, nil, err
@@ -114,7 +110,7 @@ func (p *Provider) api(ctx context.Context, apiURL string, out interface{}) (htt
 	if err != nil {
 		return nil, fmt.Errorf("github: failed to create http request: %w", err)
 	}
-	req.SetBasicAuth(p.cfg.serviceAccount.Username, p.cfg.serviceAccount.PersonalAccessToken)
+	req.SetBasicAuth(p.cfg.username, p.cfg.personalAccessToken)
 
 	res, err := p.cfg.httpClient.Do(req)
 	if err != nil {
@@ -149,7 +145,7 @@ func (p *Provider) graphql(ctx context.Context, query string, out interface{}) (
 	if err != nil {
 		return nil, fmt.Errorf("github: failed to create http request: %w", err)
 	}
-	req.SetBasicAuth(p.cfg.serviceAccount.Username, p.cfg.serviceAccount.PersonalAccessToken)
+	req.SetBasicAuth(p.cfg.username, p.cfg.personalAccessToken)
 
 	res, err := p.cfg.httpClient.Do(req)
 	if err != nil {

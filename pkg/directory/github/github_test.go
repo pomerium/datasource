@@ -334,11 +334,9 @@ func TestProvider_GetDirectory(t *testing.T) {
 	mockAPI = newMockAPI(t, srv)
 
 	p := New(
+		WithPersonalAccessToken("xyz"),
 		WithURL(mustParseURL(srv.URL)),
-		WithServiceAccount(&ServiceAccount{
-			Username:            "abc",
-			PersonalAccessToken: "xyz",
-		}),
+		WithUsername("abc"),
 	)
 	groups, users, err := p.GetDirectory(context.Background())
 	assert.NoError(t, err)

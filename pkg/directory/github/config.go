@@ -11,9 +11,10 @@ var defaultURL = &url.URL{
 }
 
 type config struct {
-	httpClient     *http.Client
-	serviceAccount *ServiceAccount
-	url            *url.URL
+	httpClient          *http.Client
+	personalAccessToken string
+	url                 *url.URL
+	username            string
 }
 
 // An Option updates the github configuration.
@@ -26,10 +27,10 @@ func WithHTTPClient(httpClient *http.Client) Option {
 	}
 }
 
-// WithServiceAccount sets the service account in the config.
-func WithServiceAccount(serviceAccount *ServiceAccount) Option {
+// WithPersonalAccessToken sets the personal access token in the config.
+func WithPersonalAccessToken(personalAccessToken string) Option {
 	return func(cfg *config) {
-		cfg.serviceAccount = serviceAccount
+		cfg.personalAccessToken = personalAccessToken
 	}
 }
 
@@ -37,6 +38,13 @@ func WithServiceAccount(serviceAccount *ServiceAccount) Option {
 func WithURL(u *url.URL) Option {
 	return func(cfg *config) {
 		cfg.url = u
+	}
+}
+
+// WithUsername sets the username in the config.
+func WithUsername(username string) Option {
+	return func(cfg *config) {
+		cfg.username = username
 	}
 }
 
