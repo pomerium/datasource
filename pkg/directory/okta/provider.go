@@ -164,7 +164,7 @@ func (p *Provider) apiGet(ctx context.Context, uri string, out interface{}) (htt
 	req.Header.Set("Authorization", "SSWS "+apiKey)
 
 	for {
-		res, err := p.cfg.httpClient.Do(req)
+		res, err := p.cfg.getHTTPClient().Do(req)
 		if err != nil {
 			return nil, err
 		}

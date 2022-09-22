@@ -23,6 +23,7 @@ func main() {
 	}
 	rootCmd.AddCommand(
 		bambooCommand(logger),
+		directoryCommand(logger),
 		zenefitsCommand(logger),
 		ip2LocationCmd,
 		wellKnownIPsCmd,

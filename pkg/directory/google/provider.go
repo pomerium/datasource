@@ -6,6 +6,7 @@ import (
 	"sort"
 	"sync"
 
+	"github.com/hashicorp/go-multierror"
 	"golang.org/x/oauth2/google"
 	admin "google.golang.org/api/admin/directory/v1"
 	"google.golang.org/api/option"
@@ -136,8 +137,10 @@ func (p *Provider) GetDirectory(ctx context.Context) ([]directory.Group, []direc
 }
 
 func (p *Provider) getAPIClient(ctx context.Context) (*admin.Service, error) {
-	jsonKey := p.cfg.jsonKey
-	if len(jsonKey) == 0 {
+	jsonKey, err := p.cfg.getJSONKey()
+	if err != nil {
+		return nil, multierror.Append(ErrJSONKeyRequired, err)
+	} else if len(jsonKey) == 0 {
 		return nil, ErrJSONKeyRequired
 	}
 	impersonateUser := p.cfg.impersonateUser
@@ -167,7 +170,7 @@ func (p *Provider) getAPIClient(ctx context.Context) (*admin.Service, error) {
 	ts := config.TokenSource(ctx)
 
 	p.apiClient, err = admin.NewService(ctx,
-		option.WithHTTPClient(p.cfg.httpClient),
+		option.WithHTTPClient(p.cfg.getHTTPClient()),
 		option.WithTokenSource(ts),
 		option.WithEndpoint(p.cfg.url))
 	if err != nil {

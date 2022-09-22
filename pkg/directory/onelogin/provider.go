@@ -122,7 +122,7 @@ func (p *Provider) apiGet(ctx context.Context, accessToken string, uri string, o
 	req.Header.Set("Authorization", fmt.Sprintf("bearer:%s", accessToken))
 	req.Header.Set("Content-Type", "application/json")
 
-	res, err := p.cfg.httpClient.Do(req)
+	res, err := p.cfg.getHTTPClient().Do(req)
 	if err != nil {
 		return "", err
 	}
@@ -189,7 +189,7 @@ func (p *Provider) getToken(ctx context.Context) (*oauth2.Token, error) {
 		clientID, clientSecret))
 	req.Header.Set("Content-Type", "application/json")
 
-	res, err := p.cfg.httpClient.Do(req)
+	res, err := p.cfg.getHTTPClient().Do(req)
 	if err != nil {
 		return nil, err
 	}

@@ -5,7 +5,11 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 	"gopkg.in/auth0.v5/management"
+
+	"github.com/pomerium/datasource/internal/httputil"
 )
 
 type (
@@ -45,7 +49,7 @@ func defaultNewManagersFunc(
 	}
 
 	m, err := management.New(domain,
-		management.WithClient(cfg.httpClient),
+		management.WithClient(cfg.getHTTPClient()),
 		management.WithClientCredentials(clientID, clientSecret),
 		management.WithContext(ctx))
 	if err != nil {
@@ -59,6 +63,7 @@ type config struct {
 	clientSecret string
 	domain       string
 	httpClient   *http.Client
+	logger       zerolog.Logger
 	newManagers  newManagersFunc
 }
 
@@ -93,6 +98,13 @@ func WithHTTPClient(httpClient *http.Client) Option {
 	}
 }
 
+// WithLogger sets the logger in the config.
+func WithLogger(logger zerolog.Logger) Option {
+	return func(cfg *config) {
+		cfg.logger = logger
+	}
+}
+
 func withNewManagersFunc(f newManagersFunc) Option {
 	return func(cfg *config) {
 		cfg.newManagers = f
@@ -101,10 +113,17 @@ func withNewManagersFunc(f newManagersFunc) Option {
 
 func getConfig(options ...Option) *config {
 	cfg := new(config)
-	WithHTTPClient(http.DefaultClient)
+	WithHTTPClient(http.DefaultClient)(cfg)
+	WithLogger(log.Logger)(cfg)
 	withNewManagersFunc(defaultNewManagersFunc)(cfg)
 	for _, option := range options {
 		option(cfg)
 	}
 	return cfg
+}
+
+func (cfg *config) getHTTPClient() *http.Client {
+	return httputil.NewLoggingClient(cfg.logger, cfg.httpClient, func(event *zerolog.Event) *zerolog.Event {
+		return event.Str("idp", "auth0")
+	})
 }

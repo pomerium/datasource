@@ -56,7 +56,7 @@ func (p *Provider) api(ctx context.Context, url string, out interface{}) error {
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token.AccessToken))
 
-	res, err := p.cfg.httpClient.Do(req)
+	res, err := p.cfg.getHTTPClient().Do(req)
 	if err != nil {
 		return fmt.Errorf("azure: error making HTTP request: %w", err)
 	}
@@ -126,7 +126,7 @@ func (p *Provider) getToken(ctx context.Context) (*oauth2.Token, error) {
 	}
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
-	res, err := p.cfg.httpClient.Do(req)
+	res, err := p.cfg.getHTTPClient().Do(req)
 	if err != nil {
 		return nil, err
 	}

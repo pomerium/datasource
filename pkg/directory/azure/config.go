@@ -3,6 +3,11 @@ package azure
 import (
 	"net/http"
 	"net/url"
+
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
+
+	"github.com/pomerium/datasource/internal/httputil"
 )
 
 const (
@@ -19,6 +24,7 @@ type config struct {
 	directoryID  string
 	graphURL     *url.URL
 	httpClient   *http.Client
+	logger       zerolog.Logger
 	loginURL     *url.URL
 }
 
@@ -60,6 +66,13 @@ func WithHTTPClient(httpClient *http.Client) Option {
 	}
 }
 
+// WithLogger sets the logger in the config.
+func WithLogger(logger zerolog.Logger) Option {
+	return func(cfg *config) {
+		cfg.logger = logger
+	}
+}
+
 // WithLoginURL sets the login URL for the configuration.
 func WithLoginURL(loginURL *url.URL) Option {
 	return func(cfg *config) {
@@ -74,6 +87,7 @@ func getConfig(options ...Option) *config {
 		Host:   defaultGraphHost,
 	})(cfg)
 	WithHTTPClient(http.DefaultClient)(cfg)
+	WithLogger(log.Logger)(cfg)
 	WithLoginURL(&url.URL{
 		Scheme: "https",
 		Host:   defaultLoginHost,
@@ -82,4 +96,10 @@ func getConfig(options ...Option) *config {
 		option(cfg)
 	}
 	return cfg
+}
+
+func (cfg *config) getHTTPClient() *http.Client {
+	return httputil.NewLoggingClient(cfg.logger, cfg.httpClient, func(event *zerolog.Event) *zerolog.Event {
+		return event.Str("idp", "azure")
+	})
 }

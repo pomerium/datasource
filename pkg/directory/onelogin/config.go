@@ -3,6 +3,11 @@ package onelogin
 import (
 	"net/http"
 	"net/url"
+
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
+
+	"github.com/pomerium/datasource/internal/httputil"
 )
 
 type config struct {
@@ -11,6 +16,7 @@ type config struct {
 	clientID     string
 	clientSecret string
 	httpClient   *http.Client
+	logger       zerolog.Logger
 }
 
 // An Option updates the onelogin configuration.
@@ -44,6 +50,13 @@ func WithHTTPClient(httpClient *http.Client) Option {
 	}
 }
 
+// WithLogger sets the logger in the config.
+func WithLogger(logger zerolog.Logger) Option {
+	return func(cfg *config) {
+		cfg.logger = logger
+	}
+}
+
 // WithURL sets the api url in the config.
 func WithURL(apiURL *url.URL) Option {
 	return func(cfg *config) {
@@ -55,6 +68,7 @@ func getConfig(options ...Option) *config {
 	cfg := new(config)
 	WithBatchSize(20)(cfg)
 	WithHTTPClient(http.DefaultClient)(cfg)
+	WithLogger(log.Logger)(cfg)
 	WithURL(&url.URL{
 		Scheme: "https",
 		Host:   "api.us.onelogin.com",
@@ -63,4 +77,10 @@ func getConfig(options ...Option) *config {
 		option(cfg)
 	}
 	return cfg
+}
+
+func (cfg *config) getHTTPClient() *http.Client {
+	return httputil.NewLoggingClient(cfg.logger, cfg.httpClient, func(event *zerolog.Event) *zerolog.Event {
+		return event.Str("idp", "onelogin")
+	})
 }

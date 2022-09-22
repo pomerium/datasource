@@ -89,11 +89,10 @@ func (p *Provider) getClient(ctx context.Context) (*http.Client, error) {
 		return nil, err
 	}
 
-	client := new(http.Client)
-	*client = *p.cfg.httpClient
+	client := p.cfg.getHTTPClient()
 	client.Transport = &oauth2.Transport{
 		Source: oauth2.StaticTokenSource(token),
-		Base:   p.cfg.httpClient.Transport,
+		Base:   client.Transport,
 	}
 	return client, nil
 }

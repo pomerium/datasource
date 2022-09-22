@@ -8,25 +8,31 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+
+	"github.com/go-chi/chi/v5"
 )
 
 type handler struct {
+	router   *chi.Mux
 	provider Provider
 }
 
 // NewHandler creates a new Handler.
 func NewHandler(provider Provider) http.Handler {
-	return &handler{
-		provider: provider,
-	}
+	h := &handler{provider: provider}
+	h.router = chi.NewMux()
+	h.router.Get("/*", func(w http.ResponseWriter, r *http.Request) {
+		err := h.serve(r.Context(), w)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+	})
+	return h
 }
 
 // ServeHTTP serves an HTTP request with directory users and groups.
 func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	err := h.serve(r.Context(), w)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
+	h.router.ServeHTTP(w, r)
 }
 
 func (h *handler) serve(ctx context.Context, w http.ResponseWriter) error {

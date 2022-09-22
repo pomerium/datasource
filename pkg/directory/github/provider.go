@@ -121,7 +121,7 @@ func (p *Provider) api(ctx context.Context, apiURL string, out interface{}) (htt
 	}
 	req.SetBasicAuth(username, personalAccessToken)
 
-	res, err := p.cfg.httpClient.Do(req)
+	res, err := p.cfg.getHTTPClient().Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("github: failed to make http request: %w", err)
 	}
@@ -165,7 +165,7 @@ func (p *Provider) graphql(ctx context.Context, query string, out interface{}) (
 	}
 	req.SetBasicAuth(username, personalAccessToken)
 
-	res, err := p.cfg.httpClient.Do(req)
+	res, err := p.cfg.getHTTPClient().Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("github: failed to make http request: %w", err)
 	}

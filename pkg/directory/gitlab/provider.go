@@ -125,7 +125,7 @@ func (p *Provider) api(ctx context.Context, uri string, out interface{}) (http.H
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("PRIVATE-TOKEN", privateToken)
 
-	res, err := p.cfg.httpClient.Do(req)
+	res, err := p.cfg.getHTTPClient().Do(req)
 	if err != nil {
 		return nil, err
 	}

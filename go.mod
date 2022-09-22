@@ -11,9 +11,11 @@ require (
 	github.com/golangci/golangci-lint v1.49.0
 	github.com/gorilla/mux v1.8.0
 	github.com/gregjones/httpcache v0.0.0-20190611155906-901d90724c79
+	github.com/hashicorp/go-multierror v1.1.1
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/rs/zerolog v1.28.0
 	github.com/spf13/cobra v1.5.0
+	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.8.0
 	github.com/tomnomnom/linkheader v0.0.0-20180905144013-02ca5825eb80
 	github.com/vektah/gqlparser v1.3.1
@@ -94,7 +96,6 @@ require (
 	github.com/gostaticanalysis/forcetypeassert v0.1.0 // indirect
 	github.com/gostaticanalysis/nilerr v0.1.1 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
-	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/hashicorp/go-version v1.6.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/hexops/gotextdiff v1.0.3 // indirect
@@ -161,7 +162,6 @@ require (
 	github.com/spf13/afero v1.8.2 // indirect
 	github.com/spf13/cast v1.5.0 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
-	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/spf13/viper v1.12.0 // indirect
 	github.com/ssgreg/nlreturn/v2 v2.2.1 // indirect
 	github.com/stbenjam/no-sprintf-host-port v0.1.1 // indirect

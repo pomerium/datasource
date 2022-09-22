@@ -4,6 +4,11 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
+
+	"github.com/pomerium/datasource/internal/httputil"
 )
 
 type config struct {
@@ -11,8 +16,9 @@ type config struct {
 	apiURL        *url.URL
 	clientID      string
 	clientSecret  string
-	httpClient    *http.Client
 	environmentID string
+	httpClient    *http.Client
+	logger        zerolog.Logger
 }
 
 // An Option updates the Ping configuration.
@@ -60,6 +66,13 @@ func WithHTTPClient(httpClient *http.Client) Option {
 	}
 }
 
+// WithLogger sets the logger in the config.
+func WithLogger(logger zerolog.Logger) Option {
+	return func(cfg *config) {
+		cfg.logger = logger
+	}
+}
+
 // WithProviderURL sets the environment ID from the provider URL set in the config.
 func WithProviderURL(providerURL *url.URL) Option {
 	// provider URL will be https://auth.pingone.com/{ENVIRONMENT_ID}/as
@@ -75,7 +88,6 @@ func WithProviderURL(providerURL *url.URL) Option {
 
 func getConfig(options ...Option) *config {
 	cfg := new(config)
-	WithHTTPClient(http.DefaultClient)(cfg)
 	WithAuthURL(&url.URL{
 		Scheme: "https",
 		Host:   "auth.pingone.com",
@@ -84,8 +96,16 @@ func getConfig(options ...Option) *config {
 		Scheme: "https",
 		Host:   "api.pingone.com",
 	})(cfg)
+	WithHTTPClient(http.DefaultClient)(cfg)
+	WithLogger(log.Logger)(cfg)
 	for _, option := range options {
 		option(cfg)
 	}
 	return cfg
+}
+
+func (cfg *config) getHTTPClient() *http.Client {
+	return httputil.NewLoggingClient(cfg.logger, cfg.httpClient, func(event *zerolog.Event) *zerolog.Event {
+		return event.Str("idp", "ping")
+	})
 }
