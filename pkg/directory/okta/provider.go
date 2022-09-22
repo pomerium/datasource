@@ -35,10 +35,6 @@ func New(options ...Option) *Provider {
 // GetDirectory fetches the groups of which the user is a member
 // https://developer.okta.com/docs/reference/api/users/#get-user-s-groups
 func (p *Provider) GetDirectory(ctx context.Context) ([]directory.Group, []directory.User, error) {
-	if p.cfg.serviceAccount == nil {
-		return nil, nil, ErrServiceAccountNotDefined
-	}
-
 	if p.cfg.providerURL == nil {
 		return nil, nil, ErrProviderURLNotDefined
 	}
@@ -160,7 +156,7 @@ func (p *Provider) apiGet(ctx context.Context, uri string, out interface{}) (htt
 	}
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "SSWS "+p.cfg.serviceAccount.APIKey)
+	req.Header.Set("Authorization", "SSWS "+p.cfg.apiKey)
 
 	for {
 		res, err := p.cfg.httpClient.Do(req)

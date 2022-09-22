@@ -15,14 +15,21 @@ const (
 )
 
 type config struct {
-	batchSize      int
-	httpClient     *http.Client
-	providerURL    *url.URL
-	serviceAccount *ServiceAccount
+	apiKey      string
+	batchSize   int
+	httpClient  *http.Client
+	providerURL *url.URL
 }
 
 // An Option configures the Okta Provider.
 type Option func(cfg *config)
+
+// WithAPIKey sets the api key in the config.
+func WithAPIKey(apiKey string) Option {
+	return func(cfg *config) {
+		cfg.apiKey = apiKey
+	}
+}
 
 // WithBatchSize sets the batch size option.
 func WithBatchSize(batchSize int) Option {
@@ -42,13 +49,6 @@ func WithHTTPClient(httpClient *http.Client) Option {
 func WithProviderURL(uri *url.URL) Option {
 	return func(cfg *config) {
 		cfg.providerURL = uri
-	}
-}
-
-// WithServiceAccount sets the service account option.
-func WithServiceAccount(serviceAccount *ServiceAccount) Option {
-	return func(cfg *config) {
-		cfg.serviceAccount = serviceAccount
 	}
 }
 

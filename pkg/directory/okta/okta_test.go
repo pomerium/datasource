@@ -163,7 +163,7 @@ func TestProvider_GetDirectory(t *testing.T) {
 	})
 
 	p := New(
-		WithServiceAccount(&ServiceAccount{APIKey: "APITOKEN"}),
+		WithAPIKey("APITOKEN"),
 		WithProviderURL(mustParseURL(srv.URL)),
 	)
 	groups, users, err := p.GetDirectory(context.Background())
@@ -206,7 +206,7 @@ func TestProvider_UserGroupsQueryUpdated(t *testing.T) {
 	mockOkta = newMockOkta(srv, userEmailToGroups)
 
 	p := New(
-		WithServiceAccount(&ServiceAccount{APIKey: "APITOKEN"}),
+		WithAPIKey("APITOKEN"),
 		WithProviderURL(mustParseURL(srv.URL)),
 	)
 	groups, users, err := p.GetDirectory(context.Background())
