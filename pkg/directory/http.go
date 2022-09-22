@@ -84,6 +84,13 @@ func encodeBundle(w io.Writer, groups []Group, users []User) error {
 	zw := zip.NewWriter(w)
 	defer zw.Close()
 
+	if groups == nil {
+		groups = make([]Group, 0)
+	}
+	if users == nil {
+		users = make([]User, 0)
+	}
+
 	for _, file := range []struct {
 		name string
 		data any

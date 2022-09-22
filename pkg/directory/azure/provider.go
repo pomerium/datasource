@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 	"strings"
@@ -133,7 +134,8 @@ func (p *Provider) getToken(ctx context.Context) (*oauth2.Token, error) {
 	defer res.Body.Close()
 
 	if res.StatusCode/100 != 2 {
-		return nil, fmt.Errorf("azure: error querying oauth2 token: %s", res.Status)
+		bs, _ := io.ReadAll(res.Body)
+		return nil, fmt.Errorf("azure: error querying oauth2 token: %s\n%s", res.Status, string(bs))
 	}
 	err = json.NewDecoder(res.Body).Decode(&token)
 	if err != nil {
