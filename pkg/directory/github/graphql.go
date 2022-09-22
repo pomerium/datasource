@@ -217,47 +217,6 @@ func (p *Provider) listOrganizationTeamsWithMemberIDs(ctx context.Context, orgSl
 	return results, nil
 }
 
-func (p *Provider) listUserOrganizationTeams(ctx context.Context, userSlug string, orgSlug string) ([]string, error) {
-	// GitHub's Rest API doesn't have an easy way of querying this data, so we use the GraphQL API.
-
-	var teamSlugs []string
-	var cursor *string
-	for {
-		var res qlResult
-		q := fmt.Sprintf(`query {
-			organization(login:%s) {
-				teams(first:%d, userLogins:[%s], after:%s) {
-					pageInfo {
-						endCursor
-						hasNextPage
-					}
-					edges {
-						node {
-							id
-							slug
-						}
-					}
-				}
-			}
-		}`, encode(orgSlug), maxPageCount, encode(userSlug), encode(cursor))
-		_, err := p.graphql(ctx, q, &res)
-		if err != nil {
-			return nil, err
-		}
-
-		for _, edge := range res.Data.Organization.Teams.Edges {
-			teamSlugs = append(teamSlugs, edge.Node.Slug)
-		}
-
-		if !res.Data.Organization.Teams.PageInfo.HasNextPage {
-			break
-		}
-		cursor = &res.Data.Organization.Teams.PageInfo.EndCursor
-	}
-
-	return teamSlugs, nil
-}
-
 func encode(obj interface{}) string {
 	bs, _ := json.Marshal(obj)
 	return string(bs)
