@@ -7,15 +7,16 @@ import (
 )
 
 type config struct {
-	authURL        *url.URL
-	apiURL         *url.URL
-	serviceAccount *ServiceAccount
-	httpClient     *http.Client
-	environmentID  string
+	authURL       *url.URL
+	apiURL        *url.URL
+	clientID      string
+	clientSecret  string
+	httpClient    *http.Client
+	environmentID string
 }
 
 // An Option updates the Ping configuration.
-type Option func(*config)
+type Option func(cfg *config)
 
 // WithAPIURL sets the api url in the config.
 func WithAPIURL(apiURL *url.URL) Option {
@@ -28,6 +29,20 @@ func WithAPIURL(apiURL *url.URL) Option {
 func WithAuthURL(authURL *url.URL) Option {
 	return func(cfg *config) {
 		cfg.authURL = authURL
+	}
+}
+
+// WithClientID sets the client id in the config.
+func WithClientID(clientID string) Option {
+	return func(cfg *config) {
+		cfg.clientID = clientID
+	}
+}
+
+// WithClientSecret sets the client secret in the config.
+func WithClientSecret(clientSecret string) Option {
+	return func(cfg *config) {
+		cfg.clientSecret = clientSecret
 	}
 }
 
@@ -56,13 +71,6 @@ func WithProviderURL(providerURL *url.URL) Option {
 		return func(cfg *config) {}
 	}
 	return WithEnvironmentID(parts[1])
-}
-
-// WithServiceAccount sets the service account in the config.
-func WithServiceAccount(serviceAccount *ServiceAccount) Option {
-	return func(cfg *config) {
-		cfg.serviceAccount = serviceAccount
-	}
 }
 
 func getConfig(options ...Option) *config {

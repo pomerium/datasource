@@ -164,11 +164,10 @@ func TestProvider_GetDirectory(t *testing.T) {
 	p := New(
 		WithAPIURL(u),
 		WithAuthURL(u),
+		WithClientID("CLIENTID"),
+		WithClientSecret("CLIENTSECRET"),
 		WithEnvironmentID("ENVIRONMENTID"),
-		WithServiceAccount(&ServiceAccount{
-			ClientID:     "CLIENTID",
-			ClientSecret: "CLIENTSECRET",
-		}))
+	)
 	dgs, dus, err := p.GetDirectory(ctx)
 	require.NoError(t, err)
 	assert.Equal(t, []directory.Group{
