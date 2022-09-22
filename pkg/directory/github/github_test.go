@@ -45,7 +45,7 @@ func newMockAPI(t *testing.T, srv *httptest.Server) http.Handler {
 		}
 
 		result := qlResult{
-			Data: qlData{
+			Data: &qlData{
 				Organization: &qlOrganization{},
 			},
 		}
