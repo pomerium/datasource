@@ -31,9 +31,22 @@ func defaultNewManagersFunc(
 	ctx context.Context,
 	cfg *config,
 ) (RoleManager, UserManager, error) {
-	m, err := management.New(cfg.domain,
+	domain := cfg.domain
+	if domain == "" {
+		return nil, nil, ErrDomainRequired
+	}
+	clientID := cfg.clientID
+	if clientID == "" {
+		return nil, nil, ErrClientIDRequired
+	}
+	clientSecret := cfg.clientSecret
+	if clientSecret == "" {
+		return nil, nil, ErrClientSecretRequired
+	}
+
+	m, err := management.New(domain,
 		management.WithClient(cfg.httpClient),
-		management.WithClientCredentials(cfg.clientID, cfg.clientSecret),
+		management.WithClientCredentials(clientID, clientSecret),
 		management.WithContext(ctx))
 	if err != nil {
 		return nil, nil, fmt.Errorf("auth0: could not build management: %w", err)

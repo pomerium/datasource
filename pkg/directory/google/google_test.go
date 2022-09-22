@@ -161,6 +161,7 @@ func TestProvider_GetDirectory(t *testing.T) {
 	mockAPI = newMockAPI(t, srv)
 
 	p := New(
+		WithImpersonateUser("IMPERSONATE_USER"),
 		WithJSONKey(encodeJSON(map[string]any{
 			"type":        "service_account",
 			"private_key": privateKey,

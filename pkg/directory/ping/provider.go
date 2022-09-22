@@ -101,7 +101,15 @@ func (p *Provider) getClient(ctx context.Context) (*http.Client, error) {
 func (p *Provider) getToken(ctx context.Context) (*oauth2.Token, error) {
 	environmentID := p.cfg.environmentID
 	if environmentID == "" {
-		return nil, fmt.Errorf("ping: environment ID is required")
+		return nil, ErrEnvironmentIDRequired
+	}
+	clientID := p.cfg.clientID
+	if clientID == "" {
+		return nil, ErrClientIDRequired
+	}
+	clientSecret := p.cfg.clientSecret
+	if clientSecret == "" {
+		return nil, ErrClientSecretRequired
 	}
 
 	p.mu.RLock()
@@ -121,8 +129,8 @@ func (p *Provider) getToken(ctx context.Context) (*oauth2.Token, error) {
 	}
 
 	ocfg := &clientcredentials.Config{
-		ClientID:     p.cfg.clientID,
-		ClientSecret: p.cfg.clientSecret,
+		ClientID:     clientID,
+		ClientSecret: clientSecret,
 		TokenURL: p.cfg.authURL.ResolveReference(&url.URL{
 			Path: fmt.Sprintf("/%s/as/token", environmentID),
 		}).String(),

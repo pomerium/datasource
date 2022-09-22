@@ -82,6 +82,19 @@ func (p *Provider) api(ctx context.Context, url string, out interface{}) error {
 }
 
 func (p *Provider) getToken(ctx context.Context) (*oauth2.Token, error) {
+	directoryID := p.cfg.directoryID
+	if directoryID == "" {
+		return nil, ErrDirectoryIDRequired
+	}
+	clientID := p.cfg.clientID
+	if clientID == "" {
+		return nil, ErrClientIDRequired
+	}
+	clientSecret := p.cfg.clientSecret
+	if clientSecret == "" {
+		return nil, ErrClientSecretRequired
+	}
+
 	p.mu.RLock()
 	token := p.token
 	p.mu.RUnlock()
@@ -99,12 +112,12 @@ func (p *Provider) getToken(ctx context.Context) (*oauth2.Token, error) {
 	}
 
 	tokenURL := p.cfg.loginURL.ResolveReference(&url.URL{
-		Path: fmt.Sprintf("/%s/oauth2/v2.0/token", p.cfg.directoryID),
+		Path: fmt.Sprintf("/%s/oauth2/v2.0/token", directoryID),
 	})
 
 	req, err := http.NewRequestWithContext(ctx, "POST", tokenURL.String(), strings.NewReader(url.Values{
-		"client_id":     {p.cfg.clientID},
-		"client_secret": {p.cfg.clientSecret},
+		"client_id":     {clientID},
+		"client_secret": {clientSecret},
 		"scope":         {defaultLoginScope},
 		"grant_type":    {defaultLoginGrantType},
 	}.Encode()))

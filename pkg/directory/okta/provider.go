@@ -150,13 +150,18 @@ func (p *Provider) getGroupMembers(ctx context.Context, groupID string) (users [
 }
 
 func (p *Provider) apiGet(ctx context.Context, uri string, out interface{}) (http.Header, error) {
+	apiKey := p.cfg.apiKey
+	if apiKey == "" {
+		return nil, ErrAPIKeyRequired
+	}
+
 	req, err := http.NewRequestWithContext(ctx, "GET", uri, nil)
 	if err != nil {
 		return nil, fmt.Errorf("okta: failed to create HTTP request: %w", err)
 	}
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "SSWS "+p.cfg.apiKey)
+	req.Header.Set("Authorization", "SSWS "+apiKey)
 
 	for {
 		res, err := p.cfg.httpClient.Do(req)

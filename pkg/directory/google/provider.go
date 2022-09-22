@@ -136,6 +136,15 @@ func (p *Provider) GetDirectory(ctx context.Context) ([]directory.Group, []direc
 }
 
 func (p *Provider) getAPIClient(ctx context.Context) (*admin.Service, error) {
+	jsonKey := p.cfg.jsonKey
+	if len(jsonKey) == 0 {
+		return nil, ErrJSONKeyRequired
+	}
+	impersonateUser := p.cfg.impersonateUser
+	if impersonateUser == "" {
+		return nil, ErrImpersonateUserRequired
+	}
+
 	p.mu.RLock()
 	apiClient := p.apiClient
 	p.mu.RUnlock()
@@ -149,11 +158,11 @@ func (p *Provider) getAPIClient(ctx context.Context) (*admin.Service, error) {
 		return p.apiClient, nil
 	}
 
-	config, err := google.JWTConfigFromJSON(p.cfg.jsonKey, apiScopes...)
+	config, err := google.JWTConfigFromJSON(jsonKey, apiScopes...)
 	if err != nil {
 		return nil, fmt.Errorf("google: error reading jwt config: %w", err)
 	}
-	config.Subject = p.cfg.impersonateUser
+	config.Subject = impersonateUser
 
 	ts := config.TokenSource(ctx)
 

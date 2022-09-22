@@ -112,13 +112,18 @@ func (p *Provider) listGroupMembers(ctx context.Context, groupID string) (users 
 }
 
 func (p *Provider) api(ctx context.Context, uri string, out interface{}) (http.Header, error) {
+	privateToken := p.cfg.privateToken
+	if privateToken == "" {
+		return nil, ErrPrivateTokenRequired
+	}
+
 	req, err := http.NewRequestWithContext(ctx, "GET", uri, nil)
 	if err != nil {
 		return nil, fmt.Errorf("gitlab: failed to create HTTP request: %w", err)
 	}
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("PRIVATE-TOKEN", p.cfg.privateToken)
+	req.Header.Set("PRIVATE-TOKEN", privateToken)
 
 	res, err := p.cfg.httpClient.Do(req)
 	if err != nil {

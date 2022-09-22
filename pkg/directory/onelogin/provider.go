@@ -152,6 +152,15 @@ func (p *Provider) apiGet(ctx context.Context, accessToken string, uri string, o
 }
 
 func (p *Provider) getToken(ctx context.Context) (*oauth2.Token, error) {
+	clientID := p.cfg.clientID
+	if clientID == "" {
+		return nil, ErrClientIDRequired
+	}
+	clientSecret := p.cfg.clientSecret
+	if clientSecret == "" {
+		return nil, ErrClientSecretRequired
+	}
+
 	p.mu.RLock()
 	token := p.token
 	p.mu.RUnlock()
@@ -177,7 +186,7 @@ func (p *Provider) getToken(ctx context.Context) (*oauth2.Token, error) {
 		return nil, err
 	}
 	req.Header.Set("Authorization", fmt.Sprintf("client_id:%s, client_secret:%s",
-		p.cfg.clientID, p.cfg.clientSecret))
+		clientID, clientSecret))
 	req.Header.Set("Content-Type", "application/json")
 
 	res, err := p.cfg.httpClient.Do(req)

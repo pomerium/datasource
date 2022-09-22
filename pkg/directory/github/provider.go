@@ -106,11 +106,20 @@ func (p *Provider) listOrgs(ctx context.Context) (orgSlugs []string, err error) 
 }
 
 func (p *Provider) api(ctx context.Context, apiURL string, out interface{}) (http.Header, error) {
+	username := p.cfg.username
+	if username == "" {
+		return nil, ErrUsernameRequired
+	}
+	personalAccessToken := p.cfg.personalAccessToken
+	if personalAccessToken == "" {
+		return nil, ErrPersonalAccessTokenRequired
+	}
+
 	req, err := http.NewRequestWithContext(ctx, "GET", apiURL, nil)
 	if err != nil {
 		return nil, fmt.Errorf("github: failed to create http request: %w", err)
 	}
-	req.SetBasicAuth(p.cfg.username, p.cfg.personalAccessToken)
+	req.SetBasicAuth(username, personalAccessToken)
 
 	res, err := p.cfg.httpClient.Do(req)
 	if err != nil {
@@ -133,6 +142,15 @@ func (p *Provider) api(ctx context.Context, apiURL string, out interface{}) (htt
 }
 
 func (p *Provider) graphql(ctx context.Context, query string, out interface{}) (http.Header, error) {
+	username := p.cfg.username
+	if username == "" {
+		return nil, ErrUsernameRequired
+	}
+	personalAccessToken := p.cfg.personalAccessToken
+	if personalAccessToken == "" {
+		return nil, ErrPersonalAccessTokenRequired
+	}
+
 	apiURL := p.cfg.url.ResolveReference(&url.URL{
 		Path: "/graphql",
 	}).String()
@@ -145,7 +163,7 @@ func (p *Provider) graphql(ctx context.Context, query string, out interface{}) (
 	if err != nil {
 		return nil, fmt.Errorf("github: failed to create http request: %w", err)
 	}
-	req.SetBasicAuth(p.cfg.username, p.cfg.personalAccessToken)
+	req.SetBasicAuth(username, personalAccessToken)
 
 	res, err := p.cfg.httpClient.Do(req)
 	if err != nil {
