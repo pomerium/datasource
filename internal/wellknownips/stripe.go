@@ -11,7 +11,7 @@ type StripeIPRanges struct {
 	WebHooks []string `json:"WEBHOOKS"`
 }
 
-// The DefaultStripeIPRangesURL is the default stripe ip ranges url.
+// DefaultStripeIPRangesURL is the default stripe ip ranges url.
 var DefaultStripeIPRangesURL = "https://stripe.com/files/ips/ips_webhooks.json"
 
 // FetchStripeIPRanges fetches the stripe ip ranges.

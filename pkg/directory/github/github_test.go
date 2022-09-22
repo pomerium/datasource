@@ -20,6 +20,8 @@ import (
 type M = map[string]interface{}
 
 func newMockAPI(t *testing.T, srv *httptest.Server) http.Handler {
+	t.Helper()
+
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Use(func(next http.Handler) http.Handler {
@@ -171,7 +173,8 @@ func newMockAPI(t *testing.T, srv *httptest.Server) http.Handler {
 									{Node: qlUser{ID: "user1"}},
 									{Node: qlUser{ID: "user2"}},
 								},
-							}}},
+							},
+						}},
 					}
 				case "org2":
 					teams.PageInfo = qlPageInfo{HasNextPage: false}
@@ -186,7 +189,8 @@ func newMockAPI(t *testing.T, srv *httptest.Server) http.Handler {
 									{Node: qlUser{ID: "user1"}},
 									{Node: qlUser{ID: "user2"}},
 								},
-							}}},
+							},
+						}},
 					}
 					if userLogin == "" || userLogin == "user4" {
 						teams.Edges = append(teams.Edges, qlTeamEdge{
@@ -199,7 +203,8 @@ func newMockAPI(t *testing.T, srv *httptest.Server) http.Handler {
 									Edges: []qlTeamMemberEdge{
 										{Node: qlUser{ID: "user4"}},
 									},
-								}},
+								},
+							},
 						})
 					}
 				default:
@@ -217,7 +222,8 @@ func newMockAPI(t *testing.T, srv *httptest.Server) http.Handler {
 							Edges: []qlTeamMemberEdge{
 								{Node: qlUser{ID: "user1"}},
 							},
-						}}},
+						},
+					}},
 				}
 			default:
 				t.Errorf("unexpected cursor: %s", cursor)
@@ -326,6 +332,8 @@ func newMockAPI(t *testing.T, srv *httptest.Server) http.Handler {
 }
 
 func TestProvider_GetDirectory(t *testing.T) {
+	t.Parallel()
+
 	var mockAPI http.Handler
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		mockAPI.ServeHTTP(w, r)

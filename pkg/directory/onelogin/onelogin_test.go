@@ -154,6 +154,8 @@ func newMockAPI(srv *httptest.Server, userIDToGroupName map[int]string) http.Han
 }
 
 func TestProvider_GetDirectory(t *testing.T) {
+	t.Parallel()
+
 	var mockAPI http.Handler
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		mockAPI.ServeHTTP(w, r)

@@ -12,14 +12,17 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/mitchellh/mapstructure"
-	"github.com/pomerium/datasource/internal/server"
-	"github.com/pomerium/datasource/internal/zenefits"
 	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/pomerium/datasource/internal/server"
+	"github.com/pomerium/datasource/internal/zenefits"
 )
 
 func TestAPI(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.Background()
 	r := mux.NewRouter()
 	r.Path("/core/people").
@@ -39,6 +42,8 @@ func TestAPI(t *testing.T) {
 	}
 
 	t.Run("people", func(t *testing.T) {
+		t.Parallel()
+
 		resp, err := zenefits.GetEmployees(ctx, client, zenefits.PeopleRequest{Auth: auth})
 		require.NoError(t, err, "get employees")
 
@@ -49,10 +54,12 @@ func TestAPI(t *testing.T) {
 	})
 
 	t.Run("vacations", func(t *testing.T) {
+		t.Parallel()
+
 		resp, err := zenefits.GetVacations(ctx, client, zenefits.VacationRequest{
 			Auth:  auth,
-			Start: time.Date(2002, 05, 06, 0, 0, 0, 0, time.UTC),
-			End:   time.Date(2002, 05, 06, 0, 0, 0, 0, time.UTC),
+			Start: time.Date(2002, 0o5, 0o6, 0, 0, 0, 0, time.UTC),
+			End:   time.Date(2002, 0o5, 0o6, 0, 0, 0, 0, time.UTC),
 		})
 		require.NoError(t, err, "get vacations")
 		_, there := resp["26455996"]

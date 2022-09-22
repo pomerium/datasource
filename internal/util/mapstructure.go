@@ -92,11 +92,11 @@ func JSONNumberDecodeHook(srcT, dstT reflect.Type, data interface{}) (interface{
 	case string:
 		return val, nil
 	case float64:
-		if x := math.Trunc(val); x != val {
+		x := math.Trunc(val)
+		if x != val {
 			return nil, fmt.Errorf("JSON number must be represented as a whole number, got %f", val)
-		} else {
-			return fmt.Sprint(int(x)), nil
 		}
+		return fmt.Sprint(int(x)), nil
 	case int64:
 		return fmt.Sprint(val), nil
 	default:

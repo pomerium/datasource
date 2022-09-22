@@ -10,6 +10,8 @@ import (
 )
 
 func TestFetchAmazonAWSIPRanges(t *testing.T) {
+	t.Parallel()
+
 	ctx, clearTimeout := context.WithTimeout(context.Background(), time.Second*10)
 	defer clearTimeout()
 

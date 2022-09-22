@@ -5,5 +5,4 @@ import (
 	"errors"
 )
 
-// Errors.
 var ErrProviderURLNotDefined = errors.New("okta: provider url not defined")

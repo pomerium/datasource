@@ -151,6 +151,8 @@ func newMockOkta(srv *httptest.Server, userEmailToGroups map[string][]string) ht
 }
 
 func TestProvider_GetDirectory(t *testing.T) {
+	t.Parallel()
+
 	var mockOkta http.Handler
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		mockOkta.ServeHTTP(w, r)
@@ -192,6 +194,8 @@ func TestProvider_GetDirectory(t *testing.T) {
 }
 
 func TestProvider_UserGroupsQueryUpdated(t *testing.T) {
+	t.Parallel()
+
 	var mockOkta http.Handler
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		mockOkta.ServeHTTP(w, r)

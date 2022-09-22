@@ -8,11 +8,17 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 )
 
 func TestHandler(t *testing.T) {
+	t.Parallel()
+
+	ctx, clearTimeout := context.WithTimeout(context.Background(), time.Second*10)
+	t.Cleanup(clearTimeout)
+
 	expect := struct {
 		groups []Group
 		users  []User
@@ -26,6 +32,8 @@ func TestHandler(t *testing.T) {
 	defer srv.Close()
 
 	t.Run("success", func(t *testing.T) {
+		t.Parallel()
+
 		expect.groups = []Group{
 			{ID: "group1", Name: "Group 1"},
 			{ID: "group2", Name: "Group 2"},
@@ -38,7 +46,12 @@ func TestHandler(t *testing.T) {
 		}
 		expect.err = nil
 
-		res, err := http.Get(srv.URL)
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, srv.URL, nil)
+		if !assert.NoError(t, err) {
+			return
+		}
+
+		res, err := http.DefaultClient.Do(req)
 		if !assert.NoError(t, err) {
 			return
 		}
@@ -51,11 +64,18 @@ func TestHandler(t *testing.T) {
 		assert.Equal(t, expect.users, users)
 	})
 	t.Run("error", func(t *testing.T) {
+		t.Parallel()
+
 		expect.groups = nil
 		expect.users = nil
 		expect.err = errors.New("ERROR")
 
-		res, err := http.Get(srv.URL)
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, srv.URL, nil)
+		if !assert.NoError(t, err) {
+			return
+		}
+
+		res, err := http.DefaultClient.Do(req)
 		if !assert.NoError(t, err) {
 			return
 		}

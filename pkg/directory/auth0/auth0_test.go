@@ -60,6 +60,8 @@ func stringPtr(in string) *string {
 }
 
 func TestProvider_GetDirectory(t *testing.T) {
+	t.Parallel()
+
 	expectedDomain := "login-example.auth0.com"
 	expectedClientID := "c_id"
 	expectedClientSecret := "secret"
@@ -376,7 +378,10 @@ func TestProvider_GetDirectory(t *testing.T) {
 	}
 
 	for _, tc := range tests {
+		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 

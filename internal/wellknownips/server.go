@@ -202,7 +202,7 @@ func (srv *Server) getCache() (httpcache.Cache, error) {
 		}
 
 		dir := filepath.Join(userCacheDir, "pomerium-datasource", "wellknownips")
-		err = os.MkdirAll(dir, 0755)
+		err = os.MkdirAll(dir, 0o755)
 		if err != nil {
 			srv.cacheErr = fmt.Errorf("failed to create wellknownips directory")
 			return

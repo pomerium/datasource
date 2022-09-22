@@ -60,6 +60,8 @@ UVsDaSelBqpsfmetXSH8KC3XkbgCtHvgAnJDkGkp84VmJvMr5ukv
 type M = map[string]interface{}
 
 func newMockAPI(t *testing.T, srv *httptest.Server) http.Handler {
+	t.Helper()
+
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Post("/token", func(w http.ResponseWriter, r *http.Request) {
@@ -150,8 +152,10 @@ func newMockAPI(t *testing.T, srv *httptest.Server) http.Handler {
 }
 
 func TestProvider_GetDirectory(t *testing.T) {
+	t.Parallel()
+
 	ctx, clearTimeout := context.WithTimeout(context.Background(), time.Second*30)
-	defer clearTimeout()
+	t.Cleanup(clearTimeout)
 
 	var mockAPI http.Handler
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

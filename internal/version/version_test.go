@@ -7,6 +7,8 @@ import (
 )
 
 func TestFullVersionVersion(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		Version   string
 		GitCommit string
@@ -45,6 +47,8 @@ func BenchmarkFullVersion(b *testing.B) {
 }
 
 func TestUserAgent(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		name        string
 		Version     string
@@ -57,6 +61,7 @@ func TestUserAgent(t *testing.T) {
 		{"good user agent", "1.0.0", "314501b", "dev", "pomerium", "github.com/pomerium", fmt.Sprintf("pomerium/1.0.0 (+github.com/pomerium; 314501b; %s)", runtime.Version())},
 	}
 	for _, tt := range tests {
+		tt := tt
 		Version = tt.Version
 		GitCommit = tt.GitCommit
 		BuildMeta = tt.BuildMeta
@@ -64,6 +69,8 @@ func TestUserAgent(t *testing.T) {
 		ProjectURL = tt.ProjectURL
 
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
 			if got := UserAgent(); got != tt.want {
 				t.Errorf("UserAgent() = %v, want %v", got, tt.want)
 			}

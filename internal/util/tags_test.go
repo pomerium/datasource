@@ -4,11 +4,14 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/pomerium/datasource/internal/util"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/pomerium/datasource/internal/util"
 )
 
 func TestTags(t *testing.T) {
+	t.Parallel()
+
 	for _, tc := range []struct {
 		in   any
 		tags []string
@@ -30,7 +33,10 @@ func TestTags(t *testing.T) {
 			[]string{"one", "two", "four"},
 		},
 	} {
+		tc := tc
 		t.Run(strings.Join(tc.tags, ","), func(t *testing.T) {
+			t.Parallel()
+
 			assert.Equal(t, tc.tags, util.GetStructTagNames(tc.in, "tag"))
 		})
 	}

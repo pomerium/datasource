@@ -10,6 +10,8 @@ import (
 )
 
 func TestParseIPNumber(t *testing.T) {
+	t.Parallel()
+
 	for _, testCase := range []struct {
 		raw    string
 		expect netip.Addr
@@ -29,6 +31,8 @@ func TestParseIPNumber(t *testing.T) {
 }
 
 func TestAddrRangeToPrefixes(t *testing.T) {
+	t.Parallel()
+
 	for _, testCase := range []struct {
 		start, end, expect string
 	}{
@@ -49,6 +53,8 @@ func TestAddrRangeToPrefixes(t *testing.T) {
 }
 
 func TestPrefixToAddrRange(t *testing.T) {
+	t.Parallel()
+
 	for _, testCase := range []struct {
 		prefix, expectedStart, expectedEnd string
 	}{

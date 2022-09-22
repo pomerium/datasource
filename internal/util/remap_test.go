@@ -10,6 +10,8 @@ import (
 )
 
 func TestRemap(t *testing.T) {
+	t.Parallel()
+
 	for name, tc := range map[string]struct {
 		remap    []util.FieldRemap
 		src, dst []map[string]interface{}
@@ -53,7 +55,10 @@ func TestRemap(t *testing.T) {
 			}},
 		},
 	} {
+		tc := tc
 		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
 			err := util.Remap(tc.src, tc.remap)
 			require.NoError(t, err)
 			assert.EqualValues(t, tc.dst, tc.src)
