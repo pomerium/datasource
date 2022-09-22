@@ -19,20 +19,19 @@ func TestHandler(t *testing.T) {
 	ctx, clearTimeout := context.WithTimeout(context.Background(), time.Second*10)
 	t.Cleanup(clearTimeout)
 
-	expect := struct {
-		groups []Group
-		users  []User
-		err    error
-	}{}
-	h := NewHandler(ProviderFunc(func(ctx context.Context) ([]Group, []User, error) {
-		return expect.groups, expect.users, expect.err
-	}))
-
-	srv := httptest.NewServer(h)
-	defer srv.Close()
-
 	t.Run("success", func(t *testing.T) {
 		t.Parallel()
+
+		expect := struct {
+			groups []Group
+			users  []User
+			err    error
+		}{}
+		h := NewHandler(ProviderFunc(func(ctx context.Context) ([]Group, []User, error) {
+			return expect.groups, expect.users, expect.err
+		}))
+		srv := httptest.NewServer(h)
+		t.Cleanup(srv.Close)
 
 		expect.groups = []Group{
 			{ID: "group1", Name: "Group 1"},
@@ -65,6 +64,17 @@ func TestHandler(t *testing.T) {
 	})
 	t.Run("error", func(t *testing.T) {
 		t.Parallel()
+
+		expect := struct {
+			groups []Group
+			users  []User
+			err    error
+		}{}
+		h := NewHandler(ProviderFunc(func(ctx context.Context) ([]Group, []User, error) {
+			return expect.groups, expect.users, expect.err
+		}))
+		srv := httptest.NewServer(h)
+		t.Cleanup(srv.Close)
 
 		expect.groups = nil
 		expect.users = nil
