@@ -166,10 +166,8 @@ func TestProvider_GetDirectory(t *testing.T) {
 	})
 
 	p := New(
-		WithServiceAccount(&ServiceAccount{
-			ClientID:     "CLIENTID",
-			ClientSecret: "CLIENTSECRET",
-		}),
+		WithClientID("CLIENTID"),
+		WithClientSecret("CLIENTSECRET"),
 		WithURL(mustParseURL(srv.URL)),
 	)
 	groups, users, err := p.GetDirectory(context.Background())

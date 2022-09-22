@@ -34,10 +34,6 @@ func New(options ...Option) *Provider {
 
 // GetDirectory gets the directory user groups for onelogin.
 func (p *Provider) GetDirectory(ctx context.Context) ([]directory.Group, []directory.User, error) {
-	if p.cfg.serviceAccount == nil {
-		return nil, nil, fmt.Errorf("onelogin: service account not defined")
-	}
-
 	token, err := p.getToken(ctx)
 	if err != nil {
 		return nil, nil, err
@@ -181,7 +177,7 @@ func (p *Provider) getToken(ctx context.Context) (*oauth2.Token, error) {
 		return nil, err
 	}
 	req.Header.Set("Authorization", fmt.Sprintf("client_id:%s, client_secret:%s",
-		p.cfg.serviceAccount.ClientID, p.cfg.serviceAccount.ClientSecret))
+		p.cfg.clientID, p.cfg.clientSecret))
 	req.Header.Set("Content-Type", "application/json")
 
 	res, err := p.cfg.httpClient.Do(req)

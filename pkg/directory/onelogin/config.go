@@ -6,14 +6,15 @@ import (
 )
 
 type config struct {
-	apiURL         *url.URL
-	batchSize      int
-	serviceAccount *ServiceAccount
-	httpClient     *http.Client
+	apiURL       *url.URL
+	batchSize    int
+	clientID     string
+	clientSecret string
+	httpClient   *http.Client
 }
 
 // An Option updates the onelogin configuration.
-type Option func(*config)
+type Option func(cfg *config)
 
 // WithBatchSize sets the batch size option.
 func WithBatchSize(batchSize int) Option {
@@ -22,17 +23,24 @@ func WithBatchSize(batchSize int) Option {
 	}
 }
 
+// WithClientID sets the client id in the config.
+func WithClientID(clientID string) Option {
+	return func(cfg *config) {
+		cfg.clientID = clientID
+	}
+}
+
+// WithClientSecret sets the client secret in the config.
+func WithClientSecret(clientSecret string) Option {
+	return func(cfg *config) {
+		cfg.clientSecret = clientSecret
+	}
+}
+
 // WithHTTPClient sets the http client option.
 func WithHTTPClient(httpClient *http.Client) Option {
 	return func(cfg *config) {
 		cfg.httpClient = httpClient
-	}
-}
-
-// WithServiceAccount sets the service account in the config.
-func WithServiceAccount(serviceAccount *ServiceAccount) Option {
-	return func(cfg *config) {
-		cfg.serviceAccount = serviceAccount
 	}
 }
 
