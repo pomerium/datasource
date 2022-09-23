@@ -1,6 +1,9 @@
 package httputil
 
 import (
+	"bytes"
+	"errors"
+	"io"
 	"net/http"
 	"time"
 
@@ -20,6 +23,7 @@ func (l loggingRoundTripper) RoundTrip(req *http.Request) (*http.Response, error
 	if res != nil {
 		statusCode = res.StatusCode
 	}
+
 	evt := l.logger.Debug().
 		Str("method", req.Method).
 		Str("authority", req.URL.Host).
@@ -29,6 +33,22 @@ func (l loggingRoundTripper) RoundTrip(req *http.Request) (*http.Response, error
 	for _, f := range l.customize {
 		f(evt)
 	}
+
+	// if status code is not 200, log the body
+	if res != nil && statusCode/100 != 2 {
+		responseBody := make([]byte, 16*1024)
+		if n, r, e := peek(res.Body, responseBody); e == nil {
+			// replace the body so that the peek'd bytes can be re-read
+			res.Body = struct {
+				io.Reader
+				io.Closer
+			}{r, res.Body}
+			evt = evt.Str("response-body", string(responseBody[:n]))
+		} else {
+			panic(e)
+		}
+	}
+
 	evt.Msg("http-request")
 	return res, err
 }
@@ -50,4 +70,13 @@ func NewLoggingClient(logger zerolog.Logger, base *http.Client, customize ...fun
 	*newClient = *base
 	newClient.Transport = NewLoggingRoundTripper(logger, newClient.Transport, customize...)
 	return newClient
+}
+
+func peek(r io.Reader, dst []byte) (n int, newReader io.Reader, err error) {
+	var tmp bytes.Buffer
+	n, err = io.TeeReader(r, &tmp).Read(dst)
+	if errors.Is(err, io.EOF) {
+		err = nil
+	}
+	return n, io.MultiReader(&tmp, r), err
 }
