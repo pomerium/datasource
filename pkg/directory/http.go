@@ -59,8 +59,8 @@ func decodeBundle(r io.Reader) (groups []Group, users []User, err error) {
 		name string
 		ptr  any
 	}{
-		{"pomerium.io/DirectoryGroup.json", &groups},
-		{"pomerium.io/DirectoryUser.json", &users},
+		{GroupRecordType + ".json", &groups},
+		{UserRecordType + ".json", &users},
 	} {
 		fr, err := zr.Open(file.name)
 		if err != nil {
@@ -95,8 +95,8 @@ func encodeBundle(w io.Writer, groups []Group, users []User) error {
 		name string
 		data any
 	}{
-		{"pomerium.io/DirectoryGroup.json", groups},
-		{"pomerium.io/DirectoryUser.json", users},
+		{GroupRecordType + ".json", groups},
+		{UserRecordType + ".json", users},
 	} {
 		fw, err := zw.Create(file.name)
 		if err != nil {

@@ -1,5 +1,10 @@
 package directory
 
+const (
+	GroupRecordType = "pomerium.io/DirectoryGroup"
+	UserRecordType  = "pomerium.io/DirectoryUser"
+)
+
 // A User represents a user in a directory.
 type User struct {
 	ID          string   `json:"id,omitempty"`
