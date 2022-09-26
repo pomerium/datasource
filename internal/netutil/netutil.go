@@ -8,9 +8,7 @@ import (
 	"net/netip"
 )
 
-// ParseIPNumber converts a raw base-10 IP number into an IP address. For example:
-//
-//     42540986356047386130018232263459733504 == 2001:1890:17dd:4500::
+// ParseIPNumber converts a raw base-10 IP number into an IP address. For example: 42540986356047386130018232263459733504 == 2001:1890:17dd:4500::
 //
 // For numbers less than the max uint32 an IPv4 address is returned, else an IPv6 address is returned.
 func ParseIPNumber(rawIPNumber string) (addr netip.Addr, err error) {

@@ -56,7 +56,12 @@ func getWorkingDirectory() (string, error) {
 }
 
 func getDownloadURL(ctx context.Context) (string, error) {
-	res, err := http.Get(confirmURL)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, confirmURL, nil)
+	if err != nil {
+		return "", fmt.Errorf("error creating confirm URL request: %w", err)
+	}
+
+	res, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return "", fmt.Errorf("error fetching confirm URL: %w", err)
 	}
@@ -93,7 +98,12 @@ func saveAzureIPRanges(ctx context.Context, wd string, downloadURL string) error
 	}
 	defer gzw.Close()
 
-	res, err := http.Get(downloadURL)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, downloadURL, nil)
+	if err != nil {
+		return fmt.Errorf("error creating request: %w", err)
+	}
+
+	res, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return fmt.Errorf("error downloading file: %w", err)
 	}

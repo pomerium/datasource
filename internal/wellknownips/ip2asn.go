@@ -34,15 +34,15 @@ func FetchIP2ASNDatabase(
 	ctx context.Context,
 	client *http.Client,
 	url string,
-) (*ip2asnStream, error) {
+) (*ip2asnStream, error) { //nolint:revive
 	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to retrieve ip2asn database: %w", err)
 	}
 
-	res, err := client.Do(req)
+	res, err := client.Do(req) //nolint:bodyclose
 	if err != nil {
-		return nil, fmt.Errorf("failed to retreive ip2asn database: %w", err)
+		return nil, fmt.Errorf("failed to retrieve ip2asn database: %w", err)
 	}
 
 	return &ip2asnStream{

@@ -70,7 +70,6 @@ func remap(src map[string]interface{}, fieldMap []FieldRemap) error {
 		}
 		delete(src, fm.From)
 		src[fm.To] = val
-
 	}
 	return nil
 }

@@ -19,6 +19,8 @@ import (
 )
 
 func TestAPI(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.Background()
 	r := mux.NewRouter()
 	r.Path("/api/gateway.php/{company}/v1/reports/custom").

@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/mitchellh/mapstructure"
+
 	"github.com/pomerium/datasource/internal/util"
 )
 
@@ -36,7 +37,7 @@ func (req WhoIsOutRequest) RequestURL() *url.URL {
 }
 
 // GetAvailableEmployees only returns employees that are marked as active
-// and are not on vacation or absense leave
+// and are not on vacation or absence leave
 func GetAvailableEmployees(ctx context.Context, client *http.Client, param EmployeeRequest) ([]Employee, error) {
 	employees, err := GetAllEmployees(ctx, client, param)
 	if err != nil {

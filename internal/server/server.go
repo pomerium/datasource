@@ -4,6 +4,7 @@ import (
 	"context"
 	"net"
 	"net/http"
+	"time"
 )
 
 // RunHTTPServer runs standard HTTP server at given address,
@@ -14,7 +15,8 @@ func RunHTTPServer(ctx context.Context, addr string, handler http.Handler) error
 		BaseContext: func(l net.Listener) context.Context {
 			return ctx
 		},
-		Handler: handler,
+		Handler:           handler,
+		ReadHeaderTimeout: time.Minute,
 	}
 
 	go func() {

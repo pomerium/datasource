@@ -6,12 +6,15 @@ import (
 	"time"
 
 	"github.com/mitchellh/mapstructure"
-	"github.com/pomerium/datasource/internal/util"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/pomerium/datasource/internal/util"
 )
 
 func TestDate(t *testing.T) {
+	t.Parallel()
+
 	est, err := time.LoadLocation("EST")
 	assert.NoError(t, err, "load EST timezone")
 
@@ -25,7 +28,10 @@ func TestDate(t *testing.T) {
 		{`{"date":"2022-04-21"}`, "2006-01-02", "UTC", time.Date(2022, 4, 21, 0, 0, 0, 0, time.UTC)},
 		{`{"date":null}`, "2006-01-02", "EST", time.Time{}},
 	} {
+		tc := tc
 		t.Run(tc.json, func(t *testing.T) {
+			t.Parallel()
+
 			var v struct {
 				Date util.DateTime `json:"date" mapstructure:"date"`
 			}

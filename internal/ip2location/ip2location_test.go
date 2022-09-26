@@ -59,6 +59,8 @@ const sampleIP2LocationData = `
 `
 
 func TestParseCSV(t *testing.T) {
+	t.Parallel()
+
 	var buf bytes.Buffer
 	err := csvToJSON(jsonutil.NewJSONArrayStream(&buf), strings.NewReader(sampleIP2LocationData))
 	require.NoError(t, err)

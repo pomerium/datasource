@@ -10,6 +10,8 @@ import (
 )
 
 func TestFetchAmazonAWSIPRanges(t *testing.T) {
+	t.Parallel()
+
 	ctx, clearTimeout := context.WithTimeout(context.Background(), time.Second*10)
 	defer clearTimeout()
 
@@ -18,6 +20,6 @@ func TestFetchAmazonAWSIPRanges(t *testing.T) {
 	ranges, err := FetchAmazonAWSIPRanges(ctx, client, DefaultAmazonAWSIPRangesURL)
 	assert.NoError(t, err)
 	if assert.NotNil(t, ranges) && assert.Greater(t, len(ranges.Prefixes), 0) {
-		assert.Equal(t, ranges.Prefixes[0].IPPrefix, "3.5.140.0/22")
+		assert.Equal(t, "3.2.34.0/26", ranges.Prefixes[0].IPPrefix)
 	}
 }

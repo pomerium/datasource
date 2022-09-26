@@ -8,6 +8,8 @@ import (
 )
 
 func TestOOO(t *testing.T) {
+	t.Parallel()
+
 	now := time.Now()
 	for _, tc := range []struct {
 		name string
@@ -19,7 +21,10 @@ func TestOOO(t *testing.T) {
 			{Start: now.Add(-time.Second), End: now.Add(time.Second)},
 		}},
 	} {
+		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
 			assert.Equal(t, tc.ooo, isOut(now, tc.out))
 		})
 	}

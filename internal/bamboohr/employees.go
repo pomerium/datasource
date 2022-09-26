@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/mitchellh/mapstructure"
+
 	"github.com/pomerium/datasource/internal/util"
 )
 
@@ -64,7 +65,7 @@ type Employee struct {
 	ID         json.Number `json:"bamboo_id" mapstructure:"id"`
 	Email      string      `json:"id" mapstructure:"workEmail"`
 	Department string      `json:"department" mapstructure:"department"`
-	Divison    string      `json:"division" mapstructure:"division"`
+	Division   string      `json:"division" mapstructure:"division"`
 	Status     string      `json:"status" mapstructure:"status"`
 	FirstName  string      `json:"first_name" mapstructure:"firstName"`
 	LastName   string      `json:"last_name" mapstructure:"lastName"`
@@ -72,11 +73,9 @@ type Employee struct {
 	State      string      `json:"state" mapstructure:"state"`
 }
 
-var (
-	// JSON tags represent how data is produced to the outside consumer
-	// mapstructure tags match the internal BambooHR field naming
-	employeeRequestFields = util.GetStructTagNames(Employee{}, "mapstructure")
-)
+// JSON tags represent how data is produced to the outside consumer
+// mapstructure tags match the internal BambooHR field naming
+var employeeRequestFields = util.GetStructTagNames(Employee{}, "mapstructure")
 
 // GetAllEmployees returns full list of employees in active status
 func GetAllEmployees(ctx context.Context, client *http.Client, param EmployeeRequest) ([]Employee, error) {
@@ -147,7 +146,7 @@ func parseEmployeesResponse(src io.Reader) ([]Employee, error) {
 
 	var out []Employee
 	if err := mapstructure.Decode(dst.Employees, &out); err != nil {
-		return out, nil
+		return nil, err
 	}
 
 	return out, nil
