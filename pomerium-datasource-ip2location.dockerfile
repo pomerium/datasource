@@ -20,6 +20,7 @@ RUN go mod download
 
 COPY ./cmd/ ./cmd/
 COPY ./internal/ ./internal/
+COPY ./pkg/ ./pkg/
 RUN make build
 
 FROM gcr.io/distroless/base-debian11@sha256:a08c76433d484340bd97013b5d868edfba797fbf83dc82174ebd0768d12f491d
