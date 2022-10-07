@@ -35,10 +35,6 @@ func New(options ...Option) *Provider {
 // GetDirectory fetches the groups of which the user is a member
 // https://developer.okta.com/docs/reference/api/users/#get-user-s-groups
 func (p *Provider) GetDirectory(ctx context.Context) ([]directory.Group, []directory.User, error) {
-	if p.cfg.providerURL == nil {
-		return nil, nil, ErrProviderURLNotDefined
-	}
-
 	groups, err := p.getGroups(ctx)
 	if err != nil {
 		return nil, nil, err
@@ -87,18 +83,19 @@ func (p *Provider) GetDirectory(ctx context.Context) ([]directory.Group, []direc
 }
 
 func (p *Provider) getGroups(ctx context.Context) ([]directory.Group, error) {
-	u := &url.URL{Path: "/api/v1/groups"}
-	q := u.Query()
-	q.Set("limit", strconv.Itoa(p.cfg.batchSize))
-	if p.lastUpdated != nil {
-		q.Set("filter", fmt.Sprintf(`lastUpdated gt "%[1]s" or lastMembershipUpdated gt "%[1]s"`, p.lastUpdated.UTC().Format(filterDateFormat)))
-	} else {
-		now := time.Now()
-		p.lastUpdated = &now
+	groupURL, err := p.getURL("/api/v1/groups", func(q url.Values) {
+		q.Set("limit", strconv.Itoa(p.cfg.batchSize))
+		if p.lastUpdated != nil {
+			q.Set("filter", fmt.Sprintf(`lastUpdated gt "%[1]s" or lastMembershipUpdated gt "%[1]s"`, p.lastUpdated.UTC().Format(filterDateFormat)))
+		} else {
+			now := time.Now()
+			p.lastUpdated = &now
+		}
+	})
+	if err != nil {
+		return nil, err
 	}
-	u.RawQuery = q.Encode()
 
-	groupURL := p.cfg.providerURL.ResolveReference(u).String()
 	for groupURL != "" {
 		var out []apiGroupObject
 		hdrs, err := p.apiGet(ctx, groupURL, &out)
@@ -131,10 +128,13 @@ func (p *Provider) getGroups(ctx context.Context) ([]directory.Group, error) {
 }
 
 func (p *Provider) getGroupMembers(ctx context.Context, groupID string) (users []apiUserObject, err error) {
-	usersURL := p.cfg.providerURL.ResolveReference(&url.URL{
-		Path:     fmt.Sprintf("/api/v1/groups/%s/users", groupID),
-		RawQuery: fmt.Sprintf("limit=%d", p.cfg.batchSize),
-	}).String()
+	usersURL, err := p.getURL(fmt.Sprintf("/api/v1/groups/%s/users", groupID), func(qs url.Values) {
+		qs.Set("limit", fmt.Sprint(p.cfg.batchSize))
+	})
+	if err != nil {
+		return nil, err
+	}
+
 	for usersURL != "" {
 		var out []apiUserObject
 		hdrs, err := p.apiGet(ctx, usersURL, &out)
@@ -185,6 +185,24 @@ func (p *Provider) apiGet(ctx context.Context, uri string, out interface{}) (htt
 		}
 		return res.Header, nil
 	}
+}
+
+func (p *Provider) getURL(path string, modifyQuery func(url.Values)) (string, error) {
+	if p.cfg.url == "" {
+		return "", ErrInvalidURL
+	}
+
+	u, err := url.Parse(p.cfg.url)
+	if err != nil {
+		return "", ErrInvalidURL
+	}
+	q := u.Query()
+	modifyQuery(q)
+	u = u.ResolveReference(&url.URL{
+		Path:     path,
+		RawQuery: q.Encode(),
+	})
+	return u.String(), nil
 }
 
 func getNextLink(hdrs http.Header) string {

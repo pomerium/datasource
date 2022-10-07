@@ -2,7 +2,6 @@ package okta
 
 import (
 	"net/http"
-	"net/url"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -20,11 +19,11 @@ const (
 )
 
 type config struct {
-	apiKey      string
-	batchSize   int
-	httpClient  *http.Client
-	logger      zerolog.Logger
-	providerURL *url.URL
+	apiKey     string
+	batchSize  int
+	httpClient *http.Client
+	logger     zerolog.Logger
+	url        string
 }
 
 // An Option configures the Okta Provider.
@@ -58,10 +57,10 @@ func WithLogger(logger zerolog.Logger) Option {
 	}
 }
 
-// WithProviderURL sets the provider URL option.
-func WithProviderURL(uri *url.URL) Option {
+// WithURL sets the URL option.
+func WithURL(url string) Option {
 	return func(cfg *config) {
-		cfg.providerURL = uri
+		cfg.url = url
 	}
 }
 
