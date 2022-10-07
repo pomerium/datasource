@@ -166,7 +166,7 @@ func TestProvider_GetDirectory(t *testing.T) {
 
 	p := New(
 		WithAPIKey("APITOKEN"),
-		WithProviderURL(mustParseURL(srv.URL)),
+		WithURL(srv.URL),
 	)
 	groups, users, err := p.GetDirectory(context.Background())
 	assert.NoError(t, err)
@@ -211,7 +211,7 @@ func TestProvider_UserGroupsQueryUpdated(t *testing.T) {
 
 	p := New(
 		WithAPIKey("APITOKEN"),
-		WithProviderURL(mustParseURL(srv.URL)),
+		WithURL(srv.URL),
 	)
 	groups, users, err := p.GetDirectory(context.Background())
 	assert.NoError(t, err)
