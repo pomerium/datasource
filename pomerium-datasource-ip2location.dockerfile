@@ -9,7 +9,7 @@ RUN --mount=type=secret,id=download_token \
     -o /download/IP2LOCATION-LITE-DB1.CSV.ZIP \
     "https://www.ip2location.com/download/?token=${DOWNLOAD_TOKEN}&file=DB1LITECSV"
 
-FROM golang:1.19.1-buster@sha256:4b2498de3f543907f4954584ce12558fc3cf80844907f3e7b9f7e98c3223b949 as build
+FROM golang:1.19.2-buster@sha256:403f38941d7643bc91fad0227ebee6ddd80159b79fc339f6702271a2679a5f11 as build
 
 WORKDIR /build
 
