@@ -1,13 +1,10 @@
 package google
 
 import (
-	"net/http"
 	"os"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
-
-	"github.com/pomerium/datasource/internal/httputil"
 )
 
 const (
@@ -15,7 +12,6 @@ const (
 )
 
 type config struct {
-	httpClient      *http.Client
 	logger          zerolog.Logger
 	impersonateUser string
 	jsonKey         []byte
@@ -25,13 +21,6 @@ type config struct {
 
 // An Option changes the configuration for the Google directory provider.
 type Option func(cfg *config)
-
-// WithHTTPClient sets the http client option.
-func WithHTTPClient(httpClient *http.Client) Option {
-	return func(cfg *config) {
-		cfg.httpClient = httpClient
-	}
-}
 
 // WithImpersonateUser sets the impersonate user in the config.
 func WithImpersonateUser(impersonateUser string) Option {
@@ -70,19 +59,12 @@ func WithURL(url string) Option {
 
 func getConfig(opts ...Option) *config {
 	cfg := new(config)
-	WithHTTPClient(http.DefaultClient)(cfg)
 	WithLogger(log.Logger)(cfg)
 	WithURL(defaultProviderURL)(cfg)
 	for _, opt := range opts {
 		opt(cfg)
 	}
 	return cfg
-}
-
-func (cfg *config) getHTTPClient() *http.Client {
-	return httputil.NewLoggingClient(cfg.logger, cfg.httpClient, func(event *zerolog.Event) *zerolog.Event {
-		return event.Str("idp", "google")
-	})
 }
 
 func (cfg *config) getJSONKey() ([]byte, error) {
