@@ -170,7 +170,6 @@ func (p *Provider) getAPIClient(ctx context.Context) (*admin.Service, error) {
 	ts := config.TokenSource(ctx)
 
 	p.apiClient, err = admin.NewService(ctx,
-		option.WithHTTPClient(p.cfg.getHTTPClient()),
 		option.WithTokenSource(ts),
 		option.WithEndpoint(p.cfg.url))
 	if err != nil {
