@@ -31,7 +31,7 @@ test: ## test everything
 
 .PHONY: tidy
 tidy: ## run go mod tidy
-	go mod tidy -compat=1.18
+	go mod tidy -compat=1.19
 
 .PHONY: clean
 clean: ## Cleanup any build binaries or packages.
