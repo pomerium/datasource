@@ -1,8 +1,10 @@
 package ip2location
 
 import (
+	"bytes"
 	"net/http"
 
+	"github.com/pomerium/datasource/internal/httputil"
 	"github.com/pomerium/datasource/internal/jsonutil"
 )
 
@@ -50,10 +52,11 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (srv *Server) serveHTTP(w http.ResponseWriter, r *http.Request) error {
-	dst := jsonutil.NewJSONArrayStream(w)
+	var buf bytes.Buffer
+	dst := jsonutil.NewJSONArrayStream(&buf)
 	err := fileToJSON(dst, srv.cfg.file)
 	if err != nil {
 		return err
 	}
-	return nil
+	return httputil.ServeData(w, r, "ip2location.json", buf.Bytes())
 }
