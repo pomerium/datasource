@@ -57,10 +57,20 @@ func TestHandler(t *testing.T) {
 		defer res.Body.Close()
 
 		assert.Equal(t, 200, res.StatusCode)
+		assert.Equal(t, `"d3b7677a8420759f"`, res.Header.Get("ETag"))
 		groups, users, err := decodeBundle(res.Body)
 		assert.NoError(t, err)
 		assert.Equal(t, expect.groups, groups)
 		assert.Equal(t, expect.users, users)
+
+		req.Header.Set("If-None-Match", `"d3b7677a8420759f"`)
+		res, err = http.DefaultClient.Do(req)
+		if !assert.NoError(t, err) {
+			return
+		}
+		defer res.Body.Close()
+
+		assert.Equal(t, 304, res.StatusCode)
 	})
 	t.Run("error", func(t *testing.T) {
 		t.Parallel()

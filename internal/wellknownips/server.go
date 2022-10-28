@@ -1,6 +1,7 @@
 package wellknownips
 
 import (
+	"bytes"
 	"fmt"
 	"net/http"
 	"os"
@@ -13,6 +14,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"golang.org/x/sync/errgroup"
 
+	"github.com/pomerium/datasource/internal/httputil"
 	"github.com/pomerium/datasource/internal/jsonutil"
 )
 
@@ -149,7 +151,8 @@ func (srv *Server) serveHTTP(w http.ResponseWriter, r *http.Request) error {
 		return fmt.Errorf("error fetching ip2asn database: %w", err)
 	}
 
-	dst := jsonutil.NewJSONArrayStream(w)
+	var buf bytes.Buffer
+	dst := jsonutil.NewJSONArrayStream(&buf)
 	for stream.Next(r.Context()) {
 		_, ok := recordLookup[stream.Record().ASNumber]
 		if ok {
@@ -190,7 +193,7 @@ func (srv *Server) serveHTTP(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	return nil
+	return httputil.ServeData(w, r, "well-known-ips.json", buf.Bytes())
 }
 
 func (srv *Server) getCache() (httpcache.Cache, error) {
