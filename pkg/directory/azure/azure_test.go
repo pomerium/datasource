@@ -3,6 +3,7 @@ package azure
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -23,14 +24,16 @@ func newMockAPI(t *testing.T, srv *httptest.Server) http.Handler {
 
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
+	tokenCount := 0
 	r.Post("/DIRECTORY_ID/oauth2/v2.0/token", func(w http.ResponseWriter, r *http.Request) {
 		assert.Equal(t, "CLIENT_ID", r.FormValue("client_id"))
 		assert.Equal(t, "CLIENT_SECRET", r.FormValue("client_secret"))
 		assert.Equal(t, defaultLoginScope, r.FormValue("scope"))
 		assert.Equal(t, defaultLoginGrantType, r.FormValue("grant_type"))
+		tokenCount++
 
 		_ = json.NewEncoder(w).Encode(M{
-			"access_token":  "ACCESSTOKEN",
+			"access_token":  fmt.Sprintf("ACCESSTOKEN%d", tokenCount),
 			"token_type":    "Bearer",
 			"refresh_token": "REFRESHTOKEN",
 		})
@@ -38,12 +41,14 @@ func newMockAPI(t *testing.T, srv *httptest.Server) http.Handler {
 	r.Route("/v1.0", func(r chi.Router) {
 		r.Use(func(next http.Handler) http.Handler {
 			return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				if r.Header.Get("Authorization") != "Bearer ACCESSTOKEN" {
+				switch r.Header.Get("Authorization") {
+				case "Bearer ACCESSTOKEN1":
+					http.Error(w, "expired", http.StatusUnauthorized)
+				case "Bearer ACCESSTOKEN2":
+					next.ServeHTTP(w, r)
+				default:
 					http.Error(w, "forbidden", http.StatusForbidden)
-
-					return
 				}
-				next.ServeHTTP(w, r)
 			})
 		})
 		r.Get("/groups/delta", func(w http.ResponseWriter, r *http.Request) {
