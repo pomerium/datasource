@@ -45,29 +45,47 @@ func (p *Provider) GetDirectory(ctx context.Context) ([]directory.Group, []direc
 }
 
 func (p *Provider) api(ctx context.Context, url string, out interface{}) error {
-	token, err := p.getToken(ctx)
+	call := func() (*http.Response, error) {
+		token, err := p.getToken(ctx)
+		if err != nil {
+			return nil, err
+		}
+
+		req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
+		if err != nil {
+			return nil, fmt.Errorf("azure: error creating HTTP request: %w", err)
+		}
+		req.Header.Set("Accept", "application/json")
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token.AccessToken))
+
+		res, err := p.cfg.getHTTPClient().Do(req)
+		if err != nil {
+			return nil, fmt.Errorf("azure: error making HTTP request: %w", err)
+		}
+		return res, nil
+	}
+
+	res, err := call()
 	if err != nil {
 		return err
-	}
-
-	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
-	if err != nil {
-		return fmt.Errorf("azure: error creating HTTP request: %w", err)
-	}
-	req.Header.Set("Accept", "application/json")
-	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token.AccessToken))
-
-	res, err := p.cfg.getHTTPClient().Do(req)
-	if err != nil {
-		return fmt.Errorf("azure: error making HTTP request: %w", err)
 	}
 	defer res.Body.Close()
 
 	// if we get unauthorized, invalidate the token
 	if res.StatusCode == http.StatusUnauthorized {
+		_, _ = io.ReadAll(res.Body)
+		_ = res.Body.Close()
+
 		p.mu.Lock()
 		p.token = nil
 		p.mu.Unlock()
+
+		// try again
+		res, err = call()
+		if err != nil {
+			return err
+		}
+		defer res.Body.Close()
 	}
 
 	if res.StatusCode/100 != 2 {
