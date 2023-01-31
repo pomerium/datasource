@@ -39,7 +39,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@3b5e8027fcad23fda98b2e3ac259d8d67585f671
         with:
           context: .
           platforms: linux/amd64,linux/arm64
@@ -85,7 +85,7 @@ jobs:
         run: gcloud auth configure-docker
 
       - name: Build
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@3b5e8027fcad23fda98b2e3ac259d8d67585f671
         with:
           context: .
           file: pomerium-datasource-ip2location.dockerfile
