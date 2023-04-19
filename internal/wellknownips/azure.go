@@ -22,7 +22,7 @@ type AzureIPRanges struct {
 
 // FetchAzureIPRanges fetches the Azure IP Ranges for all Azure services.
 func FetchAzureIPRanges(
-	ctx context.Context,
+	_ context.Context,
 ) (*AzureIPRanges, error) {
 	f, err := files.FS.Open("azure.json.gz")
 	if err != nil {
