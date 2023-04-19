@@ -83,7 +83,7 @@ func DateTimeDecodeHook(layout string, location *time.Location) mapstructure.Dec
 }
 
 // JSONNumberDecodeHook helps mapstructure to deal with
-func JSONNumberDecodeHook(srcT, dstT reflect.Type, data interface{}) (interface{}, error) {
+func JSONNumberDecodeHook(_, dstT reflect.Type, data interface{}) (interface{}, error) {
 	if dstT != JSONNumberType {
 		return data, nil
 	}
