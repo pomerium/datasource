@@ -54,7 +54,7 @@ func (stream *ip2asnStream) Close() error {
 	return stream.rc.Close()
 }
 
-func (stream *ip2asnStream) Next(ctx context.Context) bool {
+func (stream *ip2asnStream) Next(_ context.Context) bool {
 	stream.init.Do(func() {
 		stream.gr, stream.err = gzip.NewReader(stream.rc)
 		if stream.err == nil {

@@ -59,7 +59,7 @@ UVsDaSelBqpsfmetXSH8KC3XkbgCtHvgAnJDkGkp84VmJvMr5ukv
 
 type M = map[string]interface{}
 
-func newMockAPI(t *testing.T, srv *httptest.Server) http.Handler {
+func newMockAPI(t *testing.T, _ *httptest.Server) http.Handler {
 	t.Helper()
 
 	r := chi.NewRouter()
