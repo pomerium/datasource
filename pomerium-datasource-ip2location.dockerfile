@@ -23,7 +23,7 @@ COPY ./internal/ ./internal/
 COPY ./pkg/ ./pkg/
 RUN make build
 
-FROM gcr.io/distroless/base-debian11@sha256:a08c76433d484340bd97013b5d868edfba797fbf83dc82174ebd0768d12f491d
+FROM gcr.io/distroless/base-debian11@sha256:e711a716d8b7fe9c4f7bbf1477e8e6b451619fcae0bc94fdf6109d490bf6cea0
 
 COPY --from=build /build/bin/* /bin/
 COPY --from=curl /download/IP2LOCATION-LITE-DB1.CSV.ZIP /usr/share/IP2LOCATION-LITE-DB1.CSV.ZIP
