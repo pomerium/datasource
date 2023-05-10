@@ -21,7 +21,7 @@ require (
 	github.com/vektah/gqlparser v1.3.1
 	golang.org/x/exp v0.0.0-20220722155223-a9213eeb770e
 	golang.org/x/oauth2 v0.7.0
-	golang.org/x/sync v0.1.0
+	golang.org/x/sync v0.2.0
 	google.golang.org/api v0.121.0
 	gopkg.in/auth0.v5 v5.21.1
 )
