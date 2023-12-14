@@ -6,7 +6,6 @@ linters:
     - bidichk
     - bodyclose
     - decorder
-    - depguard
     - dogsled
     - dupl
     - durationcheck
@@ -54,6 +53,7 @@ linters:
     - unconvert
     - unused
     - whitespace
+
 linters-settings:
   gci:
     custom-order: true
@@ -61,3 +61,10 @@ linters-settings:
       - standard # Standard section: captures all standard packages.
       - default # Default section: contains all imports that could not be matched to another section type.
       - prefix(github.com/pomerium/datasource)
+
+issues:
+  exclude-rules:
+    # Exclude some linters from running on test files.
+    - path: _test\.go$
+      linters:
+        - gosec
