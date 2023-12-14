@@ -174,6 +174,8 @@ func (p *Provider) listOrganizationTeamsWithMemberIDs(ctx context.Context, orgSl
 	// it's possible we didn't get all the members if the initial query, so go through each team and
 	// check the member pageInfo. If there are still remaining members, query those.
 	for i, pageInfo := range pageInfos {
+		i, pageInfo := i, pageInfo
+
 		if !pageInfo.HasNextPage {
 			continue
 		}
