@@ -5,7 +5,7 @@ go 1.21
 require (
 	github.com/client9/misspell v0.3.4
 	github.com/gabriel-vasile/mimetype v1.4.3
-	github.com/go-chi/chi/v5 v5.0.10
+	github.com/go-chi/chi/v5 v5.0.11
 	github.com/go-playground/validator/v10 v10.16.0
 	github.com/golang/mock v1.6.0
 	github.com/golangci/golangci-lint v1.55.2
