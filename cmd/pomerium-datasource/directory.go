@@ -9,6 +9,7 @@ import (
 	"github.com/pomerium/datasource/pkg/directory"
 	"github.com/pomerium/datasource/pkg/directory/auth0"
 	"github.com/pomerium/datasource/pkg/directory/azure"
+	"github.com/pomerium/datasource/pkg/directory/cognito"
 	"github.com/pomerium/datasource/pkg/directory/github"
 	"github.com/pomerium/datasource/pkg/directory/gitlab"
 	"github.com/pomerium/datasource/pkg/directory/google"
@@ -49,6 +50,21 @@ func directoryCommand(logger zerolog.Logger) *cobra.Command {
 						azure.WithClientSecret(*clientSecret),
 						azure.WithDirectoryID(*directoryID),
 						azure.WithLogger(logger),
+					)
+				}
+			}),
+		directorySubCommand(logger, "cognito",
+			func(flags *pflag.FlagSet) func() directory.Provider {
+				userPoolID := optionalStringFlag(flags, "user-pool-id", "user pool id")
+				accessKeyID := optionalStringFlag(flags, "access-key-id", "access key id")
+				secretAccessKey := optionalStringFlag(flags, "secret-access-key", "secret access key")
+				sessionToken := optionalStringFlag(flags, "session-token", "session token")
+				return func() directory.Provider {
+					return cognito.New(
+						cognito.WithAccessKeyID(*accessKeyID),
+						cognito.WithSecretAccessKey(*secretAccessKey),
+						cognito.WithSessionToken(*sessionToken),
+						cognito.WithUserPoolID(*userPoolID),
 					)
 				}
 			}),
