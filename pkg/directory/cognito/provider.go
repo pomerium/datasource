@@ -108,6 +108,10 @@ func (p *Provider) getClient(ctx context.Context) (*cognitoidentityprovider.Clie
 		return nil, err
 	}
 
+	if p.cfg.region != "" {
+		cfg.Region = p.cfg.region
+	}
+
 	p.client = cognitoidentityprovider.NewFromConfig(cfg)
 	return p.client, nil
 }

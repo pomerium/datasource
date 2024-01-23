@@ -13,6 +13,7 @@ type config struct {
 	accessKeyID     string
 	httpClient      *http.Client
 	logger          zerolog.Logger
+	region          string
 	secretAccessKey string
 	sessionToken    string
 	userPoolID      string
@@ -38,6 +39,13 @@ func WithHTTPClient(httpClient *http.Client) Option {
 func WithLogger(logger zerolog.Logger) Option {
 	return func(cfg *config) {
 		cfg.logger = logger
+	}
+}
+
+// WithRegion sets the region config option.
+func WithRegion(region string) Option {
+	return func(cfg *config) {
+		cfg.region = region
 	}
 }
 

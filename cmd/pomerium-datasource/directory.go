@@ -55,13 +55,15 @@ func directoryCommand(logger zerolog.Logger) *cobra.Command {
 			}),
 		directorySubCommand(logger, "cognito",
 			func(flags *pflag.FlagSet) func() directory.Provider {
-				userPoolID := optionalStringFlag(flags, "user-pool-id", "user pool id")
 				accessKeyID := optionalStringFlag(flags, "access-key-id", "access key id")
+				region := optionalStringFlag(flags, "region", "aws region")
 				secretAccessKey := optionalStringFlag(flags, "secret-access-key", "secret access key")
 				sessionToken := optionalStringFlag(flags, "session-token", "session token")
+				userPoolID := optionalStringFlag(flags, "user-pool-id", "user pool id")
 				return func() directory.Provider {
 					return cognito.New(
 						cognito.WithAccessKeyID(*accessKeyID),
+						cognito.WithRegion(*region),
 						cognito.WithSecretAccessKey(*secretAccessKey),
 						cognito.WithSessionToken(*sessionToken),
 						cognito.WithUserPoolID(*userPoolID),
