@@ -1,4 +1,4 @@
-FROM ubuntu:latest@sha256:6042500cf4b44023ea1894effe7890666b0c5c7871ed83a97c36c76ae560bb9b as curl
+FROM ubuntu:latest@sha256:962425e8c7e922d472140c4ac35e009141eb21bb38c72f7125a870f521d9c0d3 as curl
 
 RUN apt-get update && apt-get install -y curl
 
