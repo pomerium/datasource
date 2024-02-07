@@ -77,6 +77,11 @@ func (p *Provider) GetDirectory(ctx context.Context) ([]directory.Group, []direc
 		}
 	}
 
+	for uID, u := range userLookup {
+		sort.Strings(u.GroupIDs)
+		userLookup[uID] = u
+	}
+
 	groups := maps.Values(groupLookup)
 	sort.Slice(groups, func(i, j int) bool {
 		return groups[i].ID < groups[j].ID
