@@ -6,7 +6,7 @@ require (
 	github.com/aws/aws-sdk-go-v2 v1.25.2
 	github.com/aws/aws-sdk-go-v2/config v1.27.6
 	github.com/aws/aws-sdk-go-v2/credentials v1.17.6
-	github.com/aws/aws-sdk-go-v2/service/cognitoidentityprovider v1.33.0
+	github.com/aws/aws-sdk-go-v2/service/cognitoidentityprovider v1.35.1
 	github.com/client9/misspell v0.3.4
 	github.com/gabriel-vasile/mimetype v1.4.3
 	github.com/go-chi/chi/v5 v5.0.12
