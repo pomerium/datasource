@@ -20,6 +20,6 @@ func TestFetchAmazonAWSIPRanges(t *testing.T) {
 	ranges, err := FetchAmazonAWSIPRanges(ctx, client, DefaultAmazonAWSIPRangesURL)
 	assert.NoError(t, err)
 	if assert.NotNil(t, ranges) && assert.Greater(t, len(ranges.Prefixes), 0) {
-		assert.Equal(t, "3.2.34.0/26", ranges.Prefixes[0].IPPrefix)
+		assert.Equal(t, "3.5.140.0/22", ranges.Prefixes[0].IPPrefix)
 	}
 }
