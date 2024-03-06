@@ -108,13 +108,13 @@ func (p *Provider) getClient(ctx context.Context) (*cognitoidentityprovider.Clie
 	}
 	options = append(options, awsconfig.WithHTTPClient(p.cfg.getHTTPClient()))
 
+	if p.cfg.region != "" {
+		options = append(options, awsconfig.WithRegion(p.cfg.region))
+	}
+
 	cfg, err := awsconfig.LoadDefaultConfig(ctx, options...)
 	if err != nil {
 		return nil, err
-	}
-
-	if p.cfg.region != "" {
-		cfg.Region = p.cfg.region
 	}
 
 	p.client = cognitoidentityprovider.NewFromConfig(cfg)
