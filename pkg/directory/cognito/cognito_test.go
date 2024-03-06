@@ -136,6 +136,7 @@ func TestCognito(t *testing.T) {
 		cognito.WithAccessKeyID("ACCESS_KEY_ID"),
 		cognito.WithHTTPClient(httpClient),
 		cognito.WithLogger(zerolog.New(zerolog.NewTestWriter(t))),
+		cognito.WithRegion("us-east-1"),
 		cognito.WithSecretAccessKey("SECRET_ACCESS_KEY"),
 		cognito.WithSessionToken("SESSION_TOKEN"))
 
