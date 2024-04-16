@@ -1,6 +1,6 @@
 package auth0
 
-//go:generate go run github.com/golang/mock/mockgen -destination=mock_auth0/mock.go . RoleManager,UserManager
+//go:generate go run go.uber.org/mock/mockgen -destination=mock_auth0/mock.go . RoleManager,UserManager
 
 import (
 	"context"
@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
+	"go.uber.org/mock/gomock"
 	"gopkg.in/auth0.v5/management"
 
 	"github.com/pomerium/datasource/pkg/directory"
