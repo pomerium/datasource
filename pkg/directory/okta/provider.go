@@ -33,7 +33,7 @@ func New(options ...Option) *Provider {
 	}
 }
 
-// GetDirectory get's the full directory information for Okta.
+// GetDirectory gets the full directory information for Okta.
 func (p *Provider) GetDirectory(ctx context.Context) ([]directory.Group, []directory.User, error) {
 	ctx, client, err := okta.NewClient(ctx,
 		okta.WithHttpClientPtr(p.cfg.getHTTPClient()),
