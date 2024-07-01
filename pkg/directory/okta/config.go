@@ -11,7 +11,7 @@ import (
 
 const (
 	// Okta use ISO-8601, see https://developer.okta.com/docs/reference/api-overview/#media-types
-	filterDateFormat = "2006-01-02T15:04:05.999Z"
+	filterDateFormat = "2006-01-02T15:04:05.000Z"
 
 	batchSize        = 200
 	readLimit        = 100 * 1024

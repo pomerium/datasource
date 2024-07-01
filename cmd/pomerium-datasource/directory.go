@@ -109,10 +109,12 @@ func directoryCommand(logger zerolog.Logger) *cobra.Command {
 		directorySubCommand(logger, "okta",
 			func(flags *pflag.FlagSet) func() directory.Provider {
 				apiKey := requiredStringFlag(flags, "api-key", "api key")
+				url := requiredStringFlag(flags, "url", "url")
 				return func() directory.Provider {
 					return okta.New(
 						okta.WithAPIKey(*apiKey),
 						okta.WithLogger(logger),
+						okta.WithURL(*url),
 					)
 				}
 			}),
