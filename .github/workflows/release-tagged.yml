@@ -17,7 +17,7 @@ jobs:
       tag: ${{ steps.tagName.outputs.tag }}
     steps:
       - name: Checkout
-        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
 
       - name: Unshallow
         run: git fetch --prune --unshallow
@@ -42,7 +42,7 @@ jobs:
           password: ${{ secrets.CLOUDSMITH_API_KEY }}
 
       - name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@v5
+        uses: goreleaser/goreleaser-action@v6
         with:
           args: release
           version: latest
