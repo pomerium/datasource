@@ -61,8 +61,8 @@ func (p *Provider) GetDirectory(ctx context.Context) ([]directory.Group, []direc
 		})
 		for _, u := range p.groupMembers[g.Id] {
 			du := userLookup[u.Id]
-			du.DisplayName = getUserDisplayName(&u)
-			du.Email = getUserEmail(&u)
+			du.DisplayName = getUserDisplayName(u)
+			du.Email = getUserEmail(u)
 			du.GroupIDs = append(du.GroupIDs, g.Id)
 			sort.Strings(du.GroupIDs)
 			du.ID = u.Id
@@ -149,8 +149,8 @@ func (p *Provider) syncGroups(ctx context.Context, client *okta.Client, groups [
 	return nil
 }
 
-func getUserDisplayName(user *okta.User) string {
-	if user == nil || user.Profile == nil {
+func getUserDisplayName(user okta.User) string {
+	if user.Profile == nil {
 		return ""
 	}
 
@@ -159,8 +159,8 @@ func getUserDisplayName(user *okta.User) string {
 	return firstName + " " + lastName
 }
 
-func getUserEmail(user *okta.User) string {
-	if user == nil || user.Profile == nil {
+func getUserEmail(user okta.User) string {
+	if user.Profile == nil {
 		return ""
 	}
 
