@@ -3,6 +3,7 @@ package okta
 import (
 	"net/http"
 
+	"github.com/okta/okta-sdk-golang/v2/okta"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 
@@ -19,11 +20,12 @@ const (
 )
 
 type config struct {
-	apiKey     string
-	batchSize  int
-	httpClient *http.Client
-	logger     zerolog.Logger
-	url        string
+	apiKey      string
+	batchSize   int
+	httpClient  *http.Client
+	logger      zerolog.Logger
+	oktaOptions []okta.ConfigSetter
+	url         string
 }
 
 // An Option configures the Okta Provider.
@@ -54,6 +56,13 @@ func WithHTTPClient(httpClient *http.Client) Option {
 func WithLogger(logger zerolog.Logger) Option {
 	return func(cfg *config) {
 		cfg.logger = logger
+	}
+}
+
+// WithOktaOptions sets the okta options in the config.
+func WithOktaOptions(oktaOptions ...okta.ConfigSetter) Option {
+	return func(cfg *config) {
+		cfg.oktaOptions = oktaOptions
 	}
 }
 

@@ -36,10 +36,11 @@ func New(options ...Option) *Provider {
 // GetDirectory gets the full directory information for Okta.
 func (p *Provider) GetDirectory(ctx context.Context) ([]directory.Group, []directory.User, error) {
 	ctx, client, err := okta.NewClient(ctx,
-		okta.WithHttpClientPtr(p.cfg.getHTTPClient()),
-		okta.WithOrgUrl(p.cfg.url),
-		okta.WithTestingDisableHttpsCheck(true),
-		okta.WithToken(p.cfg.apiKey))
+		append([]okta.ConfigSetter{
+			okta.WithHttpClientPtr(p.cfg.getHTTPClient()),
+			okta.WithOrgUrl(p.cfg.url),
+			okta.WithToken(p.cfg.apiKey),
+		}, p.cfg.oktaOptions...)...)
 	if err != nil {
 		return nil, nil, fmt.Errorf("error creating okta client: %w", err)
 	}

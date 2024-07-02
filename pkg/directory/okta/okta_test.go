@@ -12,6 +12,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/okta/okta-sdk-golang/v2/okta"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/pomerium/datasource/pkg/directory"
@@ -157,6 +158,7 @@ func TestProvider_GetDirectory(t *testing.T) {
 
 	p := New(
 		WithAPIKey("APITOKEN"),
+		WithOktaOptions(okta.WithTestingDisableHttpsCheck(true)),
 		WithURL(srv.URL),
 	)
 	groups, users, err := p.GetDirectory(context.Background())
@@ -202,6 +204,7 @@ func TestProvider_UserGroupsQueryUpdated(t *testing.T) {
 
 	p := New(
 		WithAPIKey("APITOKEN"),
+		WithOktaOptions(okta.WithTestingDisableHttpsCheck(true)),
 		WithURL(srv.URL),
 	)
 	groups, users, err := p.GetDirectory(context.Background())
