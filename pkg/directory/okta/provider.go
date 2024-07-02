@@ -96,8 +96,8 @@ func (p *Provider) sync(ctx context.Context, client *okta.Client) error {
 	var changedGroups []*okta.Group
 	if lastMembershipUpdated.IsZero() || lastUpdated.IsZero() {
 		// full sync
-		p.groups = make(map[string]okta.Group)
-		p.groupMembers = make(map[string][]okta.User)
+		clear(p.groups)
+		clear(p.groupMembers)
 
 		var err error
 		changedGroups, _, err = client.Group.ListGroups(ctx, &query.Params{
