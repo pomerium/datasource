@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/okta/okta-sdk-golang/v2/okta"
-	"github.com/okta/okta-sdk-golang/v2/okta/query"
 	"golang.org/x/exp/maps"
 
 	"github.com/pomerium/datasource/pkg/directory"
@@ -101,24 +100,16 @@ func (p *Provider) sync(ctx context.Context, client *okta.Client) error {
 		clear(p.groupMembers)
 
 		var err error
-		changedGroups, _, err = client.Group.ListGroups(ctx, &query.Params{
-			Limit: int64(p.cfg.batchSize),
-		})
+		changedGroups, err = listAllGroups(ctx, client, p.cfg.batchSize)
 		if err != nil {
-			return fmt.Errorf("error querying all groups: %w", err)
+			return err
 		}
 	} else {
 		// sync changes
 		var err error
-		filter := fmt.Sprintf(`lastUpdated gt "%s" or lastMembershipUpdated gt "%s"`,
-			lastUpdated.UTC().Format(filterDateFormat),
-			lastMembershipUpdated.UTC().Format(filterDateFormat))
-		changedGroups, _, err = client.Group.ListGroups(ctx, &query.Params{
-			Limit:  int64(p.cfg.batchSize),
-			Filter: filter,
-		})
+		changedGroups, err = listChangedGroups(ctx, client, lastUpdated, lastMembershipUpdated, p.cfg.batchSize)
 		if err != nil {
-			return fmt.Errorf("error querying changed groups: %w", err)
+			return err
 		}
 	}
 
@@ -134,11 +125,9 @@ func (p *Provider) syncGroups(ctx context.Context, client *okta.Client, groups [
 	for _, g := range groups {
 		p.groups[g.Id] = *g
 
-		users, _, err := client.Group.ListGroupUsers(ctx, g.Id, &query.Params{
-			Limit: int64(p.cfg.batchSize),
-		})
+		users, err := listGroupUsers(ctx, client, g.Id, p.cfg.batchSize)
 		if err != nil {
-			return fmt.Errorf("error listing group members: %w", err)
+			return err
 		}
 		s := make([]okta.User, len(users))
 		for i, u := range users {
