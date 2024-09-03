@@ -7,12 +7,14 @@ import (
 )
 
 type AmazonAWSIPRanges struct {
-	Prefixes []struct {
-		IPPrefix           string `json:"ip_prefix"`
-		Region             string `json:"region"`
-		Service            string `json:"service"`
-		NetworkBorderGroup string `json:"network_border_group"`
-	} `json:"prefixes"`
+	Prefixes []AmazonAWSIPRangePrefix `json:"prefixes"`
+}
+
+type AmazonAWSIPRangePrefix struct {
+	IPPrefix           string `json:"ip_prefix"`
+	Region             string `json:"region"`
+	Service            string `json:"service"`
+	NetworkBorderGroup string `json:"network_border_group"`
 }
 
 // DefaultAmazonAWSIPRangesURL is the default amazon aws ip ranges url.
