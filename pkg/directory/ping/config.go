@@ -77,11 +77,11 @@ func WithLogger(logger zerolog.Logger) Option {
 func WithProviderURL(providerURL *url.URL) Option {
 	// provider URL will be https://auth.pingone.com/{ENVIRONMENT_ID}/as
 	if providerURL == nil {
-		return func(cfg *config) {}
+		return func(_ *config) {}
 	}
 	parts := strings.Split(providerURL.Path, "/")
 	if len(parts) < 1 {
-		return func(cfg *config) {}
+		return func(_ *config) {}
 	}
 	return WithEnvironmentID(parts[1])
 }
