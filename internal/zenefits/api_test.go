@@ -68,7 +68,7 @@ func TestAPI(t *testing.T) {
 }
 
 func serveJSON(p string, statusCode int) func(w http.ResponseWriter, r *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, _ *http.Request) {
 		data, err := os.ReadFile(p)
 		if err != nil {
 			w.WriteHeader(http.StatusNotFound)

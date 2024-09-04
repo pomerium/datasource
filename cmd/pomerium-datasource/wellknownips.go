@@ -16,7 +16,7 @@ var wellKnownIPsArgs struct {
 var wellKnownIPsCmd = &cobra.Command{
 	Use:   "well-known-ips",
 	Short: "runs the well known ips server",
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(cmd *cobra.Command, _ []string) {
 		log.Info().
 			Str("address", wellKnownIPsArgs.address).
 			Str("ip2asn-url", wellKnownIPsArgs.ip2asnURL).

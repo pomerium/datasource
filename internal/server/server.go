@@ -12,7 +12,7 @@ import (
 func RunHTTPServer(ctx context.Context, addr string, handler http.Handler) error {
 	srv := http.Server{
 		Addr: addr,
-		BaseContext: func(l net.Listener) context.Context {
+		BaseContext: func(_ net.Listener) context.Context {
 			return ctx
 		},
 		Handler:           handler,
