@@ -73,7 +73,7 @@ func newMockAPI(userIDToGroupIDs map[string][]string) http.Handler {
 		})
 	})
 	r.Route("/v1/environments/ENVIRONMENTID", func(r chi.Router) {
-		r.Get("/groups", func(w http.ResponseWriter, r *http.Request) {
+		r.Get("/groups", func(w http.ResponseWriter, _ *http.Request) {
 			var apiGroups []apiGroup
 			for _, id := range allGroups {
 				apiGroups = append(apiGroups, apiGroup{

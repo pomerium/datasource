@@ -32,7 +32,7 @@ func newMockAPI(t *testing.T, _ *httptest.Server) http.Handler {
 				next.ServeHTTP(w, r)
 			})
 		})
-		r.Get("/groups", func(w http.ResponseWriter, r *http.Request) {
+		r.Get("/groups", func(w http.ResponseWriter, _ *http.Request) {
 			_ = json.NewEncoder(w).Encode([]M{
 				{"id": 1, "name": "Group 1"},
 				{"id": 2, "name": "Group 2"},

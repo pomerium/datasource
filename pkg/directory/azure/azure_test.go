@@ -51,7 +51,7 @@ func newMockAPI(t *testing.T, _ *httptest.Server) http.Handler {
 				}
 			})
 		})
-		r.Get("/groups/delta", func(w http.ResponseWriter, r *http.Request) {
+		r.Get("/groups/delta", func(w http.ResponseWriter, _ *http.Request) {
 			_ = json.NewEncoder(w).Encode(M{
 				"value": []M{
 					{
@@ -73,7 +73,7 @@ func newMockAPI(t *testing.T, _ *httptest.Server) http.Handler {
 				},
 			})
 		})
-		r.Get("/users/delta", func(w http.ResponseWriter, r *http.Request) {
+		r.Get("/users/delta", func(w http.ResponseWriter, _ *http.Request) {
 			_ = json.NewEncoder(w).Encode(M{
 				"value": []M{
 					{"id": "user-1", "displayName": "User 1", "mail": "user1@example.com"},

@@ -53,7 +53,7 @@ func NewDateTime(tm time.Time, layout string) DateTime {
 // DateTimeDecodeHook parses date time that's supplied in a non-standard layout
 // if layout does not contain a time zone, a location need be provided
 func DateTimeDecodeHook(layout string, location *time.Location) mapstructure.DecodeHookFuncType {
-	return func(srcT, dstT reflect.Type, data interface{}) (interface{}, error) {
+	return func(_, dstT reflect.Type, data interface{}) (interface{}, error) {
 		if dstT != DateType {
 			return data, nil
 		}

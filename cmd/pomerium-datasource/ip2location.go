@@ -19,14 +19,14 @@ var ip2LocationCmd = &cobra.Command{
 	Use:   "ip2location <file>",
 	Short: "runs the IP2Location server",
 	Args:  cobra.ExactArgs(1),
-	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+	PersistentPreRunE: func(_ *cobra.Command, args []string) error {
 		if len(args) == 0 {
 			return fmt.Errorf("file is required")
 		}
 		ip2LocationArgs.file = args[0]
 		return nil
 	},
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(cmd *cobra.Command, _ []string) {
 		log.Info().
 			Str("address", ip2LocationArgs.address).
 			Str("file", ip2LocationArgs.file).

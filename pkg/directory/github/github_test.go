@@ -89,7 +89,7 @@ func newMockAPI(t *testing.T, _ *httptest.Server) http.Handler {
 
 			result.Data.Organization.MembersWithRole = membersWithRole
 		}
-		handleTeamMembers := func(orgSlug, teamSlug string, field *ast.Field) {
+		handleTeamMembers := func(_, teamSlug string, _ *ast.Field) {
 			result.Data.Organization.Team.Members = &qlTeamMemberConnection{
 				PageInfo: qlPageInfo{HasNextPage: false},
 			}
@@ -272,7 +272,7 @@ func newMockAPI(t *testing.T, _ *httptest.Server) http.Handler {
 
 		_ = json.NewEncoder(w).Encode(result)
 	})
-	r.Get("/user/orgs", func(w http.ResponseWriter, r *http.Request) {
+	r.Get("/user/orgs", func(w http.ResponseWriter, _ *http.Request) {
 		_ = json.NewEncoder(w).Encode([]M{
 			{"login": "org1"},
 			{"login": "org2"},

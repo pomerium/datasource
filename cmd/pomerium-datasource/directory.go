@@ -162,7 +162,7 @@ func directorySubCommand(
 	cmd.Flags().StringVar(&addr, "address", ":8080", "tcp address to listen to")
 	cmd.Flags().BoolVar(&debug, "debug", false, "debug mode")
 	newProvider := setupFlags(cmd.Flags())
-	cmd.Run = func(cmd *cobra.Command, args []string) {
+	cmd.Run = func(cmd *cobra.Command, _ []string) {
 		if debug {
 			zerolog.SetGlobalLevel(zerolog.DebugLevel)
 		}

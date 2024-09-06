@@ -125,7 +125,7 @@ func newMockAPI(srv *httptest.Server, userIDToGroupName map[int]string) http.Han
 				}},
 			})
 		})
-		r.Get("/users", func(w http.ResponseWriter, r *http.Request) {
+		r.Get("/users", func(w http.ResponseWriter, _ *http.Request) {
 			userIDToGroupID := map[int]int{}
 			for userID, groupName := range userIDToGroupName {
 				for id, n := range allGroups {

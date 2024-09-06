@@ -64,7 +64,7 @@ func newMockAPI(t *testing.T, _ *httptest.Server) http.Handler {
 
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
-	r.Post("/token", func(w http.ResponseWriter, r *http.Request) {
+	r.Post("/token", func(w http.ResponseWriter, _ *http.Request) {
 		_ = json.NewEncoder(w).Encode(M{
 			"access_token":  "ACCESSTOKEN",
 			"token_type":    "Bearer",
@@ -116,7 +116,7 @@ func newMockAPI(t *testing.T, _ *httptest.Server) http.Handler {
 			})
 		})
 		r.Route("/users", func(r chi.Router) {
-			r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+			r.Get("/", func(w http.ResponseWriter, _ *http.Request) {
 				_ = json.NewEncoder(w).Encode(M{
 					"kind": "admin#directory#users",
 					"users": []M{

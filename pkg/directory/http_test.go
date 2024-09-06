@@ -27,7 +27,7 @@ func TestHandler(t *testing.T) {
 			users  []User
 			err    error
 		}{}
-		h := NewHandler(ProviderFunc(func(ctx context.Context) ([]Group, []User, error) {
+		h := NewHandler(ProviderFunc(func(_ context.Context) ([]Group, []User, error) {
 			return expect.groups, expect.users, expect.err
 		}))
 		srv := httptest.NewServer(h)
@@ -80,7 +80,7 @@ func TestHandler(t *testing.T) {
 			users  []User
 			err    error
 		}{}
-		h := NewHandler(ProviderFunc(func(ctx context.Context) ([]Group, []User, error) {
+		h := NewHandler(ProviderFunc(func(_ context.Context) ([]Group, []User, error) {
 			return expect.groups, expect.users, expect.err
 		}))
 		srv := httptest.NewServer(h)
