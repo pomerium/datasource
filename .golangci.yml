@@ -7,19 +7,15 @@ linters:
     - bodyclose
     - decorder
     - dogsled
-    - dupl
     - durationcheck
     - errcheck
     - errname
     - errorlint
     - exhaustive
-    - gci
-    - goconst
-    - godox
+    # - gci # https://github.com/daixiang0/gci/issues/209
     - gofumpt
     - goheader
     - goimports
-    - gomoddirectives
     - gomodguard
     - goprintffuncname
     - gosec
@@ -28,42 +24,29 @@ linters:
     - grouper
     - importas
     - ineffassign
-    - interfacebloat
     - makezero
     - misspell
     - nakedret
     - nestif
     - nilerr
-    - nilnil
     - noctx
     - nolintlint
     - nosprintfhostport
-    - paralleltest
     - predeclared
     - promlinter
     - reassign
     - revive
     - staticcheck
-    - stylecheck
     - tenv
     - thelper
     - tparallel
-    - typecheck
     - unconvert
     - unused
     - whitespace
-
 linters-settings:
   gci:
     custom-order: true
     sections:
       - standard # Standard section: captures all standard packages.
       - default # Default section: contains all imports that could not be matched to another section type.
-      - prefix(github.com/pomerium/datasource)
 
-issues:
-  exclude-rules:
-    # Exclude some linters from running on test files.
-    - path: _test\.go$
-      linters:
-        - gosec

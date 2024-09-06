@@ -1,47 +1,54 @@
 package fleetdm
 
 import (
+	"archive/zip"
 	"context"
 	"fmt"
+	"io"
 
-	"github.com/pomerium/datasource/internal/fleetdm/client"
+	"github.com/pomerium/datasource/internal/jsonutil"
 )
 
-type Record struct {
-	CertificateSHA1Fingerprint string `json:"id"`
-	FailingPoliciesCount       int    `json:"failing_policies_count"`
-}
+const (
+	typeCertificateSHA1Fingerprint = "fleetdm.com/CertificateSHA1Fingerprint"
+	typeHost                       = "fleetdm.com/Host"
+)
 
-func (srv *server) getRecords(
+func (srv *server) writeRecords(
 	ctx context.Context,
-) ([]Record, error) {
+	dst io.Writer,
+) error {
+	zw := zip.NewWriter(dst)
+
+	fw, err := zw.Create(typeCertificateSHA1Fingerprint + ".json")
+	if err != nil {
+		return fmt.Errorf("write header: %w", err)
+	}
+
+	certs, err := srv.client.QueryCertificates(ctx, srv.cfg.certificateQueryID)
+	if err != nil {
+		return fmt.Errorf("query certificates: %w", err)
+	}
+
+	err = jsonutil.StreamWriteArray(fw, certs)
+	if err != nil {
+		return fmt.Errorf("write certificates: %w", err)
+	}
+
+	fw, err = zw.Create(typeHost + ".json")
+	if err != nil {
+		return fmt.Errorf("write header: %w", err)
+	}
+
 	hosts, err := srv.client.ListHosts(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("list hosts: %w", err)
+		return fmt.Errorf("list hosts: %w", err)
 	}
 
-	certs, err := srv.client.QueryReport(ctx, srv.cfg.certificateQueryID)
+	err = jsonutil.StreamWriteArray(fw, hosts)
 	if err != nil {
-		return nil, fmt.Errorf("query %d report: %w", srv.cfg.certificateQueryID, err)
+		return fmt.Errorf("write hosts: %w", err)
 	}
 
-	hostIndex := make(map[uint]client.Host, len(hosts))
-	for _, host := range hosts {
-		hostIndex[host.ID] = host
-	}
-
-	records := make([]Record, 0, len(certs))
-	for _, cert := range certs {
-		host, ok := hostIndex[cert.HostID]
-		if !ok {
-			continue
-		}
-
-		records = append(records, Record{
-			CertificateSHA1Fingerprint: cert.Columns["sha1"],
-			FailingPoliciesCount:       int(host.HostIssues.FailingPoliciesCount),
-		})
-	}
-
-	return records, nil
+	return zw.Close()
 }

@@ -2,10 +2,12 @@ package client
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
+	"iter"
 	"net/http"
 	"net/url"
+
+	"github.com/pomerium/datasource/internal/jsonutil"
 )
 
 type Client struct {
@@ -40,13 +42,14 @@ func (c *Client) newRequest(
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
 
+	req.Header.Set("Accept", "application/json")
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", c.cfg.token))
 	return req.WithContext(ctx), nil
 }
 
 func (c *Client) ListHosts(
 	ctx context.Context,
-) ([]Host, error) {
+) (iter.Seq2[Host, error], error) {
 	req, err := c.newRequest(ctx, "GET", "/api/v1/fleet/hosts")
 	if err != nil {
 		return nil, err
@@ -56,27 +59,22 @@ func (c *Client) ListHosts(
 	if err != nil {
 		return nil, fmt.Errorf("failed to perform request: %w", err)
 	}
-	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
+		_ = resp.Body.Close()
 		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
 
-	var response struct {
-		Hosts []Host `json:"hosts"`
-	}
-	err = json.NewDecoder(resp.Body).Decode(&response)
-	if err != nil {
-		return nil, fmt.Errorf("failed to decode response: %w", err)
-	}
-
-	return response.Hosts, nil
+	return convertIter2(
+		jsonutil.StreamArrayReadAndClose[hostRecord](resp.Body, []string{"hosts"}),
+		convertHostRecord,
+	), nil
 }
 
-func (c *Client) QueryReport(
+func (c *Client) QueryCertificates(
 	ctx context.Context,
 	queryID uint,
-) ([]QueryReportItem, error) {
+) (iter.Seq2[CertificateSHA1QueryItem, error], error) {
 	req, err := c.newRequest(ctx, "GET", fmt.Sprintf("/api/v1/fleet/queries/%d/report", queryID))
 	if err != nil {
 		return nil, err
@@ -86,20 +84,14 @@ func (c *Client) QueryReport(
 	if err != nil {
 		return nil, fmt.Errorf("failed to perform request: %w", err)
 	}
-	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
+		resp.Body.Close()
 		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
 
-	var response struct {
-		Results []QueryReportItem `json:"results"`
-	}
-
-	err = json.NewDecoder(resp.Body).Decode(&response)
-	if err != nil {
-		return nil, fmt.Errorf("failed to decode response: %w", err)
-	}
-
-	return response.Results, nil
+	return convertIter2(
+		jsonutil.StreamArrayReadAndClose[certificateQueryRecord](resp.Body, []string{"results"}),
+		convertCertificateQuery,
+	), nil
 }
