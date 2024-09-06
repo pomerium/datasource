@@ -3,12 +3,13 @@ package jsonutil_test
 import (
 	"encoding/json"
 	"io"
-	"iter"
 	"strings"
 	"testing"
 
-	"github.com/pomerium/datasource/internal/jsonutil"
 	"github.com/stretchr/testify/require"
+	"iter"
+
+	"github.com/pomerium/datasource/internal/jsonutil"
 )
 
 func collect[T any](it iter.Seq2[T, error]) ([]T, error) {
@@ -51,12 +52,14 @@ func mkTest[T any](
 }
 
 func TestReader(t *testing.T) {
+	t.Parallel()
+
 	type S struct {
 		A int
 		B string
 	}
 
-	var ts []S = []S{
+	ts := []S{
 		{1, "a"},
 		{2, "b"},
 		{3, "c"},
@@ -84,6 +87,8 @@ func TestReader(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
 			encoded, err := json.Marshal(tc.input)
 			require.NoError(t, err)
 

@@ -5,10 +5,12 @@ import (
 	"errors"
 	"fmt"
 	"io"
+
 	"iter"
 )
 
 // StreamArrayReader reads a JSON array from r and yields each element.
+// keys is a list of keys hierarchy to traverse before reading the array.
 func StreamArrayReader[T any](r io.Reader, keys []string) iter.Seq2[T, error] {
 	return func(yield func(T, error) bool) {
 		var v T
@@ -20,13 +22,9 @@ func StreamArrayReader[T any](r io.Reader, keys []string) iter.Seq2[T, error] {
 			return
 		}
 
-		tk, err := decoder.Token()
+		err = readDelim(decoder, json.Delim('['))
 		if err != nil {
-			yield(v, fmt.Errorf("reading next token: %w", err))
-			return
-		}
-		if tk != json.Delim('[') {
-			yield(v, fmt.Errorf("expected `[`, got `%v`", tk))
+			yield(v, err)
 			return
 		}
 
@@ -43,16 +41,23 @@ func StreamArrayReader[T any](r io.Reader, keys []string) iter.Seq2[T, error] {
 			}
 		}
 
-		tk, err = decoder.Token()
+		err = readDelim(decoder, json.Delim(']'))
 		if err != nil {
-			yield(v, fmt.Errorf("reading next token: %w", err))
-			return
-		}
-		if tk != json.Delim(']') {
-			yield(v, fmt.Errorf("expected `[`, got `%v`", tk))
+			yield(v, err)
 			return
 		}
 	}
+}
+
+func readDelim(decoder *json.Decoder, delim json.Delim) error {
+	tk, err := decoder.Token()
+	if err != nil {
+		return fmt.Errorf("reading next token: %w", err)
+	}
+	if tk != delim {
+		return fmt.Errorf("expected `%v`, got `%v`", delim, tk)
+	}
+	return nil
 }
 
 func skipObject(decoder *json.Decoder) error {
@@ -86,14 +91,9 @@ func skipObject(decoder *json.Decoder) error {
 }
 
 func findObjectKey(decoder *json.Decoder, key string) error {
-	t, err := decoder.Token()
+	err := readDelim(decoder, json.Delim('{'))
 	if err != nil {
 		return err
-	}
-
-	delim, ok := t.(json.Delim)
-	if !ok || delim != '{' {
-		return fmt.Errorf("expected a {, got %v", t)
 	}
 
 	for {
