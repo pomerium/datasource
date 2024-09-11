@@ -3,11 +3,11 @@ package jsonutil_test
 import (
 	"encoding/json"
 	"io"
+	"iter"
 	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"iter"
 
 	"github.com/pomerium/datasource/internal/jsonutil"
 )
