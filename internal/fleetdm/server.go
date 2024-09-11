@@ -11,7 +11,12 @@ import (
 func NewServer(opts ...Option) (*mux.Router, error) {
 	cfg := newConfig(opts...)
 
-	client, err := client.New(client.WithToken(cfg.apiToken), client.WithURL(cfg.apiURL))
+	client, err := client.New(
+		client.WithToken(cfg.apiToken),
+		client.WithURL(cfg.apiURL),
+		client.WithPolicies(),
+		client.WithVulnerabilities(),
+	)
 	if err != nil {
 		return nil, err
 	}

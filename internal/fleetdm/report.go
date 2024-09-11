@@ -12,6 +12,7 @@ import (
 const (
 	typeCertificateSHA1Fingerprint = "fleetdm.com/CertificateSHA1Fingerprint"
 	typeHost                       = "fleetdm.com/Host"
+	typePolicy                     = "fleetdm.com/Policy"
 )
 
 func (srv *server) writeRecords(
@@ -48,6 +49,21 @@ func (srv *server) writeRecords(
 	err = jsonutil.StreamWriteArray(fw, hosts)
 	if err != nil {
 		return fmt.Errorf("write hosts: %w", err)
+	}
+
+	fw, err = zw.Create(typePolicy + ".json")
+	if err != nil {
+		return fmt.Errorf("write header: %w", err)
+	}
+
+	policies, err := srv.client.ListPolicies(ctx)
+	if err != nil {
+		return fmt.Errorf("list policies: %w", err)
+	}
+
+	err = jsonutil.StreamWriteArray(fw, policies)
+	if err != nil {
+		return fmt.Errorf("write policies: %w", err)
 	}
 
 	return zw.Close()

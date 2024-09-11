@@ -3,9 +3,11 @@ package client
 import "net/http"
 
 type config struct {
-	token      string
-	url        string
-	httpClient *http.Client
+	token               string
+	url                 string
+	httpClient          *http.Client
+	withPolicies        bool
+	withVulnerabilities bool
 }
 
 type Option func(*config)
@@ -43,5 +45,19 @@ func WithURL(url string) Option {
 func WithHTTPClient(httpClient *http.Client) Option {
 	return func(cfg *config) {
 		cfg.httpClient = httpClient
+	}
+}
+
+// WithPolicies will fetch policy data and populate policy passing fields for hosts.
+func WithPolicies() Option {
+	return func(cfg *config) {
+		cfg.withPolicies = true
+	}
+}
+
+// WithVulnerabilities will fetch vulnerability data and populate CVE fields for hosts.
+func WithVulnerabilities() Option {
+	return func(cfg *config) {
+		cfg.withVulnerabilities = true
 	}
 }
