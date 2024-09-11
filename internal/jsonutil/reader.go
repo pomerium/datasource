@@ -10,6 +10,7 @@ import (
 
 // StreamArrayReader reads a JSON array from r and yields each element.
 // keys is a list of keys hierarchy to traverse before reading the array.
+// the returned iterator is single-use.
 func StreamArrayReader[T any](r io.Reader, keys []string) iter.Seq2[T, error] {
 	return func(yield func(T, error) bool) {
 		var v T
