@@ -12,6 +12,10 @@ import (
 	"github.com/hashicorp/go-set/v3"
 )
 
+const (
+	maxHostPerPage = 500
+)
+
 type Client struct {
 	cfg *config
 }
@@ -27,8 +31,15 @@ func New(opts ...Option) (*Client, error) {
 
 func (c *Client) ListHosts(
 	ctx context.Context,
-) (iter.Seq2[Host, error], error) {
-	return fetchItems(ctx, c, convertHostRecord, "hosts", "/api/v1/fleet/hosts", "populate_software", "true", "populate_policies", "true")
+) iter.Seq2[Host, error] {
+	var args []string
+	if c.cfg.withPolicies {
+		args = append(args, "populate_policies", "true")
+	}
+	if c.cfg.withVulnerabilities {
+		args = append(args, "populate_software", "true")
+	}
+	return fetchItemsPaged(ctx, c, convertHostRecord, "hosts", "/api/v1/fleet/hosts", maxHostPerPage, args...)
 }
 
 func (c *Client) listTeams(ctx context.Context) ([]uint, error) {
@@ -83,6 +94,52 @@ func (c *Client) QueryCertificates(
 	queryID uint,
 ) (iter.Seq2[CertificateSHA1QueryItem, error], error) {
 	return fetchItems(ctx, c, convertCertificateQuery, "results", fmt.Sprintf("/api/v1/fleet/queries/%d/report", queryID))
+}
+
+func fetchItemsPaged[InternalRecord, ExternalRecord any](
+	ctx context.Context,
+	c *Client,
+	convert func(InternalRecord) (ExternalRecord, error),
+	key string,
+	path string,
+	itemsPerPage int,
+	args ...string,
+) iter.Seq2[ExternalRecord, error] {
+	return func(yield func(ExternalRecord, error) bool) {
+		page := 0
+		for {
+			iter, err := fetchItems(ctx, c, convert, key, path, append(args, "page", fmt.Sprint(page), "per_page", fmt.Sprint(itemsPerPage))...)
+			if err != nil {
+				var v ExternalRecord
+				if !yield(v, fmt.Errorf("fetch page %d: %w", page, err)) {
+					return
+				}
+				return
+			}
+
+			itemCount := 0
+			for v, err := range iter {
+				if err != nil {
+					err = fmt.Errorf("page %d: %w", page, err)
+				}
+				if !yield(v, err) {
+					return
+				}
+
+				if err != nil {
+					return
+				}
+
+				itemCount++
+			}
+
+			if itemCount < itemsPerPage {
+				return
+			}
+
+			page++
+		}
+	}
 }
 
 func fetchItems[InternalRecord, ExternalRecord any](

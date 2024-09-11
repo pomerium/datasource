@@ -41,10 +41,7 @@ func (srv *server) writeRecords(
 		return fmt.Errorf("write header: %w", err)
 	}
 
-	hosts, err := srv.client.ListHosts(ctx)
-	if err != nil {
-		return fmt.Errorf("list hosts: %w", err)
-	}
+	hosts := srv.client.ListHosts(ctx)
 
 	err = jsonutil.StreamWriteArray(fw, hosts)
 	if err != nil {
