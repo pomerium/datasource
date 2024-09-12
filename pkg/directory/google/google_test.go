@@ -15,6 +15,7 @@ import (
 	"github.com/pomerium/datasource/pkg/directory"
 )
 
+//nolint:gosec
 var privateKey = `
 -----BEGIN RSA PRIVATE KEY-----
 MIIG4wIBAAKCAYEAnetGqPqS6dqYnV9S5S8gL34t7RRUMsf4prxIR+1PMv+bEqVH

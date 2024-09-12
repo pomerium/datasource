@@ -27,6 +27,7 @@ func main() {
 		zenefitsCommand(logger),
 		ip2LocationCmd,
 		wellKnownIPsCmd,
+		fleetDMCommand(logger),
 	)
 	if err := rootCmd.ExecuteContext(signalContext(logger)); err != nil {
 		logger.Fatal().Err(err).Msg("exit")

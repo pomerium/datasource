@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"encoding/json"
 	"io"
+	"iter"
 )
 
 // A JSONArrayStream represents a streaming array of JSON objects.
@@ -57,4 +58,20 @@ func (stream *JSONArrayStream) Encode(obj any) error {
 
 	_, err = stream.buf.Write(bs)
 	return err
+}
+
+func StreamWriteArray[T any](w io.Writer, src iter.Seq2[T, error]) error {
+	stream := NewJSONArrayStream(w)
+	defer stream.Close()
+
+	for v, err := range src {
+		if err != nil {
+			return err
+		}
+		err = stream.Encode(v)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
