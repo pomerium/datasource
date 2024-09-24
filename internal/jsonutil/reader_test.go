@@ -98,3 +98,27 @@ func TestReader(t *testing.T) {
 		})
 	}
 }
+
+func TestReaderError(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name          string
+		encoded       string
+		keys          []string
+		expectedError error
+	}{
+		{"nokey 1", `{"k2":{}}`, []string{"k1"}, jsonutil.ErrKeyNotFound},
+		{"empty 1", `{}`, []string{"key"}, jsonutil.ErrKeyNotFound},
+		{"empty 2", `{"k1":{"k3":{"k4":1}}}`, []string{"k1", "k2"}, jsonutil.ErrKeyNotFound},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			_, err := collect(jsonutil.StreamArrayReader[int](strings.NewReader(tc.encoded), tc.keys))
+			require.ErrorIs(t, err, tc.expectedError)
+		})
+	}
+}

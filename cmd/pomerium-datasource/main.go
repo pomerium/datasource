@@ -37,6 +37,7 @@ func main() {
 func makeLogger() zerolog.Logger {
 	logger := zerolog.New(zerolog.NewConsoleWriter())
 	log.Logger = logger
+	zerolog.DefaultContextLogger = &logger
 	return logger
 }
 
