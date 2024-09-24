@@ -8,6 +8,8 @@ import (
 	"iter"
 )
 
+var ErrKeyNotFound = errors.New("key not found")
+
 func StreamArrayReadAndClose[T any](r io.ReadCloser, keys []string) iter.Seq2[T, error] {
 	return func(yield func(T, error) bool) {
 		StreamArrayReader[T](r, keys)(yield)
@@ -108,6 +110,9 @@ func findObjectKey(decoder *json.Decoder, key string) error {
 		if err != nil {
 			return err
 		}
+		if t == json.Delim('}') {
+			return ErrKeyNotFound
+		}
 		keyName, ok := t.(string)
 		if !ok {
 			return fmt.Errorf("expected a string key, got %v", t)
@@ -126,7 +131,7 @@ func traverseKeys(decoder *json.Decoder, keys []string) error {
 	for _, key := range keys {
 		err := findObjectKey(decoder, key)
 		if err != nil {
-			return err
+			return fmt.Errorf("key %s: %w", key, err)
 		}
 	}
 	return nil

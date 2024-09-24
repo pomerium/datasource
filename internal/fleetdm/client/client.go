@@ -2,12 +2,14 @@ package client
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"iter"
 	"net/http"
 	"net/url"
 
 	"github.com/pomerium/datasource/internal/jsonutil"
+	"github.com/rs/zerolog/log"
 
 	"github.com/hashicorp/go-set/v3"
 )
@@ -165,10 +167,9 @@ func fetchItems[InternalRecord, ExternalRecord any](
 		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
 
-	return convertIter2(
-		jsonutil.StreamArrayReadAndClose[InternalRecord](resp.Body, []string{key}),
-		convert,
-	), nil
+	it := jsonutil.StreamArrayReadAndClose[InternalRecord](resp.Body, []string{key})
+	it = ignoreErrorAndLog(ctx, it, jsonutil.ErrKeyNotFound) // the key is omitted if there are no items
+	return convertIter2(it, convert), nil
 }
 
 func (c *Client) newRequest(
@@ -227,6 +228,28 @@ func dedup[ID comparable, T interface{ GetID() ID }](
 				if !yield(v, nil) {
 					return
 				}
+			}
+		}
+	}
+}
+
+// ignoreError iterator ignores specific error and returns it as an end of the sequence
+// but only if its the first error in the sequence. it would just log a warning
+func ignoreErrorAndLog[T any](
+	ctx context.Context,
+	iters iter.Seq2[T, error],
+	ignoreErr error,
+) iter.Seq2[T, error] {
+	return func(yield func(T, error) bool) {
+		first := true
+		for v, err := range iters {
+			if err != nil && first && errors.Is(err, ignoreErr) {
+				log.Ctx(ctx).Info().Msg(err.Error())
+				first = false
+				continue
+			}
+			if !yield(v, err) {
+				return
 			}
 		}
 	}
