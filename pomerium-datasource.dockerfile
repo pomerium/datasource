@@ -1,4 +1,4 @@
-FROM golang:1.23.0-bookworm@sha256:31dc846dd1bcca84d2fa231bcd16c09ff271bcc1a5ae2c48ff10f13b039688f3 AS build
+FROM golang:1.23.2-bookworm@sha256:18d2f940cc20497f85466fdbe6c3d7a52ed2db1d5a1a49a4508ffeee2dff1463 AS build
 
 WORKDIR /build
 
@@ -12,7 +12,7 @@ COPY ./internal/ ./internal/
 COPY ./pkg/ ./pkg/
 RUN make build
 
-FROM gcr.io/distroless/base-debian12:debug@sha256:af772ed0ce52d8994acedc3ec84a9d22e9366dda8767f17d1bb2213b06beaff5
+FROM gcr.io/distroless/base-debian12:debug@sha256:662eaa2606087124ac1fc108291ecad341f6376ce6fa28ac7e1655ec76c6e6d9
 
 COPY --from=build /build/bin/* /bin/
 
