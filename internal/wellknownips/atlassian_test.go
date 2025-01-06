@@ -20,6 +20,6 @@ func TestFetchAtlassianIPRanges(t *testing.T) {
 	ranges, err := FetchAtlassianIPRanges(ctx, client, DefaultAtlassianIPRangesURL)
 	assert.NoError(t, err)
 	if assert.NotNil(t, ranges) && assert.Greater(t, len(ranges.Items), 0) {
-		assert.Equal(t, ranges.Items[0].CIDR, "3.26.128.128/26")
+		assert.Equal(t, ranges.Items[0].CIDR, "23.249.208.0/20")
 	}
 }
