@@ -9,7 +9,7 @@ RUN --mount=type=secret,id=download_token \
     -o /download/IP2LOCATION-LITE-DB1.CSV.ZIP \
     "https://www.ip2location.com/download/?token=${DOWNLOAD_TOKEN}&file=DB1LITECSV"
 
-FROM golang:1.23.4-bookworm@sha256:2e838582004fab0931693a3a84743ceccfbfeeafa8187e87291a1afea457ff7a AS build
+FROM golang:1.23.5-bookworm@sha256:3149bc5043fa58cf127fd8db1fdd4e533b6aed5a40d663d4f4ae43d20386665f AS build
 
 WORKDIR /build
 
@@ -23,7 +23,7 @@ COPY ./internal/ ./internal/
 COPY ./pkg/ ./pkg/
 RUN make build
 
-FROM gcr.io/distroless/base-debian12:debug@sha256:a6b40812524ed4f6a2e507eb01ed04f867d9b4cb1e20369d62ffef0edd598efd
+FROM gcr.io/distroless/base-debian12:debug@sha256:3a59a8d10471fc8487fd2ca93746b0195ed4c3236c14fe8412cf7b2ec4b8c1f3
 
 COPY --from=build /build/bin/* /bin/
 COPY --from=curl /download/IP2LOCATION-LITE-DB1.CSV.ZIP /usr/share/IP2LOCATION-LITE-DB1.CSV.ZIP
