@@ -1,70 +1,21 @@
 package auth0
 
 import (
-	"context"
-	"fmt"
 	"net/http"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
-	"gopkg.in/auth0.v5/management"
 
 	"github.com/pomerium/datasource/internal/httputil"
 )
-
-type (
-	// A RoleManager manages roles.
-	RoleManager interface {
-		List(opts ...management.RequestOption) (r *management.RoleList, err error)
-		Users(id string, opts ...management.RequestOption) (u *management.UserList, err error)
-	}
-
-	// A UserManager manages users.
-	UserManager interface {
-		Read(id string, opts ...management.RequestOption) (*management.User, error)
-		Roles(id string, opts ...management.RequestOption) (r *management.RoleList, err error)
-	}
-
-	newManagersFunc = func(
-		ctx context.Context,
-		cfg *config,
-	) (RoleManager, UserManager, error)
-)
-
-func defaultNewManagersFunc(
-	ctx context.Context,
-	cfg *config,
-) (RoleManager, UserManager, error) {
-	domain := cfg.domain
-	if domain == "" {
-		return nil, nil, ErrDomainRequired
-	}
-	clientID := cfg.clientID
-	if clientID == "" {
-		return nil, nil, ErrClientIDRequired
-	}
-	clientSecret := cfg.clientSecret
-	if clientSecret == "" {
-		return nil, nil, ErrClientSecretRequired
-	}
-
-	m, err := management.New(domain,
-		management.WithClient(cfg.getHTTPClient()),
-		management.WithClientCredentials(clientID, clientSecret),
-		management.WithContext(ctx))
-	if err != nil {
-		return nil, nil, fmt.Errorf("auth0: could not build management: %w", err)
-	}
-	return m.Role, m.User, nil
-}
 
 type config struct {
 	clientID     string
 	clientSecret string
 	domain       string
 	httpClient   *http.Client
+	insecure     bool
 	logger       zerolog.Logger
-	newManagers  newManagersFunc
 }
 
 // Option provides config for the Auth0 Provider.
@@ -98,6 +49,13 @@ func WithHTTPClient(httpClient *http.Client) Option {
 	}
 }
 
+// WithInsecure sets the insecure option in the config.
+func WithInsecure(insecure bool) Option {
+	return func(cfg *config) {
+		cfg.insecure = insecure
+	}
+}
+
 // WithLogger sets the logger in the config.
 func WithLogger(logger zerolog.Logger) Option {
 	return func(cfg *config) {
@@ -105,17 +63,10 @@ func WithLogger(logger zerolog.Logger) Option {
 	}
 }
 
-func withNewManagersFunc(f newManagersFunc) Option {
-	return func(cfg *config) {
-		cfg.newManagers = f
-	}
-}
-
 func getConfig(options ...Option) *config {
 	cfg := new(config)
 	WithHTTPClient(http.DefaultClient)(cfg)
 	WithLogger(log.Logger)(cfg)
-	withNewManagersFunc(defaultNewManagersFunc)(cfg)
 	for _, option := range options {
 		option(cfg)
 	}
