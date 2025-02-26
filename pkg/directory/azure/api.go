@@ -7,6 +7,10 @@ type (
 		ID          string `json:"id"`
 		DisplayName string `json:"displayName"`
 	}
+	apiServicePrincipal struct {
+		ID          string `json:"id"`
+		DisplayName string `json:"displayName"`
+	}
 	apiUser struct {
 		ID                string `json:"id"`
 		DisplayName       string `json:"displayName"`

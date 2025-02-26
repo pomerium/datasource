@@ -17,7 +17,7 @@ import (
 	"github.com/pomerium/datasource/pkg/directory"
 )
 
-type M = map[string]interface{}
+type M = map[string]any
 
 func newMockAPI(t *testing.T, _ *httptest.Server) http.Handler {
 	t.Helper()
@@ -59,6 +59,7 @@ func newMockAPI(t *testing.T, _ *httptest.Server) http.Handler {
 						"displayName": "Admin Group",
 						"members@delta": []M{
 							{"@odata.type": "#microsoft.graph.user", "id": "user-1"},
+							{"@odata.type": "#microsoft.graph.servicePrincipal", "id": "service-principal-1"},
 						},
 					},
 					{
@@ -69,6 +70,20 @@ func newMockAPI(t *testing.T, _ *httptest.Server) http.Handler {
 							{"@odata.type": "#microsoft.graph.user", "id": "user-3"},
 							{"@odata.type": "#microsoft.graph.user", "id": "user-4"},
 						},
+					},
+				},
+			})
+		})
+		r.Get("/servicePrincipals/delta", func(w http.ResponseWriter, _ *http.Request) {
+			_ = json.NewEncoder(w).Encode(M{
+				"value": []M{
+					{
+						"id":          "service-principal-1",
+						"displayName": "Service Principal 1",
+					},
+					{
+						"id":          "service-principal-2",
+						"displayName": "Service Principal 2",
 					},
 				},
 			})
@@ -149,6 +164,16 @@ func TestProvider_GetDirectory(t *testing.T) {
 		{ID: "test", Name: "Test Group"},
 	}, groups)
 	assert.Equal(t, []directory.User{
+		{
+			ID:          "service-principal-1",
+			GroupIDs:    []string{"admin"},
+			DisplayName: "Service Principal 1",
+		},
+		{
+			ID:          "service-principal-2",
+			GroupIDs:    []string{},
+			DisplayName: "Service Principal 2",
+		},
 		{
 			ID:          "user-1",
 			GroupIDs:    []string{"admin"},
