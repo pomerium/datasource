@@ -2,6 +2,7 @@ package azure
 
 import (
 	"context"
+	"errors"
 	"net/url"
 	"sort"
 
@@ -9,17 +10,20 @@ import (
 )
 
 const (
-	groupsDeltaPath = "/v1.0/groups/delta"
-	usersDeltaPath  = "/v1.0/users/delta"
+	groupsDeltaPath            = "/v1.0/groups/delta"
+	servicePrincipalsDeltaPath = "/v1.0/servicePrincipals/delta"
+	usersDeltaPath             = "/v1.0/users/delta"
 )
 
 type (
 	deltaCollection struct {
-		provider       *Provider
-		groups         map[string]deltaGroup
-		groupDeltaLink string
-		users          map[string]deltaUser
-		userDeltaLink  string
+		provider                  *Provider
+		groups                    map[string]deltaGroup
+		groupDeltaLink            string
+		servicePrincipals         map[string]deltaServicePrincipal
+		servicePrincipalDeltaLink string
+		users                     map[string]deltaUser
+		userDeltaLink             string
 	}
 	deltaGroup struct {
 		id          string
@@ -35,13 +39,18 @@ type (
 		displayName string
 		email       string
 	}
+	deltaServicePrincipal struct {
+		id          string
+		displayName string
+	}
 )
 
 func newDeltaCollection(p *Provider) *deltaCollection {
 	return &deltaCollection{
-		provider: p,
-		groups:   make(map[string]deltaGroup),
-		users:    make(map[string]deltaUser),
+		provider:          p,
+		groups:            make(map[string]deltaGroup),
+		users:             make(map[string]deltaUser),
+		servicePrincipals: make(map[string]deltaServicePrincipal),
 	}
 }
 
@@ -58,12 +67,11 @@ func newDeltaCollection(p *Provider) *deltaCollection {
 //
 // Only the changed groups/members are returned. Removed groups/members have an @removed property.
 func (dc *deltaCollection) Sync(ctx context.Context) error {
-	err := dc.syncGroups(ctx)
-	if err != nil {
-		return err
-	}
-
-	return dc.syncUsers(ctx)
+	return errors.Join(
+		dc.syncGroups(ctx),
+		dc.syncServicePrincipals(ctx),
+		dc.syncUsers(ctx),
+	)
 }
 
 func (dc *deltaCollection) syncGroups(ctx context.Context) error {
@@ -121,6 +129,50 @@ func (dc *deltaCollection) syncGroups(ctx context.Context) error {
 		default:
 			// once no next link is set anymore, we save the delta link and return
 			dc.groupDeltaLink = res.DeltaLink
+			return nil
+		}
+	}
+}
+
+func (dc *deltaCollection) syncServicePrincipals(ctx context.Context) error {
+	apiURL := dc.servicePrincipalDeltaLink
+
+	// if no delta link is set yet, start the initial fill
+	if apiURL == "" {
+		apiURL = dc.provider.cfg.graphURL.ResolveReference(&url.URL{
+			Path: servicePrincipalsDeltaPath,
+			RawQuery: url.Values{
+				"$select": {"displayName"},
+			}.Encode(),
+		}).String()
+	}
+
+	for {
+		var res servicePrincipalsDeltaResponse
+		err := dc.provider.api(ctx, apiURL, &res)
+		if err != nil {
+			return err
+		}
+
+		for _, sp := range res.Value {
+			// if removed exists, the service principal was deleted
+			if sp.Removed != nil {
+				delete(dc.servicePrincipals, sp.ID)
+				continue
+			}
+			dc.servicePrincipals[sp.ID] = deltaServicePrincipal{
+				id:          sp.ID,
+				displayName: sp.DisplayName,
+			}
+		}
+
+		switch {
+		case res.NextLink != "":
+			// when there's a next link we will query again
+			apiURL = res.NextLink
+		default:
+			// once no next link is set anymore, we save the delta link and return
+			dc.servicePrincipalDeltaLink = res.DeltaLink
 			return nil
 		}
 	}
@@ -186,7 +238,8 @@ func (dc *deltaCollection) CurrentUserGroups() ([]directory.Group, []directory.U
 			switch m.memberType {
 			case "#microsoft.graph.group":
 				groupIDs = append(groupIDs, m.id)
-			case "#microsoft.graph.user":
+			case "#microsoft.graph.servicePrincipal",
+				"#microsoft.graph.user":
 				userIDs = append(userIDs, m.id)
 			}
 		}
@@ -197,6 +250,13 @@ func (dc *deltaCollection) CurrentUserGroups() ([]directory.Group, []directory.U
 	})
 
 	var users []directory.User
+	for _, sp := range dc.servicePrincipals {
+		users = append(users, directory.User{
+			ID:          sp.id,
+			GroupIDs:    groupLookup.getGroupIDsForUser(sp.id),
+			DisplayName: sp.displayName,
+		})
+	}
 	for _, u := range dc.users {
 		users = append(users, directory.User{
 			ID:          u.id,
@@ -232,6 +292,17 @@ type (
 	groupsDeltaResponseGroupMember struct {
 		Type    string                `json:"@odata.type"`
 		ID      string                `json:"id"`
+		Removed *deltaResponseRemoved `json:"@removed,omitempty"`
+	}
+
+	servicePrincipalsDeltaResponse struct {
+		Context   string                                           `json:"@odata.context"`
+		NextLink  string                                           `json:"@odata.nextLink,omitempty"`
+		DeltaLink string                                           `json:"@odata.deltaLink,omitempty"`
+		Value     []servicePrincipalsDeltaResponseServicePrincipal `json:"value"`
+	}
+	servicePrincipalsDeltaResponseServicePrincipal struct {
+		apiServicePrincipal
 		Removed *deltaResponseRemoved `json:"@removed,omitempty"`
 	}
 
