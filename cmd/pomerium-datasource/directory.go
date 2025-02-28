@@ -13,6 +13,7 @@ import (
 	"github.com/pomerium/datasource/pkg/directory/github"
 	"github.com/pomerium/datasource/pkg/directory/gitlab"
 	"github.com/pomerium/datasource/pkg/directory/google"
+	"github.com/pomerium/datasource/pkg/directory/keycloak"
 	"github.com/pomerium/datasource/pkg/directory/okta"
 	"github.com/pomerium/datasource/pkg/directory/onelogin"
 	"github.com/pomerium/datasource/pkg/directory/ping"
@@ -103,6 +104,22 @@ func directoryCommand(logger zerolog.Logger) *cobra.Command {
 						google.WithJSONKey(*jsonKey),
 						google.WithJSONKeyFile(*jsonKeyFile),
 						google.WithLogger(logger),
+					)
+				}
+			}),
+		directorySubCommand(logger, "keycloak",
+			func(flags *pflag.FlagSet) func() directory.Provider {
+				clientID := requiredStringFlag(flags, "client-id", "client id")
+				clientSecret := requiredStringFlag(flags, "client-secret", "client secret")
+				realm := requiredStringFlag(flags, "realm", "realm name")
+				url := requiredStringFlag(flags, "url", "url")
+				return func() directory.Provider {
+					return keycloak.New(
+						keycloak.WithClientID(*clientID),
+						keycloak.WithClientSecret(*clientSecret),
+						keycloak.WithRealm(*realm),
+						keycloak.WithLogger(logger),
+						keycloak.WithURL(*url),
 					)
 				}
 			}),
