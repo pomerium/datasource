@@ -123,7 +123,7 @@ func (p *Provider) getHTTPClient(ctx context.Context) (*http.Client, error) {
 			ClientID:     p.cfg.clientID,
 			ClientSecret: p.cfg.clientSecret,
 			TokenURL:     e.TokenURL,
-			AuthStyle:    e.AuthStyle,
+			AuthStyle:    oauth2.AuthStyleInParams,
 		}).TokenSource(tokenSourceCtx)
 	}
 

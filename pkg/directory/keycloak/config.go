@@ -1,7 +1,6 @@
 package keycloak
 
 import (
-	"crypto/tls"
 	"net/http"
 
 	"github.com/rs/zerolog"
@@ -82,13 +81,7 @@ func WithURL(url string) Option {
 func getConfig(options ...Option) *config {
 	cfg := new(config)
 	WithBatchSize(DefaultBatchSize)(cfg)
-	WithHTTPClient(&http.Client{
-		Transport: &http.Transport{
-			TLSClientConfig: &tls.Config{
-				InsecureSkipVerify: true,
-			},
-		},
-	})(cfg)
+	WithHTTPClient(http.DefaultClient)(cfg)
 	WithLogger(log.Logger)(cfg)
 	WithRealm(DefaultRealm)(cfg)
 	for _, option := range options {
