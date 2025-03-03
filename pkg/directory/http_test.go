@@ -106,4 +106,31 @@ func TestHandler(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, "failed to get directory data: ERROR", strings.TrimSpace(string(bs)))
 	})
+	t.Run("null", func(t *testing.T) {
+		t.Parallel()
+
+		h := NewHandler(ProviderFunc(func(_ context.Context) ([]Group, []User, error) {
+			return nil, nil, nil
+		}))
+		srv := httptest.NewServer(h)
+		t.Cleanup(srv.Close)
+
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, srv.URL, nil)
+		if !assert.NoError(t, err) {
+			return
+		}
+
+		res, err := http.DefaultClient.Do(req)
+		if !assert.NoError(t, err) {
+			return
+		}
+		defer res.Body.Close()
+
+		assert.Equal(t, 200, res.StatusCode)
+		groups, users, err := decodeBundle(res.Body)
+		assert.NoError(t, err)
+
+		assert.NotNil(t, groups)
+		assert.NotNil(t, users)
+	})
 }

@@ -43,6 +43,14 @@ func (h *handler) serve(ctx context.Context, w http.ResponseWriter, r *http.Requ
 		return fmt.Errorf("failed to get directory data: %w", err)
 	}
 
+	// don't serve null, but an empty array instead
+	if groups == nil {
+		groups = make([]Group, 0)
+	}
+	if users == nil {
+		users = make([]User, 0)
+	}
+
 	return httputil.ServeBundle(w, r, map[string]any{
 		GroupRecordType: groups,
 		UserRecordType:  users,
