@@ -8,10 +8,10 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/pomerium/datasource/internal/jsonutil"
+	"github.com/hashicorp/go-set/v3"
 	"github.com/rs/zerolog/log"
 
-	"github.com/hashicorp/go-set/v3"
+	"github.com/pomerium/datasource/internal/jsonutil"
 )
 
 const (
