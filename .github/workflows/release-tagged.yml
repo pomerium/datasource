@@ -22,7 +22,7 @@ jobs:
       - name: Unshallow
         run: git fetch --prune --unshallow
 
-      - uses: actions/setup-go@f111f3307d8850f501ac008e886eec1fd1932a34
+      - uses: actions/setup-go@0aaccfd150d50ccaeb58ebd88d36e91967a5f35b
         with:
           go-version: 1.24.x
 
@@ -35,7 +35,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Log in to cloudsmith registry
-        uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567
+        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772
         with:
           registry: docker.cloudsmith.io
           username: ${{ secrets.CLOUDSMITH_USER }}
