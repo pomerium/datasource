@@ -24,7 +24,7 @@ jobs:
 
       - uses: actions/setup-go@f111f3307d8850f501ac008e886eec1fd1932a34
         with:
-          go-version: 1.22.x
+          go-version: 1.24.x
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@b5ca514318bd6ebac0fb2aedd5d36ec1b5c232a2
@@ -65,7 +65,7 @@ jobs:
           echo "tag=${LATEST_TAG}" >> "$GITHUB_OUTPUT"
 
       - name: Publish latest tag
-        if: "steps.latestTag.outputs.tag == steps.tagName.outputs.tag"
+        if: steps.latestTag.outputs.tag == steps.tagName.outputs.tag
         run: |
           docker manifest create -a pomerium/datasource:latest pomerium/datasource:amd64-${{ steps.tagName.outputs.tag }} pomerium/datasource:arm64v8-${{ steps.tagName.outputs.tag }}
           docker manifest push pomerium/datasource:latest

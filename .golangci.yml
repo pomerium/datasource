@@ -37,11 +37,11 @@ linters:
     - reassign
     - revive
     - staticcheck
-    - tenv
     - thelper
     - tparallel
     - unconvert
     - unused
+    - usetesting
     - whitespace
 linters-settings:
   gci:
@@ -49,4 +49,3 @@ linters-settings:
     sections:
       - standard # Standard section: captures all standard packages.
       - default # Default section: contains all imports that could not be matched to another section type.
-
