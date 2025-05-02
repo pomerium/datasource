@@ -1,4 +1,4 @@
-FROM ubuntu:latest@sha256:72297848456d5d37d1262630108ab308d3e9ec7ed1c3286a32fe09856619a782 AS curl
+FROM ubuntu:latest@sha256:1e622c5f073b4f6bfad6632f2616c7f59ef256e96fe78bf6a595d1dc4376ac02 AS curl
 
 RUN apt-get update && apt-get install -y curl
 
@@ -9,7 +9,7 @@ RUN --mount=type=secret,id=download_token \
     -o /download/IP2LOCATION-LITE-DB1.CSV.ZIP \
     "https://www.ip2location.com/download/?token=${DOWNLOAD_TOKEN}&file=DB1LITECSV"
 
-FROM golang:1.24.0-bookworm@sha256:b970e6d47c09fdd34179acef5c4fecaf6410f0b597a759733b3cbea04b4e604a AS build
+FROM golang:1.24.2-bookworm@sha256:79390b5e5af9ee6e7b1173ee3eac7fadf6751a545297672916b59bfa0ecf6f71 AS build
 
 WORKDIR /build
 
@@ -23,7 +23,7 @@ COPY ./internal/ ./internal/
 COPY ./pkg/ ./pkg/
 RUN make build
 
-FROM gcr.io/distroless/base-debian12:debug@sha256:3a59a8d10471fc8487fd2ca93746b0195ed4c3236c14fe8412cf7b2ec4b8c1f3
+FROM gcr.io/distroless/base-debian12:debug@sha256:02be0066ee51d3d8a77be84e7136df6b9946c46e114aa2ffc5f08027cc5840ff
 
 COPY --from=build /build/bin/* /bin/
 COPY --from=curl /download/IP2LOCATION-LITE-DB1.CSV.ZIP /usr/share/IP2LOCATION-LITE-DB1.CSV.ZIP
