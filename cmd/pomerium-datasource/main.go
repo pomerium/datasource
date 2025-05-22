@@ -28,6 +28,7 @@ func main() {
 		ip2LocationCmd,
 		wellKnownIPsCmd,
 		fleetDMCommand(logger),
+		blobCommand(logger),
 	)
 	if err := rootCmd.ExecuteContext(signalContext(logger)); err != nil {
 		logger.Fatal().Err(err).Msg("exit")
