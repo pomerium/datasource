@@ -1,7 +1,6 @@
 package okta
 
 import (
-	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -161,7 +160,7 @@ func TestProvider_GetDirectory(t *testing.T) {
 		WithOktaOptions(okta.WithTestingDisableHttpsCheck(true)),
 		WithURL(srv.URL),
 	)
-	groups, users, err := p.GetDirectory(context.Background())
+	groups, users, err := p.GetDirectory(t.Context())
 	assert.NoError(t, err)
 	assert.Equal(t, []directory.User{
 		{
@@ -207,7 +206,7 @@ func TestProvider_UserGroupsQueryUpdated(t *testing.T) {
 		WithOktaOptions(okta.WithTestingDisableHttpsCheck(true)),
 		WithURL(srv.URL),
 	)
-	groups, users, err := p.GetDirectory(context.Background())
+	groups, users, err := p.GetDirectory(t.Context())
 	assert.NoError(t, err)
 	assert.Equal(t, []directory.User{
 		{
@@ -231,7 +230,7 @@ func TestProvider_UserGroupsQueryUpdated(t *testing.T) {
 	}, users)
 	assert.Len(t, groups, 3)
 
-	groups, users, err = p.GetDirectory(context.Background())
+	groups, users, err = p.GetDirectory(t.Context())
 	assert.NoError(t, err)
 	assert.Equal(t, []directory.User{
 		{

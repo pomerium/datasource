@@ -1,12 +1,10 @@
 package google
 
 import (
-	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"testing"
-	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -155,8 +153,7 @@ func newMockAPI(t *testing.T, _ *httptest.Server) http.Handler {
 func TestProvider_GetDirectory(t *testing.T) {
 	t.Parallel()
 
-	ctx, clearTimeout := context.WithTimeout(context.Background(), time.Second*30)
-	t.Cleanup(clearTimeout)
+	ctx := t.Context()
 
 	var mockAPI http.Handler
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

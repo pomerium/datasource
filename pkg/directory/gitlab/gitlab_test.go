@@ -1,7 +1,6 @@
 package gitlab
 
 import (
-	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -68,7 +67,7 @@ func Test(t *testing.T) {
 		WithURL(mustParseURL(srv.URL)),
 		WithPrivateToken("PRIVATE_TOKEN"),
 	)
-	groups, users, err := p.GetDirectory(context.Background())
+	groups, users, err := p.GetDirectory(t.Context())
 	assert.NoError(t, err)
 	assert.Equal(t, []directory.Group{
 		{ID: "1", Name: "Group 1"},

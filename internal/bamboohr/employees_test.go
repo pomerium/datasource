@@ -1,7 +1,6 @@
 package bamboohr_test
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -21,7 +20,7 @@ import (
 func TestAPI(t *testing.T) {
 	t.Parallel()
 
-	ctx := context.Background()
+	ctx := t.Context()
 	r := mux.NewRouter()
 	r.Path("/api/gateway.php/{company}/v1/reports/custom").
 		Methods(http.MethodPost).

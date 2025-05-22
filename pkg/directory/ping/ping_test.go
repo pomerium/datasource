@@ -1,7 +1,6 @@
 package ping
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -150,8 +149,7 @@ func newMockAPI(userIDToGroupIDs map[string][]string) http.Handler {
 func TestProvider_GetDirectory(t *testing.T) {
 	t.Parallel()
 
-	ctx, clearTimeout := context.WithTimeout(context.Background(), time.Second*10)
-	t.Cleanup(clearTimeout)
+	ctx := t.Context()
 
 	srv := httptest.NewServer(newMockAPI(map[string][]string{
 		"user1": {"group1", "group2"},

@@ -1,7 +1,6 @@
 package github
 
 import (
-	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -346,7 +345,7 @@ func TestProvider_GetDirectory(t *testing.T) {
 		WithURL(mustParseURL(srv.URL)),
 		WithUsername("abc"),
 	)
-	groups, users, err := p.GetDirectory(context.Background())
+	groups, users, err := p.GetDirectory(t.Context())
 	assert.NoError(t, err)
 	assert.Equal(t, []directory.Group{
 		{ID: "team1", Name: "team1"},

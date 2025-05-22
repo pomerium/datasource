@@ -5,11 +5,11 @@ import (
 	"context"
 
 	"gocloud.dev/blob"
-	_ "gocloud.dev/blob/azureblob"
-	_ "gocloud.dev/blob/fileblob"
-	_ "gocloud.dev/blob/gcsblob"
-	_ "gocloud.dev/blob/memblob"
-	_ "gocloud.dev/blob/s3blob"
+	_ "gocloud.dev/blob/azureblob" // support azure blob storage
+	_ "gocloud.dev/blob/fileblob"  // support file blob storage
+	_ "gocloud.dev/blob/gcsblob"   // support gcs blob storage
+	_ "gocloud.dev/blob/memblob"   // support mem blob storage
+	_ "gocloud.dev/blob/s3blob"    // support s3 blob storage
 )
 
 func openBucket(ctx context.Context, urlstr string) (*blob.Bucket, error) {

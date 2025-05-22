@@ -1,7 +1,6 @@
 package cognito_test
 
 import (
-	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -140,7 +139,7 @@ func TestCognito(t *testing.T) {
 		cognito.WithSecretAccessKey("SECRET_ACCESS_KEY"),
 		cognito.WithSessionToken("SESSION_TOKEN"))
 
-	groups, users, err := c.GetDirectory(context.Background())
+	groups, users, err := c.GetDirectory(t.Context())
 	assert.NoError(t, err)
 	assert.Equal(t, []directory.Group{
 		{ID: "GROUP1", Name: "GROUP1"},
