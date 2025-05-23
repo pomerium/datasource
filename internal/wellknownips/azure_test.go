@@ -1,9 +1,7 @@
 package wellknownips
 
 import (
-	"context"
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -11,8 +9,7 @@ import (
 func TestFetchAzureIPRanges(t *testing.T) {
 	t.Parallel()
 
-	ctx, clearTimeout := context.WithTimeout(context.Background(), time.Second*10)
-	defer clearTimeout()
+	ctx := t.Context()
 
 	ranges, err := FetchAzureIPRanges(ctx)
 	assert.NoError(t, err)

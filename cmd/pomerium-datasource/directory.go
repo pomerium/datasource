@@ -1,10 +1,14 @@
 package main
 
 import (
+	"context"
+	"fmt"
+
 	"github.com/rs/zerolog"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 
+	"github.com/pomerium/datasource/internal/blob"
 	"github.com/pomerium/datasource/internal/server"
 	"github.com/pomerium/datasource/pkg/directory"
 	"github.com/pomerium/datasource/pkg/directory/auth0"
@@ -189,6 +193,36 @@ func directorySubCommand(
 			logger.Fatal().Err(err).Send()
 		}
 	}
+
+	cmd.AddCommand(directoryUploadSubCommand(logger, setupFlags))
+
+	return cmd
+}
+
+func directoryUploadSubCommand(
+	logger zerolog.Logger,
+	setupFlags func(flags *pflag.FlagSet) func() directory.Provider,
+) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "upload",
+		Short: "upload directory data to blob storage",
+	}
+	debug := false
+	cmd.Flags().BoolVar(&debug, "debug", false, "debug mode")
+	destination := requiredStringFlag(cmd.Flags(), "destination", "blob url to upload files to")
+	newProvider := setupFlags(cmd.Flags())
+	cmd.Run = func(cmd *cobra.Command, _ []string) {
+		if debug {
+			zerolog.SetGlobalLevel(zerolog.DebugLevel)
+		}
+		provider := newProvider()
+
+		err := uploadDirectoryBundleToBlob(cmd.Context(), provider, *destination)
+		if err != nil {
+			logger.Fatal().Err(err).Send()
+		}
+	}
+
 	return cmd
 }
 
@@ -211,4 +245,16 @@ func requiredStringFlag(flags *pflag.FlagSet, name, usage string) *string {
 		panic(err)
 	}
 	return ptr
+}
+
+func uploadDirectoryBundleToBlob(ctx context.Context, provider directory.Provider, urlstr string) error {
+	groups, users, err := provider.GetDirectory(ctx)
+	if err != nil {
+		return fmt.Errorf("error retrieving directory data: %w", err)
+	}
+
+	return blob.UploadBundle(ctx, urlstr, map[string]any{
+		directory.GroupRecordType: groups,
+		directory.UserRecordType:  users,
+	})
 }

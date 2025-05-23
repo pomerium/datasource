@@ -1,11 +1,9 @@
 package wellknownips
 
 import (
-	"context"
 	"net/http"
 	"slices"
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -13,8 +11,7 @@ import (
 func TestFetchAmazonAWSIPRanges(t *testing.T) {
 	t.Parallel()
 
-	ctx, clearTimeout := context.WithTimeout(context.Background(), time.Second*10)
-	defer clearTimeout()
+	ctx := t.Context()
 
 	client := http.DefaultClient
 

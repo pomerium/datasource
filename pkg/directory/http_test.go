@@ -8,7 +8,6 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -16,8 +15,7 @@ import (
 func TestHandler(t *testing.T) {
 	t.Parallel()
 
-	ctx, clearTimeout := context.WithTimeout(context.Background(), time.Second*10)
-	t.Cleanup(clearTimeout)
+	ctx := t.Context()
 
 	t.Run("success", func(t *testing.T) {
 		t.Parallel()

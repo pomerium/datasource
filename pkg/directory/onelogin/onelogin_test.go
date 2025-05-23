@@ -1,7 +1,6 @@
 package onelogin
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -172,7 +171,7 @@ func TestProvider_GetDirectory(t *testing.T) {
 		WithClientSecret("CLIENTSECRET"),
 		WithURL(mustParseURL(srv.URL)),
 	)
-	groups, users, err := p.GetDirectory(context.Background())
+	groups, users, err := p.GetDirectory(t.Context())
 	assert.NoError(t, err)
 	assert.Equal(t, []directory.Group{
 		{ID: "0", Name: "admin"},

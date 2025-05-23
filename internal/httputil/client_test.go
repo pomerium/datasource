@@ -2,7 +2,6 @@ package httputil
 
 import (
 	"bytes"
-	"context"
 	"encoding/json"
 	"io"
 	"net/http"
@@ -17,12 +16,7 @@ import (
 func TestLoggingClient(t *testing.T) {
 	t.Parallel()
 
-	ctx := context.Background()
-	if deadline, ok := t.Deadline(); ok {
-		var clearTimeout context.CancelFunc
-		ctx, clearTimeout = context.WithDeadline(ctx, deadline)
-		t.Cleanup(clearTimeout)
-	}
+	ctx := t.Context()
 
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {

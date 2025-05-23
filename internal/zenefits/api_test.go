@@ -1,7 +1,6 @@
 package zenefits_test
 
 import (
-	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -23,7 +22,7 @@ import (
 func TestAPI(t *testing.T) {
 	t.Parallel()
 
-	ctx := context.Background()
+	ctx := t.Context()
 	r := mux.NewRouter()
 	r.Path("/core/people").
 		Methods(http.MethodGet).

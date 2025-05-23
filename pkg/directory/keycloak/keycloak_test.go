@@ -1,7 +1,6 @@
 package keycloak_test
 
 import (
-	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -119,7 +118,7 @@ func TestKeyCloak(t *testing.T) {
 		keycloak.WithRealm("REALM"),
 		keycloak.WithURL(srv.URL),
 	)
-	dgs, dus, err := k.GetDirectory(context.Background())
+	dgs, dus, err := k.GetDirectory(t.Context())
 	assert.NoError(t, err)
 	assert.Equal(t, []directory.Group{
 		{ID: "g1", Name: "group-1"},
