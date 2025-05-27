@@ -26,22 +26,22 @@ type (
 		userDeltaLink             string
 	}
 	deltaGroup struct {
-		id          string
-		displayName string
-		members     map[string]deltaGroupMember
+		ID          string                      `json:"id"`
+		DisplayName string                      `json:"displayName"`
+		Members     map[string]deltaGroupMember `json:"members"`
 	}
 	deltaGroupMember struct {
-		memberType string
-		id         string
+		MemberType string `json:"memberType"`
+		ID         string `json:"id"`
 	}
 	deltaUser struct {
-		id          string
-		displayName string
-		email       string
+		ID          string `json:"id"`
+		DisplayName string `json:"displayName"`
+		Email       string `json:"email"`
 	}
 	deltaServicePrincipal struct {
-		id          string
-		displayName string
+		ID          string `json:"id"`
+		DisplayName string `json:"displayName"`
 	}
 )
 
@@ -102,21 +102,21 @@ func (dc *deltaCollection) syncGroups(ctx context.Context) error {
 			}
 
 			gdg := dc.groups[g.ID]
-			gdg.id = g.ID
-			gdg.displayName = g.DisplayName
-			if gdg.members == nil {
-				gdg.members = make(map[string]deltaGroupMember)
+			gdg.ID = g.ID
+			gdg.DisplayName = g.DisplayName
+			if gdg.Members == nil {
+				gdg.Members = make(map[string]deltaGroupMember)
 			}
 			for _, m := range g.Members {
 				// if removed exists, the member was deleted
 				if m.Removed != nil {
-					delete(gdg.members, m.ID)
+					delete(gdg.Members, m.ID)
 					continue
 				}
 
-				gdg.members[m.ID] = deltaGroupMember{
-					memberType: m.Type,
-					id:         m.ID,
+				gdg.Members[m.ID] = deltaGroupMember{
+					MemberType: m.Type,
+					ID:         m.ID,
 				}
 			}
 			dc.groups[g.ID] = gdg
@@ -161,8 +161,8 @@ func (dc *deltaCollection) syncServicePrincipals(ctx context.Context) error {
 				continue
 			}
 			dc.servicePrincipals[sp.ID] = deltaServicePrincipal{
-				id:          sp.ID,
-				displayName: sp.DisplayName,
+				ID:          sp.ID,
+				DisplayName: sp.DisplayName,
 			}
 		}
 
@@ -205,9 +205,9 @@ func (dc *deltaCollection) syncUsers(ctx context.Context) error {
 				continue
 			}
 			dc.users[u.ID] = deltaUser{
-				id:          u.ID,
-				displayName: u.DisplayName,
-				email:       u.getEmail(),
+				ID:          u.ID,
+				DisplayName: u.DisplayName,
+				Email:       u.getEmail(),
 			}
 		}
 
@@ -230,20 +230,20 @@ func (dc *deltaCollection) CurrentUserGroups() ([]directory.Group, []directory.U
 	groupLookup := newGroupLookup()
 	for _, g := range dc.groups {
 		groups = append(groups, directory.Group{
-			ID:   g.id,
-			Name: g.displayName,
+			ID:   g.ID,
+			Name: g.DisplayName,
 		})
 		var groupIDs, userIDs []string
-		for _, m := range g.members {
-			switch m.memberType {
+		for _, m := range g.Members {
+			switch m.MemberType {
 			case "#microsoft.graph.group":
-				groupIDs = append(groupIDs, m.id)
+				groupIDs = append(groupIDs, m.ID)
 			case "#microsoft.graph.servicePrincipal",
 				"#microsoft.graph.user":
-				userIDs = append(userIDs, m.id)
+				userIDs = append(userIDs, m.ID)
 			}
 		}
-		groupLookup.addGroup(g.id, groupIDs, userIDs)
+		groupLookup.addGroup(g.ID, groupIDs, userIDs)
 	}
 	sort.Slice(groups, func(i, j int) bool {
 		return groups[i].ID < groups[j].ID
@@ -252,17 +252,17 @@ func (dc *deltaCollection) CurrentUserGroups() ([]directory.Group, []directory.U
 	var users []directory.User
 	for _, sp := range dc.servicePrincipals {
 		users = append(users, directory.User{
-			ID:          sp.id,
-			GroupIDs:    groupLookup.getGroupIDsForUser(sp.id),
-			DisplayName: sp.displayName,
+			ID:          sp.ID,
+			GroupIDs:    groupLookup.getGroupIDsForUser(sp.ID),
+			DisplayName: sp.DisplayName,
 		})
 	}
 	for _, u := range dc.users {
 		users = append(users, directory.User{
-			ID:          u.id,
-			GroupIDs:    groupLookup.getGroupIDsForUser(u.id),
-			DisplayName: u.displayName,
-			Email:       u.email,
+			ID:          u.ID,
+			GroupIDs:    groupLookup.getGroupIDsForUser(u.ID),
+			DisplayName: u.DisplayName,
+			Email:       u.Email,
 		})
 	}
 	sort.Slice(users, func(i, j int) bool {

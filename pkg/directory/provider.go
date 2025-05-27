@@ -14,3 +14,10 @@ type ProviderFunc func(context.Context) ([]Group, []User, error)
 func (p ProviderFunc) GetDirectory(ctx context.Context) ([]Group, []User, error) {
 	return p(ctx)
 }
+
+// A PersistentProvider is a directory provider that supports getting and setting directory state.
+type PersistentProvider interface {
+	Provider
+	GetDirectoryState(ctx context.Context) ([]byte, error)
+	SetDirectoryState(ctx context.Context, state []byte) error
+}

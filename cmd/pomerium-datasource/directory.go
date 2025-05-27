@@ -7,6 +7,7 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
+	"gocloud.dev/gcerrors"
 
 	"github.com/pomerium/datasource/internal/blob"
 	"github.com/pomerium/datasource/internal/server"
@@ -248,13 +249,62 @@ func requiredStringFlag(flags *pflag.FlagSet, name, usage string) *string {
 }
 
 func uploadDirectoryBundleToBlob(ctx context.Context, provider directory.Provider, urlstr string) error {
+	if provider, ok := provider.(directory.PersistentProvider); ok {
+		err := downloadDirectoryStateFromBlob(ctx, provider, urlstr)
+		if err != nil {
+			return err
+		}
+	}
+
 	groups, users, err := provider.GetDirectory(ctx)
 	if err != nil {
 		return fmt.Errorf("error retrieving directory data: %w", err)
 	}
 
-	return blob.UploadBundle(ctx, urlstr, map[string]any{
+	err = blob.UploadBundle(ctx, urlstr, map[string]any{
 		directory.GroupRecordType: groups,
 		directory.UserRecordType:  users,
 	})
+	if err != nil {
+		return fmt.Errorf("error uploading directory data: %w", err)
+	}
+
+	if provider, ok := provider.(directory.PersistentProvider); ok {
+		err := uploadDirectoryStateToBlob(ctx, provider, urlstr)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func downloadDirectoryStateFromBlob(ctx context.Context, provider directory.PersistentProvider, urlstr string) error {
+	state, err := blob.DownloadState(ctx, urlstr)
+	if gcerrors.Code(err) == gcerrors.NotFound {
+		return nil
+	} else if err != nil {
+		return fmt.Errorf("error downloading directory state from blob: %w", err)
+	}
+
+	err = provider.SetDirectoryState(ctx, state)
+	if err != nil {
+		return fmt.Errorf("error setting existing directory state: %w", err)
+	}
+
+	return nil
+}
+
+func uploadDirectoryStateToBlob(ctx context.Context, provider directory.PersistentProvider, urlstr string) error {
+	state, err := provider.GetDirectoryState(ctx)
+	if err != nil {
+		return fmt.Errorf("error getting directory state: %w", err)
+	}
+
+	err = blob.UploadState(ctx, urlstr, state)
+	if err != nil {
+		return fmt.Errorf("error uploading directory state to blob: %w", err)
+	}
+
+	return nil
 }
