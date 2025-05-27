@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/DataDog/zstd"
+	"github.com/klauspost/compress/zstd"
 	"github.com/rs/zerolog/log"
 
 	"github.com/pomerium/datasource/internal/httputil"
@@ -28,8 +28,12 @@ func UploadBundle(ctx context.Context, urlstr string, bundle map[string]any) err
 func UploadState(ctx context.Context, urlstr string, state []byte) error {
 	log.Ctx(ctx).Debug().Msg("uploading state")
 	return upload(ctx, urlstr, "state.zst", func(w io.Writer) error {
-		zw := zstd.NewWriter(w)
-		_, err := zw.Write(state)
+		zw, err := zstd.NewWriter(w)
+		if err != nil {
+			return fmt.Errorf("error creating zstd writer for bucket file: %w", err)
+		}
+
+		_, err = zw.Write(state)
 		if err != nil {
 			return fmt.Errorf("error writing state to bucket file: %w", err)
 		}

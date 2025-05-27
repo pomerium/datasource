@@ -5,7 +5,6 @@ go 1.24
 toolchain go1.24.2
 
 require (
-	github.com/DataDog/zstd v1.5.7
 	github.com/auth0/go-auth0 v1.19.0
 	github.com/aws/aws-sdk-go-v2 v1.36.3
 	github.com/aws/aws-sdk-go-v2/config v1.29.14
@@ -20,6 +19,7 @@ require (
 	github.com/gregjones/httpcache v0.0.0-20190611155906-901d90724c79
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/hashicorp/go-set/v3 v3.0.0
+	github.com/klauspost/compress v1.18.0
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/okta/okta-sdk-golang/v2 v2.20.0
 	github.com/rs/zerolog v1.34.0

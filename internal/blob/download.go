@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/DataDog/zstd"
+	"github.com/klauspost/compress/zstd"
 	"github.com/rs/zerolog/log"
 )
 
@@ -24,16 +24,14 @@ func DownloadState(ctx context.Context, urlstr string) ([]byte, error) {
 		return nil, fmt.Errorf("error opening bucket file: %w", err)
 	}
 
-	zr := zstd.NewReader(file)
+	zr, err := zstd.NewReader(file)
+	if err != nil {
+		return nil, fmt.Errorf("error creating zstd reader: %w", err)
+	}
+
 	data, err := io.ReadAll(zr)
 	if err != nil {
 		return nil, fmt.Errorf("error reading zstd reader: %w", err)
-	}
-
-	err = zr.Close()
-	if err != nil {
-		_ = file.Close()
-		return nil, fmt.Errorf("error closing zstd reader: %w", err)
 	}
 
 	err = file.Close()
