@@ -172,18 +172,18 @@ func TestProvider_GetDirectory(t *testing.T) {
 		WithURL(srv.URL),
 	)
 
-	dgs, dus, err := p.GetDirectory(ctx)
+	bundle, err := p.GetDirectory(ctx)
 	if !assert.NoError(t, err) {
 		return
 	}
 
 	assert.Equal(t, []directory.Group{
 		{ID: "group1"},
-	}, dgs)
+	}, bundle.Groups())
 	assert.Equal(t, []directory.User{
 		{ID: "inside-user1", Email: "user1@inside.test", GroupIDs: []string{"group1"}},
 		{ID: "outside-user1", Email: "user1@outside.test", GroupIDs: []string{"group1"}},
-	}, dus)
+	}, bundle.Users())
 }
 
 func encodeJSON(data any) []byte {

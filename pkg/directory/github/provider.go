@@ -27,10 +27,10 @@ func New(options ...Option) *Provider {
 }
 
 // GetDirectory gets the directory user groups for github.
-func (p *Provider) GetDirectory(ctx context.Context) ([]directory.Group, []directory.User, error) {
+func (p *Provider) GetDirectory(ctx context.Context) (directory.Bundle, error) {
 	orgSlugs, err := p.listOrgs(ctx)
 	if err != nil {
-		return nil, nil, err
+		return directory.Bundle{}, err
 	}
 
 	userLoginToGroups := map[string][]string{}
@@ -39,7 +39,7 @@ func (p *Provider) GetDirectory(ctx context.Context) ([]directory.Group, []direc
 	for _, orgSlug := range orgSlugs {
 		teams, err := p.listOrganizationTeamsWithMemberIDs(ctx, orgSlug)
 		if err != nil {
-			return nil, nil, err
+			return directory.Bundle{}, err
 		}
 
 		for _, team := range teams {
@@ -60,7 +60,7 @@ func (p *Provider) GetDirectory(ctx context.Context) ([]directory.Group, []direc
 	for _, orgSlug := range orgSlugs {
 		members, err := p.listOrganizationMembers(ctx, orgSlug)
 		if err != nil {
-			return nil, nil, err
+			return directory.Bundle{}, err
 		}
 
 		for _, member := range members {
@@ -78,7 +78,7 @@ func (p *Provider) GetDirectory(ctx context.Context) ([]directory.Group, []direc
 		return allUsers[i].ID < allUsers[j].ID
 	})
 
-	return allGroups, allUsers, nil
+	return directory.NewBundle(allGroups, allUsers, nil), nil
 }
 
 func (p *Provider) listOrgs(ctx context.Context) (orgSlugs []string, err error) {

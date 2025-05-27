@@ -33,16 +33,16 @@ func New(options ...Option) *Provider {
 }
 
 // GetDirectory returns the directory information for a Keycloak realm.
-func (p *Provider) GetDirectory(ctx context.Context) ([]directory.Group, []directory.User, error) {
+func (p *Provider) GetDirectory(ctx context.Context) (directory.Bundle, error) {
 	client, err := p.getHTTPClient(ctx)
 	if err != nil {
-		return nil, nil, err
+		return directory.Bundle{}, err
 	}
 
 	var dgs []directory.Group
 	for g, err := range listGroups(ctx, client, p.cfg.url, p.cfg.realm, p.cfg.batchSize) {
 		if err != nil {
-			return nil, nil, err
+			return directory.Bundle{}, err
 		}
 
 		dgs = append(dgs, directory.Group{
@@ -58,7 +58,7 @@ func (p *Provider) GetDirectory(ctx context.Context) ([]directory.Group, []direc
 	for _, dg := range dgs {
 		for u, err := range listGroupMembers(ctx, client, p.cfg.url, p.cfg.realm, dg.ID, p.cfg.batchSize) {
 			if err != nil {
-				return nil, nil, err
+				return directory.Bundle{}, err
 			}
 			groupLookup[u.ID] = append(groupLookup[u.ID], dg.ID)
 		}
@@ -67,7 +67,7 @@ func (p *Provider) GetDirectory(ctx context.Context) ([]directory.Group, []direc
 	var dus []directory.User
 	for u, err := range listUsers(ctx, client, p.cfg.url, p.cfg.realm, p.cfg.batchSize) {
 		if err != nil {
-			return nil, nil, err
+			return directory.Bundle{}, err
 		}
 
 		email := u.Email
@@ -85,7 +85,7 @@ func (p *Provider) GetDirectory(ctx context.Context) ([]directory.Group, []direc
 		return cmp.Compare(du1.ID, du2.ID)
 	})
 
-	return dgs, dus, nil
+	return directory.NewBundle(dgs, dus, nil), nil
 }
 
 func (p *Provider) getHTTPClient(ctx context.Context) (*http.Client, error) {

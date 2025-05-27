@@ -27,10 +27,10 @@ func New(options ...Option) *Provider {
 }
 
 // UserGroups gets the directory user groups for gitlab.
-func (p *Provider) GetDirectory(ctx context.Context) ([]directory.Group, []directory.User, error) {
+func (p *Provider) GetDirectory(ctx context.Context) (directory.Bundle, error) {
 	groups, err := p.listGroups(ctx)
 	if err != nil {
-		return nil, nil, err
+		return directory.Bundle{}, err
 	}
 
 	userLookup := map[int]apiUserObject{}
@@ -38,7 +38,7 @@ func (p *Provider) GetDirectory(ctx context.Context) ([]directory.Group, []direc
 	for _, group := range groups {
 		users, err := p.listGroupMembers(ctx, group.ID)
 		if err != nil {
-			return nil, nil, err
+			return directory.Bundle{}, err
 		}
 
 		for _, u := range users {
@@ -63,7 +63,7 @@ func (p *Provider) GetDirectory(ctx context.Context) ([]directory.Group, []direc
 	sort.Slice(users, func(i, j int) bool {
 		return users[i].ID < users[j].ID
 	})
-	return groups, users, nil
+	return directory.NewBundle(groups, users, nil), nil
 }
 
 // listGroups returns a map, with key is group ID, element is group name.

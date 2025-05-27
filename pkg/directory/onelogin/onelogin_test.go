@@ -171,18 +171,18 @@ func TestProvider_GetDirectory(t *testing.T) {
 		WithClientSecret("CLIENTSECRET"),
 		WithURL(mustParseURL(srv.URL)),
 	)
-	groups, users, err := p.GetDirectory(t.Context())
+	bundle, err := p.GetDirectory(t.Context())
 	assert.NoError(t, err)
 	assert.Equal(t, []directory.Group{
 		{ID: "0", Name: "admin"},
 		{ID: "1", Name: "test"},
 		{ID: "2", Name: "user"},
-	}, groups)
+	}, bundle.Groups())
 	assert.Equal(t, []directory.User{
 		{ID: "111", DisplayName: "User 111", Email: "admin@example.com", GroupIDs: []string{"0"}},
 		{ID: "222", DisplayName: "User 222", Email: "test@example.com", GroupIDs: []string{"1"}},
 		{ID: "333", DisplayName: "User 333", Email: "user@example.com", GroupIDs: []string{"2"}},
-	}, users)
+	}, bundle.Users())
 }
 
 func mustParseURL(rawurl string) *url.URL {

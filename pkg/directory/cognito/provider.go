@@ -26,10 +26,10 @@ func New(options ...Option) *Provider {
 	return &Provider{cfg: getConfig(options...)}
 }
 
-func (p *Provider) GetDirectory(ctx context.Context) ([]directory.Group, []directory.User, error) {
+func (p *Provider) GetDirectory(ctx context.Context) (directory.Bundle, error) {
 	client, err := p.getClient(ctx)
 	if err != nil {
-		return nil, nil, fmt.Errorf("cognito: error getting aws cognito client %w", err)
+		return directory.Bundle{}, fmt.Errorf("cognito: error getting aws cognito client %w", err)
 	}
 
 	var userPoolIDs []string
@@ -39,7 +39,7 @@ func (p *Provider) GetDirectory(ctx context.Context) ([]directory.Group, []direc
 		userPoolIDs, err = listUserPoolIDs(ctx, client)
 	}
 	if err != nil {
-		return nil, nil, fmt.Errorf("cognito: error listing user pool ids: %w", err)
+		return directory.Bundle{}, fmt.Errorf("cognito: error listing user pool ids: %w", err)
 	}
 
 	groupLookup := map[string]directory.Group{}
@@ -47,7 +47,7 @@ func (p *Provider) GetDirectory(ctx context.Context) ([]directory.Group, []direc
 	for _, userPoolID := range userPoolIDs {
 		users, err := listUsers(ctx, client, userPoolID)
 		if err != nil {
-			return nil, nil, fmt.Errorf("cognito: error listing users in user pool: %w", err)
+			return directory.Bundle{}, fmt.Errorf("cognito: error listing users in user pool: %w", err)
 		}
 
 		for _, u := range users {
@@ -56,7 +56,7 @@ func (p *Provider) GetDirectory(ctx context.Context) ([]directory.Group, []direc
 
 		groups, err := listGroups(ctx, client, userPoolID)
 		if err != nil {
-			return nil, nil, fmt.Errorf("cognito: error listing groups in user pool: %w", err)
+			return directory.Bundle{}, fmt.Errorf("cognito: error listing groups in user pool: %w", err)
 		}
 
 		for _, g := range groups {
@@ -66,7 +66,7 @@ func (p *Provider) GetDirectory(ctx context.Context) ([]directory.Group, []direc
 		for groupID := range groupLookup {
 			userIDs, err := listUserIDsInGroup(ctx, client, userPoolID, groupID)
 			if err != nil {
-				return nil, nil, fmt.Errorf("cognito: error listing user ids in group in user pool: %w", err)
+				return directory.Bundle{}, fmt.Errorf("cognito: error listing user ids in group in user pool: %w", err)
 			}
 			for _, userID := range userIDs {
 				if u, ok := userLookup[userID]; ok {
@@ -90,7 +90,7 @@ func (p *Provider) GetDirectory(ctx context.Context) ([]directory.Group, []direc
 	sort.Slice(users, func(i, j int) bool {
 		return users[i].ID < users[j].ID
 	})
-	return groups, users, nil
+	return directory.NewBundle(groups, users, nil), nil
 }
 
 func (p *Provider) getClient(ctx context.Context) (*cognitoidentityprovider.Client, error) {

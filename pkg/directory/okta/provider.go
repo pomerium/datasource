@@ -33,7 +33,7 @@ func New(options ...Option) *Provider {
 }
 
 // GetDirectory gets the full directory information for Okta.
-func (p *Provider) GetDirectory(ctx context.Context) ([]directory.Group, []directory.User, error) {
+func (p *Provider) GetDirectory(ctx context.Context) (directory.Bundle, error) {
 	ctx, client, err := okta.NewClient(ctx,
 		append([]okta.ConfigSetter{
 			okta.WithHttpClientPtr(p.cfg.getHTTPClient()),
@@ -41,7 +41,7 @@ func (p *Provider) GetDirectory(ctx context.Context) ([]directory.Group, []direc
 			okta.WithToken(p.cfg.apiKey),
 		}, p.cfg.oktaOptions...)...)
 	if err != nil {
-		return nil, nil, fmt.Errorf("error creating okta client: %w", err)
+		return directory.Bundle{}, fmt.Errorf("error creating okta client: %w", err)
 	}
 
 	p.mu.Lock()
@@ -49,7 +49,7 @@ func (p *Provider) GetDirectory(ctx context.Context) ([]directory.Group, []direc
 
 	err = p.sync(ctx, client)
 	if err != nil {
-		return nil, nil, err
+		return directory.Bundle{}, err
 	}
 
 	var groups []directory.Group
@@ -79,7 +79,7 @@ func (p *Provider) GetDirectory(ctx context.Context) ([]directory.Group, []direc
 	sort.Slice(users, func(i, j int) bool {
 		return users[i].ID < users[j].ID
 	})
-	return groups, users, nil
+	return directory.NewBundle(groups, users, nil), nil
 }
 
 func (p *Provider) sync(ctx context.Context, client *okta.Client) error {

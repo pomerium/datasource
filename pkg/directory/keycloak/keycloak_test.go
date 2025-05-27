@@ -118,7 +118,7 @@ func TestKeyCloak(t *testing.T) {
 		keycloak.WithRealm("REALM"),
 		keycloak.WithURL(srv.URL),
 	)
-	dgs, dus, err := k.GetDirectory(t.Context())
+	bundle, err := k.GetDirectory(t.Context())
 	assert.NoError(t, err)
 	assert.Equal(t, []directory.Group{
 		{ID: "g1", Name: "group-1"},
@@ -126,11 +126,11 @@ func TestKeyCloak(t *testing.T) {
 		{ID: "g3", Name: "group-3"},
 		{ID: "g4", Name: "group-4"},
 		{ID: "g5", Name: "group-5"},
-	}, dgs)
+	}, bundle.Groups())
 	assert.Equal(t, []directory.User{
 		{ID: "u1", DisplayName: "user-1", Email: "u1@example.com", GroupIDs: []string{"g1", "g3"}},
 		{ID: "u2", DisplayName: "user-2", Email: "u2@example.com", GroupIDs: []string{"g1", "g3"}},
 		{ID: "u3", DisplayName: "user-3", Email: "u3@example.com", GroupIDs: []string{"g2", "g3"}},
 		{ID: "u4", DisplayName: "user-4"},
-	}, dus)
+	}, bundle.Users())
 }

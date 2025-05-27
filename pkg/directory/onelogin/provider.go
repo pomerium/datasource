@@ -33,20 +33,20 @@ func New(options ...Option) *Provider {
 }
 
 // GetDirectory gets the directory user groups for onelogin.
-func (p *Provider) GetDirectory(ctx context.Context) ([]directory.Group, []directory.User, error) {
+func (p *Provider) GetDirectory(ctx context.Context) (directory.Bundle, error) {
 	token, err := p.getToken(ctx)
 	if err != nil {
-		return nil, nil, err
+		return directory.Bundle{}, err
 	}
 
 	groups, err := p.listGroups(ctx, token.AccessToken)
 	if err != nil {
-		return nil, nil, err
+		return directory.Bundle{}, err
 	}
 
 	apiUsers, err := p.listUsers(ctx, token.AccessToken)
 	if err != nil {
-		return nil, nil, err
+		return directory.Bundle{}, err
 	}
 
 	var users []directory.User
@@ -62,7 +62,7 @@ func (p *Provider) GetDirectory(ctx context.Context) ([]directory.Group, []direc
 	sort.Slice(users, func(i, j int) bool {
 		return users[i].ID < users[j].ID
 	})
-	return groups, users, nil
+	return directory.NewBundle(groups, users, nil), nil
 }
 
 func (p *Provider) listGroups(ctx context.Context, accessToken string) ([]directory.Group, error) {

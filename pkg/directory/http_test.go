@@ -25,8 +25,8 @@ func TestHandler(t *testing.T) {
 			users  []User
 			err    error
 		}{}
-		h := NewHandler(ProviderFunc(func(_ context.Context) ([]Group, []User, error) {
-			return expect.groups, expect.users, expect.err
+		h := NewHandler(ProviderFunc(func(_ context.Context) (Bundle, error) {
+			return NewBundle(expect.groups, expect.users, nil), expect.err
 		}))
 		srv := httptest.NewServer(h)
 		t.Cleanup(srv.Close)
@@ -55,13 +55,13 @@ func TestHandler(t *testing.T) {
 		defer res.Body.Close()
 
 		assert.Equal(t, 200, res.StatusCode)
-		assert.Equal(t, `"d3b7677a8420759f"`, res.Header.Get("ETag"))
+		assert.Equal(t, `"3c375621ed6aed9c"`, res.Header.Get("ETag"))
 		groups, users, err := decodeBundle(res.Body)
 		assert.NoError(t, err)
 		assert.Equal(t, expect.groups, groups)
 		assert.Equal(t, expect.users, users)
 
-		req.Header.Set("If-None-Match", `"d3b7677a8420759f"`)
+		req.Header.Set("If-None-Match", `"3c375621ed6aed9c"`)
 		res, err = http.DefaultClient.Do(req)
 		if !assert.NoError(t, err) {
 			return
@@ -78,8 +78,8 @@ func TestHandler(t *testing.T) {
 			users  []User
 			err    error
 		}{}
-		h := NewHandler(ProviderFunc(func(_ context.Context) ([]Group, []User, error) {
-			return expect.groups, expect.users, expect.err
+		h := NewHandler(ProviderFunc(func(_ context.Context) (Bundle, error) {
+			return NewBundle(expect.groups, expect.users, nil), expect.err
 		}))
 		srv := httptest.NewServer(h)
 		t.Cleanup(srv.Close)
@@ -107,8 +107,8 @@ func TestHandler(t *testing.T) {
 	t.Run("null", func(t *testing.T) {
 		t.Parallel()
 
-		h := NewHandler(ProviderFunc(func(_ context.Context) ([]Group, []User, error) {
-			return nil, nil, nil
+		h := NewHandler(ProviderFunc(func(_ context.Context) (Bundle, error) {
+			return NewBundle(nil, nil, nil), nil
 		}))
 		srv := httptest.NewServer(h)
 		t.Cleanup(srv.Close)

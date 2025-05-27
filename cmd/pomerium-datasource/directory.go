@@ -248,13 +248,10 @@ func requiredStringFlag(flags *pflag.FlagSet, name, usage string) *string {
 }
 
 func uploadDirectoryBundleToBlob(ctx context.Context, provider directory.Provider, urlstr string) error {
-	groups, users, err := provider.GetDirectory(ctx)
+	bundle, err := provider.GetDirectory(ctx)
 	if err != nil {
 		return fmt.Errorf("error retrieving directory data: %w", err)
 	}
 
-	return blob.UploadBundle(ctx, urlstr, map[string]any{
-		directory.GroupRecordType: groups,
-		directory.UserRecordType:  users,
-	})
+	return blob.UploadBundle(ctx, urlstr, bundle)
 }
