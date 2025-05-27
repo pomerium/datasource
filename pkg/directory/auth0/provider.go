@@ -26,16 +26,16 @@ func New(options ...Option) *Provider {
 }
 
 // UserGroups fetches a slice of groups and users.
-func (p *Provider) GetDirectory(ctx context.Context) (directory.Bundle, error) {
+func (p *Provider) GetDirectory(ctx context.Context) ([]directory.Group, []directory.User, error) {
 	m, err := p.getManagement()
 	if err != nil {
-		return directory.Bundle{}, fmt.Errorf("auth0: error creating management client: %w", err)
+		return nil, nil, fmt.Errorf("auth0: error creating management client: %w", err)
 	}
 
 	users := map[string]directory.User{}
 	for u, err := range listUsers(ctx, m) {
 		if err != nil {
-			return directory.Bundle{}, fmt.Errorf("auth0: error listing users: %w", err)
+			return nil, nil, fmt.Errorf("auth0: error listing users: %w", err)
 		}
 
 		users[u.GetID()] = directory.User{
@@ -48,7 +48,7 @@ func (p *Provider) GetDirectory(ctx context.Context) (directory.Bundle, error) {
 	var groups []directory.Group
 	for role, err := range listRoles(ctx, m) {
 		if err != nil {
-			return directory.Bundle{}, fmt.Errorf("auth0: error listing roles: %w", err)
+			return nil, nil, fmt.Errorf("auth0: error listing roles: %w", err)
 		}
 
 		groups = append(groups, directory.Group{
@@ -58,7 +58,7 @@ func (p *Provider) GetDirectory(ctx context.Context) (directory.Bundle, error) {
 
 		for id, err := range listRoleUserIDs(ctx, m, role.GetID()) {
 			if err != nil {
-				return directory.Bundle{}, fmt.Errorf("auth0: error listing role users: %w", err)
+				return nil, nil, fmt.Errorf("auth0: error listing role users: %w", err)
 			}
 			u, ok := users[id]
 			if !ok {
@@ -73,12 +73,11 @@ func (p *Provider) GetDirectory(ctx context.Context) (directory.Bundle, error) {
 	for _, u := range users {
 		slices.Sort(u.GroupIDs)
 	}
-	return directory.NewBundle(
-		slices.SortedFunc(slices.Values(groups), func(g1, g2 directory.Group) int {
+	return slices.SortedFunc(slices.Values(groups), func(g1, g2 directory.Group) int {
 			return cmp.Compare(g1.ID, g2.ID)
 		}), slices.SortedFunc(maps.Values(users), func(u1, u2 directory.User) int {
 			return cmp.Compare(u1.ID, u2.ID)
-		}), nil), nil
+		}), nil
 }
 
 func (p *Provider) getManagement() (*management.Management, error) {

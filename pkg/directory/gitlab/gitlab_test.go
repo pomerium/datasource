@@ -67,17 +67,17 @@ func Test(t *testing.T) {
 		WithURL(mustParseURL(srv.URL)),
 		WithPrivateToken("PRIVATE_TOKEN"),
 	)
-	bundle, err := p.GetDirectory(t.Context())
+	groups, users, err := p.GetDirectory(t.Context())
 	assert.NoError(t, err)
 	assert.Equal(t, []directory.Group{
 		{ID: "1", Name: "Group 1"},
 		{ID: "2", Name: "Group 2"},
-	}, bundle.Groups())
+	}, groups)
 	assert.Equal(t, []directory.User{
 		{ID: "11", GroupIDs: []string{"1"}, DisplayName: "User 1", Email: "user1@example.com"},
 		{ID: "12", GroupIDs: []string{"2"}, DisplayName: "User 2", Email: "user2@example.com"},
 		{ID: "13", GroupIDs: []string{"2"}, DisplayName: "User 3", Email: "user3@example.com"},
-	}, bundle.Users())
+	}, users)
 }
 
 func mustParseURL(rawurl string) *url.URL {

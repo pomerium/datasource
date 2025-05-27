@@ -139,12 +139,12 @@ func TestCognito(t *testing.T) {
 		cognito.WithSecretAccessKey("SECRET_ACCESS_KEY"),
 		cognito.WithSessionToken("SESSION_TOKEN"))
 
-	bundle, err := c.GetDirectory(t.Context())
+	groups, users, err := c.GetDirectory(t.Context())
 	assert.NoError(t, err)
 	assert.Equal(t, []directory.Group{
 		{ID: "GROUP1", Name: "GROUP1"},
 		{ID: "GROUP2", Name: "GROUP2"},
-	}, bundle.Groups())
+	}, groups)
 	assert.Equal(t, []directory.User{
 		{
 			ID:          "USER1",
@@ -164,5 +164,5 @@ func TestCognito(t *testing.T) {
 			Email:       "user3@example.com",
 			GroupIDs:    []string{"GROUP1", "GROUP2"},
 		},
-	}, bundle.Users())
+	}, users)
 }

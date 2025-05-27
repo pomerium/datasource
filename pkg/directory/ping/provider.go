@@ -30,15 +30,15 @@ func New(options ...Option) *Provider {
 }
 
 // GetDirectory returns all the users and groups in the directory.
-func (p *Provider) GetDirectory(ctx context.Context) (directory.Bundle, error) {
+func (p *Provider) GetDirectory(ctx context.Context) ([]directory.Group, []directory.User, error) {
 	client, err := p.getClient(ctx)
 	if err != nil {
-		return directory.Bundle{}, err
+		return nil, nil, err
 	}
 
 	apiGroups, err := getAllGroups(ctx, client, p.cfg.apiURL, p.cfg.environmentID)
 	if err != nil {
-		return directory.Bundle{}, err
+		return nil, nil, err
 	}
 
 	directoryUserLookup := map[string]directory.User{}
@@ -51,7 +51,7 @@ func (p *Provider) GetDirectory(ctx context.Context) (directory.Bundle, error) {
 
 		apiUsers, err := getGroupUsers(ctx, client, p.cfg.apiURL, p.cfg.environmentID, ag.ID)
 		if err != nil {
-			return directory.Bundle{}, err
+			return nil, nil, err
 		}
 		for _, au := range apiUsers {
 			du, ok := directoryUserLookup[au.ID]
@@ -80,7 +80,7 @@ func (p *Provider) GetDirectory(ctx context.Context) (directory.Bundle, error) {
 		return directoryUsers[i].ID < directoryUsers[j].ID
 	})
 
-	return directory.NewBundle(directoryGroups, directoryUsers, nil), nil
+	return directoryGroups, directoryUsers, nil
 }
 
 func (p *Provider) getClient(ctx context.Context) (*http.Client, error) {

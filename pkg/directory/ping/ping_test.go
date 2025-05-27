@@ -168,16 +168,16 @@ func TestProvider_GetDirectory(t *testing.T) {
 		WithClientSecret("CLIENTSECRET"),
 		WithEnvironmentID("ENVIRONMENTID"),
 	)
-	bundle, err := p.GetDirectory(ctx)
+	dgs, dus, err := p.GetDirectory(ctx)
 	require.NoError(t, err)
 	assert.Equal(t, []directory.Group{
 		{ID: "group1", Name: "Group group1"},
 		{ID: "group2", Name: "Group group2"},
 		{ID: "group3", Name: "Group group3"},
-	}, bundle.Groups())
+	}, dgs)
 	assert.Equal(t, []directory.User{
 		{ID: "user1", DisplayName: "Given-user1 Middle-user1 Family-user1", Email: "user1@example.com", GroupIDs: []string{"group1", "group2"}},
 		{ID: "user2", DisplayName: "Given-user2 Middle-user2 Family-user2", Email: "user2@example.com", GroupIDs: []string{"group1", "group3"}},
 		{ID: "user3", DisplayName: "Given-user3 Middle-user3 Family-user3", Email: "user3@example.com", GroupIDs: []string{"group3"}},
-	}, bundle.Users())
+	}, dus)
 }

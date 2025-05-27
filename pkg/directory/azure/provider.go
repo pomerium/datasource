@@ -34,14 +34,14 @@ func New(options ...Option) *Provider {
 }
 
 // GetDirectory returns the directory users in azure active directory.
-func (p *Provider) GetDirectory(ctx context.Context) (directory.Bundle, error) {
+func (p *Provider) GetDirectory(ctx context.Context) ([]directory.Group, []directory.User, error) {
 	err := p.dc.Sync(ctx)
 	if err != nil {
-		return directory.Bundle{}, err
+		return nil, nil, err
 	}
 
 	groups, users := p.dc.CurrentUserGroups()
-	return directory.NewBundle(groups, users, nil), nil
+	return groups, users, nil
 }
 
 func (p *Provider) api(ctx context.Context, url string, out interface{}) error {

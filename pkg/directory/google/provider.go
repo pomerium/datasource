@@ -39,10 +39,10 @@ func New(options ...Option) *Provider {
 // NOTE: groups via Directory API is limited to 1 QPS!
 // https://developers.google.com/admin-sdk/directory/v1/reference/groups/list
 // https://developers.google.com/admin-sdk/directory/v1/limits
-func (p *Provider) GetDirectory(ctx context.Context) (directory.Bundle, error) {
+func (p *Provider) GetDirectory(ctx context.Context) ([]directory.Group, []directory.User, error) {
 	apiClient, err := p.getAPIClient(ctx)
 	if err != nil {
-		return directory.Bundle{}, fmt.Errorf("google: error getting API client: %w", err)
+		return nil, nil, fmt.Errorf("google: error getting API client: %w", err)
 	}
 
 	// query all the groups
@@ -65,7 +65,7 @@ func (p *Provider) GetDirectory(ctx context.Context) (directory.Bundle, error) {
 			return nil
 		})
 	if err != nil {
-		return directory.Bundle{}, fmt.Errorf("google: error getting groups: %w", err)
+		return nil, nil, fmt.Errorf("google: error getting groups: %w", err)
 	}
 
 	// query all the user members for each group
@@ -94,7 +94,7 @@ func (p *Provider) GetDirectory(ctx context.Context) (directory.Bundle, error) {
 				return nil
 			})
 		if err != nil {
-			return directory.Bundle{}, fmt.Errorf("google: error getting group members: %w", err)
+			return nil, nil, fmt.Errorf("google: error getting group members: %w", err)
 		}
 	}
 
@@ -116,7 +116,7 @@ func (p *Provider) GetDirectory(ctx context.Context) (directory.Bundle, error) {
 			return nil
 		})
 	if err != nil {
-		return directory.Bundle{}, fmt.Errorf("google: error getting users: %w", err)
+		return nil, nil, fmt.Errorf("google: error getting users: %w", err)
 	}
 
 	var users []directory.User
@@ -133,7 +133,7 @@ func (p *Provider) GetDirectory(ctx context.Context) (directory.Bundle, error) {
 	sort.Slice(users, func(i, j int) bool {
 		return users[i].ID < users[j].ID
 	})
-	return directory.NewBundle(groups, users, nil), nil
+	return groups, users, nil
 }
 
 func (p *Provider) getAPIClient(ctx context.Context) (*admin.Service, error) {

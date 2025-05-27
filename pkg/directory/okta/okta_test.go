@@ -160,7 +160,7 @@ func TestProvider_GetDirectory(t *testing.T) {
 		WithOktaOptions(okta.WithTestingDisableHttpsCheck(true)),
 		WithURL(srv.URL),
 	)
-	bundle, err := p.GetDirectory(t.Context())
+	groups, users, err := p.GetDirectory(t.Context())
 	assert.NoError(t, err)
 	assert.Equal(t, []directory.User{
 		{
@@ -181,8 +181,8 @@ func TestProvider_GetDirectory(t *testing.T) {
 			DisplayName: "first last",
 			Email:       "c@example.com",
 		},
-	}, bundle.Users())
-	assert.Len(t, bundle.Groups(), 3)
+	}, users)
+	assert.Len(t, groups, 3)
 }
 
 func TestProvider_UserGroupsQueryUpdated(t *testing.T) {
@@ -206,7 +206,7 @@ func TestProvider_UserGroupsQueryUpdated(t *testing.T) {
 		WithOktaOptions(okta.WithTestingDisableHttpsCheck(true)),
 		WithURL(srv.URL),
 	)
-	bundle, err := p.GetDirectory(t.Context())
+	groups, users, err := p.GetDirectory(t.Context())
 	assert.NoError(t, err)
 	assert.Equal(t, []directory.User{
 		{
@@ -227,10 +227,10 @@ func TestProvider_UserGroupsQueryUpdated(t *testing.T) {
 			DisplayName: "first last",
 			Email:       "c@example.com",
 		},
-	}, bundle.Users())
-	assert.Len(t, bundle.Groups(), 3)
+	}, users)
+	assert.Len(t, groups, 3)
 
-	bundle, err = p.GetDirectory(t.Context())
+	groups, users, err = p.GetDirectory(t.Context())
 	assert.NoError(t, err)
 	assert.Equal(t, []directory.User{
 		{
@@ -257,6 +257,6 @@ func TestProvider_UserGroupsQueryUpdated(t *testing.T) {
 			DisplayName: "first last",
 			Email:       "updated@example.com",
 		},
-	}, bundle.Users())
-	assert.Len(t, bundle.Groups(), 4)
+	}, users)
+	assert.Len(t, groups, 4)
 }

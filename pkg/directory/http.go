@@ -38,12 +38,23 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *handler) serve(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
-	bundle, err := h.provider.GetDirectory(ctx)
+	groups, users, err := h.provider.GetDirectory(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to get directory data: %w", err)
 	}
 
-	return httputil.ServeBundle(w, r, bundle)
+	// don't serve null, but an empty array instead
+	if groups == nil {
+		groups = make([]Group, 0)
+	}
+	if users == nil {
+		users = make([]User, 0)
+	}
+
+	return httputil.ServeBundle(w, r, map[string]any{
+		GroupRecordType: groups,
+		UserRecordType:  users,
+	})
 }
 
 func decodeBundle(r io.Reader) (groups []Group, users []User, err error) {
