@@ -15,19 +15,14 @@ type Pair struct {
 	Key, Value []byte
 }
 
-// An Iterator supports iterating over keys and values in sorted order.
-type Iterator interface {
-	// Iterate iterates over the keys and values in sorted order.
-	Iterate(ctx context.Context) iter.Seq2[Pair, error]
-}
-
 // A Store stores key and values in sorted order.
 type Store interface {
-	Iterator
 	// Delete deletes the key from the store.
 	Delete(ctx context.Context, key []byte) error
 	// Get gets a value for the given key. If not found ErrNotFound will be returned.
 	Get(ctx context.Context, key []byte) ([]byte, error)
+	// Iterate iterates over the keys and values in sorted order.
+	Iterate(ctx context.Context, prefix []byte) iter.Seq2[Pair, error]
 	// Set sets a key value pair in the store.
 	Set(ctx context.Context, key, value []byte) error
 }
@@ -38,12 +33,12 @@ type Diff struct {
 }
 
 // ComputeDiff computes the difference between two sorted key value iterators.
-func ComputeDiff(ctx context.Context, left, right Iterator) iter.Seq2[Diff, error] {
+func ComputeDiff(left, right iter.Seq2[Pair, error]) iter.Seq2[Diff, error] {
 	return func(yield func(Diff, error) bool) {
-		leftNext, leftStop := iter.Pull2(left.Iterate(ctx))
+		leftNext, leftStop := iter.Pull2(left)
 		defer leftStop()
 
-		rightNext, rightStop := iter.Pull2(right.Iterate(ctx))
+		rightNext, rightStop := iter.Pull2(right)
 		defer rightStop()
 
 		leftKVP, leftErr, leftValid := leftNext()

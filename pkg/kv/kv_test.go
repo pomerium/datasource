@@ -23,7 +23,7 @@ func TestDiff(t *testing.T) {
 	assert.NoError(t, s1.Set(t.Context(), []byte("k5"), []byte("v5")))
 
 	var diffs []kv.Diff
-	for diff, err := range kv.ComputeDiff(t.Context(), s1, s2) {
+	for diff, err := range kv.ComputeDiff(s1.Iterate(t.Context(), nil), s2.Iterate(t.Context(), nil)) {
 		assert.NoError(t, err)
 		diffs = append(diffs, diff)
 	}

@@ -74,7 +74,7 @@ func (s *pebbleStore) Get(_ context.Context, key []byte) ([]byte, error) {
 	return value, nil
 }
 
-func (s *pebbleStore) Iterate(ctx context.Context) iter.Seq2[Pair, error] {
+func (s *pebbleStore) Iterate(ctx context.Context, prefix []byte) iter.Seq2[Pair, error] {
 	return func(yield func(Pair, error) bool) {
 		db, err := s.getDB()
 		if err != nil {
@@ -82,7 +82,14 @@ func (s *pebbleStore) Iterate(ctx context.Context) iter.Seq2[Pair, error] {
 			return
 		}
 
-		it, err := db.NewIterWithContext(ctx, s.iterOptions)
+		iterOptions := new(pebble.IterOptions)
+		if s.iterOptions != nil {
+			*iterOptions = *s.iterOptions
+		}
+		iterOptions.LowerBound = prefix
+		iterOptions.UpperBound = prefixToUpperBound(prefix)
+
+		it, err := db.NewIterWithContext(ctx, iterOptions)
 		if err != nil {
 			yield(Pair{}, fmt.Errorf("pebble: error creating iterator: %w", err))
 			return
@@ -136,4 +143,16 @@ func (s *pebbleStore) getDB() (*pebble.DB, error) {
 		}
 	})
 	return s.db, s.dbErr
+}
+
+func prefixToUpperBound(prefix []byte) []byte {
+	upperBound := make([]byte, len(prefix))
+	copy(upperBound, prefix)
+	for i := len(upperBound) - 1; i >= 0; i-- {
+		upperBound[i] = upperBound[i] + 1
+		if upperBound[i] != 0 {
+			return upperBound[:i+1]
+		}
+	}
+	return nil // no upper-bound
 }
