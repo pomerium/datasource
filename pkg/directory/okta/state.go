@@ -3,8 +3,11 @@ package okta
 import (
 	"context"
 	"encoding/json"
+	"io"
 
 	"github.com/okta/okta-sdk-golang/v2/okta"
+
+	"github.com/pomerium/datasource/pkg/directory"
 )
 
 type directoryState struct {
@@ -12,18 +15,20 @@ type directoryState struct {
 	GroupMembers map[string][]okta.User `json:"groupMembers,omitempty"`
 }
 
-func (p *Provider) GetDirectoryState(_ context.Context) ([]byte, error) {
-	p.mu.Lock()
-	defer p.mu.Unlock()
-	return json.Marshal(directoryState{
+var _ directory.PersistentProvider = (*Provider)(nil)
+
+// SaveDirectoryState saves the directory state to a writer.
+func (p *Provider) SaveDirectoryState(_ context.Context, dst io.Writer) error {
+	return json.NewEncoder(dst).Encode(directoryState{
 		Groups:       p.groups,
 		GroupMembers: p.groupMembers,
 	})
 }
 
-func (p *Provider) SetDirectoryState(_ context.Context, state []byte) error {
+// LoadDirectoryState loads the directory state from a reader.
+func (p *Provider) LoadDirectoryState(_ context.Context, src io.Reader) error {
 	var ds directoryState
-	err := json.Unmarshal(state, &ds)
+	err := json.NewDecoder(src).Decode(&ds)
 	if err != nil {
 		return err
 	}

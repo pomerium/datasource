@@ -25,7 +25,7 @@ func UploadBundle(ctx context.Context, urlstr string, bundle map[string]any) err
 }
 
 // UploadState uploads state data to blob storage.
-func UploadState(ctx context.Context, urlstr string, state []byte) error {
+func UploadState(ctx context.Context, urlstr string, callback func(dst io.Writer) error) error {
 	log.Ctx(ctx).Debug().Msg("uploading state")
 	return upload(ctx, urlstr, "state.zst", func(w io.Writer) error {
 		zw, err := zstd.NewWriter(w)
@@ -33,7 +33,7 @@ func UploadState(ctx context.Context, urlstr string, state []byte) error {
 			return fmt.Errorf("error creating zstd writer for bucket file: %w", err)
 		}
 
-		_, err = zw.Write(state)
+		err = callback(zw)
 		if err != nil {
 			return fmt.Errorf("error writing state to bucket file: %w", err)
 		}

@@ -1,6 +1,9 @@
 package directory
 
-import "context"
+import (
+	"context"
+	"io"
+)
 
 // A Provider returns all the groups and users in a directory.
 type Provider interface {
@@ -18,6 +21,6 @@ func (p ProviderFunc) GetDirectory(ctx context.Context) ([]Group, []User, error)
 // A PersistentProvider is a directory provider that supports getting and setting directory state.
 type PersistentProvider interface {
 	Provider
-	GetDirectoryState(ctx context.Context) ([]byte, error)
-	SetDirectoryState(ctx context.Context, state []byte) error
+	LoadDirectoryState(ctx context.Context, src io.Reader) error
+	SaveDirectoryState(ctx context.Context, dst io.Writer) error
 }

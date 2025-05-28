@@ -3,7 +3,12 @@ package azure
 import (
 	"context"
 	"encoding/json"
+	"io"
+
+	"github.com/pomerium/datasource/pkg/directory"
 )
+
+var _ directory.PersistentProvider = (*Provider)(nil)
 
 type directoryState struct {
 	GroupDeltaLink            string                           `json:"groupDeltaLink,omitempty"`
@@ -14,9 +19,9 @@ type directoryState struct {
 	Users                     map[string]deltaUser             `json:"users,omitempty"`
 }
 
-// GetDirectoryState gets the current directory state.
-func (p *Provider) GetDirectoryState(_ context.Context) ([]byte, error) {
-	return json.Marshal(directoryState{
+// SaveDirectoryState saves the directory state to a writer.
+func (p *Provider) SaveDirectoryState(_ context.Context, dst io.Writer) error {
+	return json.NewEncoder(dst).Encode(directoryState{
 		GroupDeltaLink:            p.dc.groupDeltaLink,
 		Groups:                    p.dc.groups,
 		ServicePrincipalDeltaLink: p.dc.servicePrincipalDeltaLink,
@@ -26,10 +31,10 @@ func (p *Provider) GetDirectoryState(_ context.Context) ([]byte, error) {
 	})
 }
 
-// SetDirectoryState sets the directory state.
-func (p *Provider) SetDirectoryState(_ context.Context, state []byte) error {
+// LoadDirectoryState loads the directory state from a reader.
+func (p *Provider) LoadDirectoryState(_ context.Context, src io.Reader) error {
 	var ds directoryState
-	err := json.Unmarshal(state, &ds)
+	err := json.NewDecoder(src).Decode(&ds)
 	if err != nil {
 		return err
 	}

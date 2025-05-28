@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"io"
 
 	"github.com/rs/zerolog"
 	"github.com/spf13/cobra"
@@ -280,28 +281,22 @@ func uploadDirectoryBundleToBlob(ctx context.Context, provider directory.Provide
 }
 
 func downloadDirectoryStateFromBlob(ctx context.Context, provider directory.PersistentProvider, urlstr string) error {
-	state, err := blob.DownloadState(ctx, urlstr)
+	err := blob.DownloadState(ctx, urlstr, func(src io.Reader) error {
+		return provider.LoadDirectoryState(ctx, src)
+	})
 	if gcerrors.Code(err) == gcerrors.NotFound {
 		return nil
 	} else if err != nil {
 		return fmt.Errorf("error downloading directory state from blob: %w", err)
 	}
 
-	err = provider.SetDirectoryState(ctx, state)
-	if err != nil {
-		return fmt.Errorf("error setting existing directory state: %w", err)
-	}
-
 	return nil
 }
 
 func uploadDirectoryStateToBlob(ctx context.Context, provider directory.PersistentProvider, urlstr string) error {
-	state, err := provider.GetDirectoryState(ctx)
-	if err != nil {
-		return fmt.Errorf("error getting directory state: %w", err)
-	}
-
-	err = blob.UploadState(ctx, urlstr, state)
+	err := blob.UploadState(ctx, urlstr, func(dst io.Writer) error {
+		return provider.SaveDirectoryState(ctx, dst)
+	})
 	if err != nil {
 		return fmt.Errorf("error uploading directory state to blob: %w", err)
 	}
