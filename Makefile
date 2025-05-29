@@ -42,7 +42,7 @@ clean: ## Cleanup any build binaries or packages.
 .PHONY: build
 build: ## Build everything.
 	@echo "==> $@"
-	@CGO_ENABLED=0 GO111MODULE=on go build -tags "$(BUILDTAGS)" ${GO_LDFLAGS} -o $(BINDIR)/$(NAME) ./cmd/pomerium-datasource
+	@CGO_ENABLED=0 go build -tags "$(BUILDTAGS)" ${GO_LDFLAGS} -o $(BINDIR)/$(NAME) ./cmd/pomerium-datasource
 
 .PHONY: snapshot
 snapshot: ## Create release snapshot
