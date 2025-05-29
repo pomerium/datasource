@@ -87,7 +87,13 @@ func (s *pebbleStore) get(key []byte) ([]byte, error) {
 
 func (s *pebbleStore) getDB() (*pebble.DB, error) {
 	s.dbOnce.Do(func() {
-		s.db, s.dbErr = pebble.Open(s.dirname, s.options)
+		options := new(pebble.Options)
+		if s.options != nil {
+			*options = *s.options
+		}
+		options.LoggerAndTracer = pebbleLogger{}
+
+		s.db, s.dbErr = pebble.Open(s.dirname, options)
 		if s.dbErr != nil {
 			s.dbErr = fmt.Errorf("pebble: error opening database: %w", s.dbErr)
 		}
@@ -232,3 +238,11 @@ func prefixToUpperBound(prefix []byte) []byte {
 	}
 	return nil // no upper-bound
 }
+
+type pebbleLogger struct{}
+
+func (pebbleLogger) Infof(_ string, _ ...any)                     {}
+func (pebbleLogger) Errorf(_ string, _ ...any)                    {}
+func (pebbleLogger) Fatalf(_ string, _ ...any)                    {}
+func (pebbleLogger) Eventf(_ context.Context, _ string, _ ...any) {}
+func (pebbleLogger) IsTracingEnabled(_ context.Context) bool      { return false }
