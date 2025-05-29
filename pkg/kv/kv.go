@@ -15,16 +15,16 @@ type Pair = [2][]byte
 
 // A Store stores key and values in sorted order.
 type Store interface {
-	// All iterates over the keys and values in sorted order.
-	All(ctx context.Context) iter.Seq2[Pair, error]
-	// AllPrefix iterates over the keys and values in sorted order which start with the given prefix.
-	AllPrefix(ctx context.Context, prefix []byte) iter.Seq2[Pair, error]
 	// Delete deletes the key from the store.
 	Delete(ctx context.Context, key []byte) error
-	// DeletePrefix deletes all the keys that start with the given prefix.
-	DeletePrefix(ctx context.Context, prefix []byte) error
+	// DeleteAll deletes all the keys from the store.
+	DeleteAll(ctx context.Context) error
+	// IterateAll iterates over all the keys and values in sorted order.
+	IterateAll(ctx context.Context) iter.Seq2[Pair, error]
 	// Get gets a value for the given key. If not found ErrNotFound will be returned.
 	Get(ctx context.Context, key []byte) ([]byte, error)
+	// Prefix returns a new store with the given prefix prepended to every key.
+	Prefix(prefix []byte) Store
 	// Set sets a key value pair in the store.
 	Set(ctx context.Context, key, value []byte) error
 }
