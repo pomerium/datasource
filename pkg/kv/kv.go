@@ -11,25 +11,40 @@ import (
 var ErrNotFound = errors.New("key not found")
 
 // A Pair is a key and value pair.
-type Pair struct {
-	Key, Value []byte
-}
+type Pair = [2][]byte
 
 // A Store stores key and values in sorted order.
 type Store interface {
+	// All iterates over the keys and values in sorted order.
+	All(ctx context.Context) iter.Seq2[Pair, error]
+	// AllPrefix iterates over the keys and values in sorted order which start with the given prefix.
+	AllPrefix(ctx context.Context, prefix []byte) iter.Seq2[Pair, error]
 	// Delete deletes the key from the store.
 	Delete(ctx context.Context, key []byte) error
+	// DeletePrefix deletes all the keys that start with the given prefix.
+	DeletePrefix(ctx context.Context, prefix []byte) error
 	// Get gets a value for the given key. If not found ErrNotFound will be returned.
 	Get(ctx context.Context, key []byte) ([]byte, error)
-	// Iterate iterates over the keys and values in sorted order.
-	Iterate(ctx context.Context, prefix []byte) iter.Seq2[Pair, error]
 	// Set sets a key value pair in the store.
 	Set(ctx context.Context, key, value []byte) error
 }
 
 // A Diff is a difference between two key value pairs.
-type Diff struct {
-	Key, LeftValue, RightValue []byte
+type Diff [3][]byte
+
+// Key returns the diff key.
+func (diff Diff) Key() []byte {
+	return diff[0]
+}
+
+// LeftValue returns the diff left value.
+func (diff Diff) LeftValue() []byte {
+	return diff[1]
+}
+
+// RightValue returns the diff right value.
+func (diff Diff) RightValue() []byte {
+	return diff[2]
 }
 
 // ComputeDiff computes the difference between two sorted key value iterators.
@@ -41,8 +56,8 @@ func ComputeDiff(left, right iter.Seq2[Pair, error]) iter.Seq2[Diff, error] {
 		rightNext, rightStop := iter.Pull2(right)
 		defer rightStop()
 
-		leftKVP, leftErr, leftValid := leftNext()
-		rightKVP, rightErr, rightValid := rightNext()
+		leftPair, leftErr, leftValid := leftNext()
+		rightPair, rightErr, rightValid := rightNext()
 
 		for {
 			if leftErr != nil {
@@ -61,53 +76,53 @@ func ComputeDiff(left, right iter.Seq2[Pair, error]) iter.Seq2[Diff, error] {
 
 			// if only the left is valid, yield a left-only key value pair
 			if !rightValid {
-				if !yield(Diff{Key: leftKVP.Key, LeftValue: leftKVP.Value}, nil) {
+				if !yield(Diff{leftPair[0], leftPair[1], nil}, nil) {
 					return
 				}
-				leftKVP, leftErr, leftValid = leftNext()
+				leftPair, leftErr, leftValid = leftNext()
 				continue
 			}
 
 			// if only the right is valid, yield a right-only key value pair
 			if !leftValid {
-				if !yield(Diff{Key: rightKVP.Key, RightValue: rightKVP.Value}, nil) {
+				if !yield(Diff{rightPair[0], nil, rightPair[1]}, nil) {
 					return
 				}
-				rightKVP, rightErr, rightValid = rightNext()
+				rightPair, rightErr, rightValid = rightNext()
 				continue
 			}
 
 			// compare the keys
-			c := bytes.Compare(leftKVP.Key, rightKVP.Key)
+			c := bytes.Compare(leftPair[0], rightPair[0])
 
 			// if the left key is less than the right key, yield a left-only key value pair
 			if c < 0 {
-				if !yield(Diff{Key: leftKVP.Key, LeftValue: leftKVP.Value}, nil) {
+				if !yield(Diff{leftPair[0], leftPair[1], nil}, nil) {
 					return
 				}
-				leftKVP, leftErr, leftValid = leftNext()
+				leftPair, leftErr, leftValid = leftNext()
 				continue
 			}
 
 			// if the right key is less than the left key, yield a right-only key value pair
 			if c > 0 {
-				if !yield(Diff{Key: rightKVP.Key, RightValue: rightKVP.Value}, nil) {
+				if !yield(Diff{rightPair[0], nil, rightPair[1]}, nil) {
 					return
 				}
-				rightKVP, rightErr, rightValid = rightNext()
+				rightPair, rightErr, rightValid = rightNext()
 				continue
 			}
 
 			// keys are the same, compare the values, if they are not the same, yield a diff
-			if !bytes.Equal(leftKVP.Value, rightKVP.Value) {
-				if !yield(Diff{Key: rightKVP.Key, LeftValue: leftKVP.Value, RightValue: rightKVP.Value}, nil) {
+			if !bytes.Equal(leftPair[1], rightPair[1]) {
+				if !yield(Diff{rightPair[0], leftPair[1], rightPair[1]}, nil) {
 					return
 				}
 			}
 
 			// move left and right forward
-			leftKVP, leftErr, leftValid = leftNext()
-			rightKVP, rightErr, rightValid = rightNext()
+			leftPair, leftErr, leftValid = leftNext()
+			rightPair, rightErr, rightValid = rightNext()
 		}
 	}
 }

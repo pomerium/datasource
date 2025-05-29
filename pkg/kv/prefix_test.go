@@ -23,7 +23,7 @@ func TestPrefixedStore(t *testing.T) {
 		{"k1", "v1"},
 		{"k2", "v2"},
 		{"k3", "v3"},
-	}, collectPairs(t, s2.Iterate(t.Context(), nil)))
+	}, collectPairs(t, s2.All(t.Context())))
 
 	assert.NoError(t, s2.Set(t.Context(), []byte("k4"), []byte("v4")))
 	assert.Equal(t, [][2]string{
@@ -31,21 +31,21 @@ func TestPrefixedStore(t *testing.T) {
 		{"k2", "v2"},
 		{"k3", "v3"},
 		{"k4", "v4"},
-	}, collectPairs(t, s2.Iterate(t.Context(), nil)))
+	}, collectPairs(t, s2.All(t.Context())))
 	assert.Equal(t, [][2]string{
 		{"other-k1", "v1"},
 		{"prefix-k1", "v1"},
 		{"prefix-k2", "v2"},
 		{"prefix-k3", "v3"},
 		{"prefix-k4", "v4"},
-	}, collectPairs(t, s1.Iterate(t.Context(), nil)))
+	}, collectPairs(t, s1.All(t.Context())))
 
 	assert.NoError(t, s2.Delete(t.Context(), []byte("k4")))
 	assert.Equal(t, [][2]string{
 		{"k1", "v1"},
 		{"k2", "v2"},
 		{"k3", "v3"},
-	}, collectPairs(t, s2.Iterate(t.Context(), nil)))
+	}, collectPairs(t, s2.All(t.Context())))
 
 	v, err := s2.Get(t.Context(), []byte("k1"))
 	assert.NoError(t, err)
@@ -56,9 +56,9 @@ func collectPairs(tb testing.TB, seq iter.Seq2[kv.Pair, error]) [][2]string {
 	tb.Helper()
 
 	var pairs [][2]string
-	for kvp, err := range seq {
+	for pair, err := range seq {
 		if assert.NoError(tb, err) {
-			pairs = append(pairs, [2]string{string(kvp.Key), string(kvp.Value)})
+			pairs = append(pairs, [2]string{string(pair[0]), string(pair[1])})
 		}
 	}
 	return pairs

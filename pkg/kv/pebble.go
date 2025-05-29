@@ -42,6 +42,20 @@ func NewPebbleStoreWithOptions(
 	}
 }
 
+func (s *pebbleStore) All(ctx context.Context) iter.Seq2[Pair, error] {
+	return s.iterate(ctx, s.iterOptions)
+}
+
+func (s *pebbleStore) AllPrefix(ctx context.Context, prefix []byte) iter.Seq2[Pair, error] {
+	iterOptions := new(pebble.IterOptions)
+	if s.iterOptions != nil {
+		*iterOptions = *s.iterOptions
+	}
+	iterOptions.LowerBound = prefix
+	iterOptions.UpperBound = prefixToUpperBound(prefix)
+	return s.iterate(ctx, iterOptions)
+}
+
 func (s *pebbleStore) Delete(_ context.Context, key []byte) error {
 	db, err := s.getDB()
 	if err != nil {
@@ -51,6 +65,20 @@ func (s *pebbleStore) Delete(_ context.Context, key []byte) error {
 	err = db.Delete(key, s.writeOptions)
 	if err != nil {
 		return fmt.Errorf("pebble: error deleting key: %w", err)
+	}
+
+	return nil
+}
+
+func (s *pebbleStore) DeletePrefix(_ context.Context, prefix []byte) error {
+	db, err := s.getDB()
+	if err != nil {
+		return err
+	}
+
+	err = db.DeleteRange(prefix, prefixToUpperBound(prefix), s.writeOptions)
+	if err != nil {
+		return fmt.Errorf("pebble: error deleting prefix: %w", err)
 	}
 
 	return nil
@@ -72,53 +100,6 @@ func (s *pebbleStore) Get(_ context.Context, key []byte) ([]byte, error) {
 	_ = closer.Close()
 
 	return value, nil
-}
-
-func (s *pebbleStore) Iterate(ctx context.Context, prefix []byte) iter.Seq2[Pair, error] {
-	return func(yield func(Pair, error) bool) {
-		db, err := s.getDB()
-		if err != nil {
-			yield(Pair{}, err)
-			return
-		}
-
-		iterOptions := new(pebble.IterOptions)
-		if s.iterOptions != nil {
-			*iterOptions = *s.iterOptions
-		}
-		iterOptions.LowerBound = prefix
-		iterOptions.UpperBound = prefixToUpperBound(prefix)
-
-		it, err := db.NewIterWithContext(ctx, iterOptions)
-		if err != nil {
-			yield(Pair{}, fmt.Errorf("pebble: error creating iterator: %w", err))
-			return
-		}
-
-		for it.First(); it.Valid(); it.Next() {
-			kvp := Pair{
-				Key:   slices.Clone(it.Key()),
-				Value: slices.Clone(it.Value()),
-			}
-			if !yield(kvp, nil) {
-				_ = it.Close()
-				return
-			}
-		}
-
-		err = it.Error()
-		if err != nil {
-			_ = it.Close()
-			yield(Pair{}, fmt.Errorf("pebble: error iterating over key value pairs: %w", err))
-			return
-		}
-
-		err = it.Close()
-		if err != nil {
-			yield(Pair{}, fmt.Errorf("pebble: error closing iterator: %w", err))
-			return
-		}
-	}
 }
 
 func (s *pebbleStore) Set(_ context.Context, key, value []byte) error {
@@ -143,6 +124,43 @@ func (s *pebbleStore) getDB() (*pebble.DB, error) {
 		}
 	})
 	return s.db, s.dbErr
+}
+
+func (s *pebbleStore) iterate(ctx context.Context, iterOptions *pebble.IterOptions) iter.Seq2[Pair, error] {
+	return func(yield func(Pair, error) bool) {
+		db, err := s.getDB()
+		if err != nil {
+			yield(Pair{}, err)
+			return
+		}
+
+		it, err := db.NewIterWithContext(ctx, iterOptions)
+		if err != nil {
+			yield(Pair{}, fmt.Errorf("pebble: error creating iterator: %w", err))
+			return
+		}
+
+		for it.First(); it.Valid(); it.Next() {
+			pair := Pair{slices.Clone(it.Key()), slices.Clone(it.Value())}
+			if !yield(pair, nil) {
+				_ = it.Close()
+				return
+			}
+		}
+
+		err = it.Error()
+		if err != nil {
+			_ = it.Close()
+			yield(Pair{}, fmt.Errorf("pebble: error iterating over key value pairs: %w", err))
+			return
+		}
+
+		err = it.Close()
+		if err != nil {
+			yield(Pair{}, fmt.Errorf("pebble: error closing iterator: %w", err))
+			return
+		}
+	}
 }
 
 func prefixToUpperBound(prefix []byte) []byte {
