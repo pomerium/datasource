@@ -4,8 +4,8 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/spf13/cobra"
 
-	"github.com/pomerium/datasource/internal/blob"
 	"github.com/pomerium/datasource/internal/server"
+	"github.com/pomerium/datasource/pkg/blob"
 )
 
 func blobCommand(logger zerolog.Logger) *cobra.Command {

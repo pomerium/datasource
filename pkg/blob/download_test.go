@@ -6,7 +6,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/pomerium/datasource/internal/blob"
+	"github.com/pomerium/datasource/pkg/blob"
 )
 
 func TestDownloadState(t *testing.T) {
