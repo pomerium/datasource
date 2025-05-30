@@ -13,7 +13,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/pomerium/datasource/internal/blob"
+	"github.com/pomerium/datasource/pkg/blob"
 )
 
 func TestUploadBundle(t *testing.T) {
