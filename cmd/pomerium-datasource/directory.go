@@ -10,8 +10,8 @@ import (
 	"github.com/spf13/pflag"
 	"gocloud.dev/gcerrors"
 
-	"github.com/pomerium/datasource/internal/blob"
 	"github.com/pomerium/datasource/internal/server"
+	"github.com/pomerium/datasource/pkg/blob"
 	"github.com/pomerium/datasource/pkg/directory"
 	"github.com/pomerium/datasource/pkg/directory/auth0"
 	"github.com/pomerium/datasource/pkg/directory/azure"
