@@ -1,4 +1,4 @@
-FROM ubuntu:latest@sha256:66460d557b25769b102175144d538d88219c077c678a49af4afca6fbfc1b5252 AS curl
+FROM ubuntu:latest@sha256:c35e29c9450151419d9448b0fd75374fec4fff364a27f176fb458d472dfc9e54 AS curl
 
 RUN apt-get update && apt-get install -y curl
 
@@ -9,7 +9,7 @@ RUN --mount=type=secret,id=download_token \
     -o /download/IP2LOCATION-LITE-DB1.CSV.ZIP \
     "https://www.ip2location.com/download/?token=${DOWNLOAD_TOKEN}&file=DB1LITECSV"
 
-FROM golang:1.25.3-bookworm@sha256:ee420c17fa013f71eca6b35c3547b854c838d4f26056a34eb6171bba5bf8ece4 AS build
+FROM golang:1.25.4-bookworm@sha256:e17419604b6d1f9bc245694425f0ec9b1b53685c80850900a376fb10cb0f70cb AS build
 
 WORKDIR /build
 
