@@ -41,7 +41,7 @@ type PeopleRequest struct {
 }
 
 func (req *PeopleRequest) getURL() string {
-	u := req.Auth.RequestURL("core/people")
+	u := req.RequestURL("core/people")
 
 	param := make(url.Values)
 	param.Set("includes", "department location")
@@ -95,7 +95,7 @@ type VacationRequest struct {
 const DateLayout = "2006-01-02"
 
 func (req *VacationRequest) getURL() string {
-	u := req.Auth.RequestURL("time_off/vacation_requests")
+	u := req.RequestURL("time_off/vacation_requests")
 
 	param := make(url.Values)
 	param.Set("includes", "person")

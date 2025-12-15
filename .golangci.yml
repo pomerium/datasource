@@ -1,5 +1,6 @@
+version: "2"
 linters:
-  disable-all: true
+  default: none
   enable:
     - asasalint
     - asciicheck
@@ -12,14 +13,10 @@ linters:
     - errname
     - errorlint
     - exhaustive
-    # - gci # https://github.com/daixiang0/gci/issues/209
-    - gofumpt
     - goheader
-    - goimports
     - gomodguard
     - goprintffuncname
     - gosec
-    - gosimple
     - govet
     - grouper
     - importas
@@ -27,7 +24,6 @@ linters:
     - makezero
     - misspell
     - nakedret
-    - nestif
     - nilerr
     - noctx
     - nolintlint
@@ -43,9 +39,22 @@ linters:
     - unused
     - usetesting
     - whitespace
-linters-settings:
-  gci:
-    custom-order: true
-    sections:
-      - standard # Standard section: captures all standard packages.
-      - default # Default section: contains all imports that could not be matched to another section type.
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+formatters:
+  enable:
+    - gci
+    - gofumpt
+    - goimports
+  settings:
+    gci:
+      sections:
+        - standard
+        - default
+        - prefix(github.com/pomerium)
+      custom-order: true
