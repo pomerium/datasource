@@ -197,7 +197,7 @@ func (c *Client) newRequest(
 	}
 	u.RawQuery = query.Encode()
 
-	req, err := http.NewRequest(method, u.String(), nil)
+	req, err := http.NewRequestWithContext(ctx, method, u.String(), nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}

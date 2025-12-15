@@ -46,7 +46,7 @@ func serveJSON(prefix, key string, statusCode int) func(w http.ResponseWriter, r
 		value := mux.Vars(r)[key]
 		if value == "" {
 			w.WriteHeader(http.StatusBadRequest)
-			_, _ = w.Write([]byte(fmt.Sprintf("expected %s in vars, got none", key)))
+			_, _ = fmt.Fprintf(w, "expected %s in vars, got none", key)
 			return
 		}
 		p := path.Join("testdata", fmt.Sprintf("%s-%s-%s.json", prefix, key, value))
