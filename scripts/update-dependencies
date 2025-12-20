@@ -57,20 +57,6 @@ update-docker() {
 	popd
 }
 
-update-pomerium() {
-	pushd "$_project_root"
-
-	require-command go
-
-	go get -u github.com/pomerium/datasource@main
-	go get -u github.com/pomerium/pomerium@main
-	go get -u github.com/pomerium/sdk-go@main
-	go get -u github.com/pomerium/webauthn@main
-	go mod tidy
-
-	popd
-}
-
 update-tools() {
 	pushd "$_project_root"
 
@@ -89,9 +75,6 @@ run() {
 	case "$_command" in
 	docker)
 		update-docker
-		;;
-	pomerium)
-		update-pomerium
 		;;
 	tools)
 		update-tools

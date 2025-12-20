@@ -21,9 +21,6 @@ jobs:
       - name: Update Docker Dependencies
         run: ./scripts/update-dependencies docker
 
-      - name: Update Pomerium Dependencies
-        run: ./scripts/update-dependencies pomerium
-
       - name: Generate
         run: make generate
 
