@@ -12,7 +12,7 @@ COPY ./internal/ ./internal/
 COPY ./pkg/ ./pkg/
 RUN make build
 
-FROM gcr.io/distroless/base-debian12:debug@sha256:f1a17960fe812b85521ea9585a3eb48008afa668d1d38297dc36bceaee8a940f
+FROM gcr.io/distroless/base-debian12:debug@sha256:e8075f7da06319e4ac863d31fa11354003c809ef9f1b52fe32ef39e876ac16c5
 
 COPY --from=build /build/bin/* /bin/
 
