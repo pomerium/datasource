@@ -7,9 +7,12 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 	"sync"
+	"time"
 
+	"github.com/cenkalti/backoff/v4"
 	"golang.org/x/oauth2"
 
 	"github.com/pomerium/datasource/pkg/directory"
@@ -44,7 +47,7 @@ func (p *Provider) GetDirectory(ctx context.Context) ([]directory.Group, []direc
 	return groups, users, nil
 }
 
-func (p *Provider) api(ctx context.Context, url string, out interface{}) error {
+func (p *Provider) api(ctx context.Context, url string, out any) error {
 	call := func() (*http.Response, error) {
 		token, err := p.getToken(ctx)
 		if err != nil {
@@ -65,39 +68,58 @@ func (p *Provider) api(ctx context.Context, url string, out interface{}) error {
 		return res, nil
 	}
 
-	res, err := call()
-	if err != nil {
-		return err
-	}
-	defer res.Body.Close()
-
-	// if we get unauthorized, invalidate the token
-	if res.StatusCode == http.StatusUnauthorized {
-		_, _ = io.ReadAll(res.Body)
-		_ = res.Body.Close()
-
-		p.mu.Lock()
-		p.token = nil
-		p.mu.Unlock()
-
-		// try again
-		res, err = call()
+	bo := backoff.NewExponentialBackOff(backoff.WithMaxElapsedTime(0))
+	for {
+		res, err := call()
 		if err != nil {
 			return err
 		}
 		defer res.Body.Close()
-	}
 
-	if res.StatusCode/100 != 2 {
-		return fmt.Errorf("azure: error querying api (%s): %s", url, res.Status)
-	}
+		// if we get unauthorized, invalidate the token
+		if res.StatusCode == http.StatusUnauthorized {
+			_, _ = io.ReadAll(res.Body)
+			_ = res.Body.Close()
 
-	err = json.NewDecoder(res.Body).Decode(out)
-	if err != nil {
-		return fmt.Errorf("azure: error decoding api response: %w", err)
-	}
+			p.mu.Lock()
+			p.token = nil
+			p.mu.Unlock()
 
-	return nil
+			// try again
+			res, err = call()
+			if err != nil {
+				return err
+			}
+			defer res.Body.Close()
+		}
+
+		// for a 429, backoff and try again
+		if res.StatusCode == http.StatusTooManyRequests {
+			wait := bo.NextBackOff()
+			if seconds, err := strconv.Atoi(res.Header.Get("Retry-After")); err == nil {
+				wait = time.Duration(seconds) * time.Second
+			}
+			p.cfg.logger.Error().Dur("wait", wait).Msg("azure: received 429 error from microsoft graph api, backing off")
+			select {
+			case <-ctx.Done():
+				return context.Cause(ctx)
+			case <-time.After(wait):
+			}
+			continue
+		}
+
+		// any non-200, we exit
+		if res.StatusCode/100 != 2 {
+			return fmt.Errorf("azure: error querying api (%s): %s", url, res.Status)
+		}
+
+		err = json.NewDecoder(res.Body).Decode(out)
+		if err != nil {
+			return fmt.Errorf("azure: error decoding api response: %w", err)
+		}
+
+		return nil
+	}
 }
 
 func (p *Provider) getToken(ctx context.Context) (*oauth2.Token, error) {

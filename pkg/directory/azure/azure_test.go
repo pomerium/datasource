@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"net/url"
 	"strconv"
+	"sync/atomic"
 	"testing"
 
 	"github.com/go-chi/chi/v5"
@@ -87,7 +88,13 @@ func newMockAPI(t *testing.T, _ *httptest.Server) http.Handler {
 				},
 			})
 		})
+		var userCallCount atomic.Int64
 		r.Get("/users/delta", func(w http.ResponseWriter, _ *http.Request) {
+			if userCallCount.Add(1) < 3 {
+				w.Header().Set("Retry-After", "1")
+				http.Error(w, "too many requests", http.StatusTooManyRequests)
+				return
+			}
 			_ = json.NewEncoder(w).Encode(M{
 				"value": []M{
 					{"id": "user-1", "displayName": "User 1", "mail": "user1@example.com"},
