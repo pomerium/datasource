@@ -50,6 +50,9 @@ linters:
       - linters:
           - revive
         text: "var-naming: avoid meaningless package names"
+      - linters:
+          - revive
+        text: "var-naming: avoid package names that conflict with Go standard library package names"
 formatters:
   enable:
     - gci
