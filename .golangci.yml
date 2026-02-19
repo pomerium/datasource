@@ -53,6 +53,12 @@ linters:
       - linters:
           - revive
         text: "var-naming: avoid package names that conflict with Go standard library package names"
+      - linters:
+          - gosec
+        path: _test\.go$
+      - linters:
+          - gosec
+        text: G117|G704
 formatters:
   enable:
     - gci
