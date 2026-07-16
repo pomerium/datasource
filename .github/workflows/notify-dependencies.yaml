@@ -22,5 +22,7 @@ jobs:
         with:
           ref: main
           repo: ${{ matrix.repository }}
+          sync-status: true
           token: ${{ secrets.APPARITOR_GITHUB_TOKEN }}
+          wait-for-completion: true
           workflow: update-dependencies.yaml
