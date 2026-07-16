@@ -14,14 +14,17 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        repository:
-          - pomerium/enterprise-client-go
+        repo:
+          - enterprise-client
+          - enterprise-client-go
+          - pomerium
+          - pomerium-console
     steps:
       - name: Notify
         uses: benc-uk/workflow-dispatch@31e2b3319479a63f0ab15bf800eff9e913504e26
         with:
           ref: main
-          repo: ${{ matrix.repository }}
+          repo: pomerium/${{ matrix.repo }}
           sync-status: true
           token: ${{ secrets.APPARITOR_GITHUB_TOKEN }}
           wait-for-completion: true
