@@ -20,6 +20,7 @@ jobs:
       - name: Notify
         uses: benc-uk/workflow-dispatch@31e2b3319479a63f0ab15bf800eff9e913504e26
         with:
+          ref: main
           repo: ${{ matrix.repository }}
           token: ${{ secrets.APPARITOR_GITHUB_TOKEN }}
           workflow: update-dependencies.yaml
