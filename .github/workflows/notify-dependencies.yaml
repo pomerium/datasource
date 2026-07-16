@@ -1,0 +1,26 @@
+name: Notify Dependencies
+
+permissions: {}
+
+on:
+  push:
+    branches:
+      - main
+      - 0-[0-9]+-*
+      - cdoxsey/trigger-updates
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        repository:
+          - pomerium/enterprise-client-go
+    steps:
+      - name: Notify
+        uses: benc-uk/workflow-dispatch@31e2b3319479a63f0ab15bf800eff9e913504e26
+        with:
+          inputs: '{"branch":"${{ github.ref_name }}"}'
+          repo: ${{ matrix.repository }}
+          token: ${{ secrets.APPARITOR_GITHUB_TOKEN }}
+          workflow: update-branch-dependencies.yaml
