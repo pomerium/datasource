@@ -7,12 +7,12 @@ on:
     branches:
       - main
       - 0-[0-9]+-*
-      - cdoxsey/trigger-updates
 
 jobs:
   notify:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         repo:
           - enterprise-client
