@@ -5,9 +5,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"maps"
 	"net/http"
 	"net/url"
+	"slices"
 	"sort"
+	"strings"
 
 	"github.com/tomnomnom/linkheader"
 
@@ -33,9 +36,9 @@ func (p *Provider) GetDirectory(ctx context.Context) ([]directory.Group, []direc
 		return nil, nil, err
 	}
 
-	userLoginToGroups := map[string][]string{}
+	userNodeIDToGroups := map[string][]string{}
 
-	var allGroups []directory.Group
+	groupLookup := map[string]directory.Group{}
 	for _, orgSlug := range orgSlugs {
 		teams, err := p.listOrganizationTeamsWithMemberIDs(ctx, orgSlug)
 		if err != nil {
@@ -43,20 +46,22 @@ func (p *Provider) GetDirectory(ctx context.Context) ([]directory.Group, []direc
 		}
 
 		for _, team := range teams {
-			allGroups = append(allGroups, directory.Group{
-				ID:   team.Slug,
+			dg := directory.Group{
 				Name: team.Slug,
-			})
-			for _, memberID := range team.MemberIDs {
-				userLoginToGroups[memberID] = append(userLoginToGroups[memberID], team.Slug)
+			}
+			if p.cfg.useNodeIDs {
+				dg.ID = team.NodeID
+			} else {
+				dg.ID = team.Slug
+			}
+			groupLookup[dg.ID] = dg
+			for _, memberNodeID := range team.MemberNodeIDs {
+				userNodeIDToGroups[memberNodeID] = append(userNodeIDToGroups[memberNodeID], dg.ID)
 			}
 		}
 	}
-	sort.Slice(allGroups, func(i, j int) bool {
-		return allGroups[i].ID < allGroups[j].ID
-	})
 
-	var allUsers []directory.User
+	userLookup := map[string]directory.User{}
 	for _, orgSlug := range orgSlugs {
 		members, err := p.listOrganizationMembers(ctx, orgSlug)
 		if err != nil {
@@ -65,17 +70,25 @@ func (p *Provider) GetDirectory(ctx context.Context) ([]directory.Group, []direc
 
 		for _, member := range members {
 			du := directory.User{
-				ID:          member.Login,
-				GroupIDs:    userLoginToGroups[member.ID],
+				GroupIDs:    userNodeIDToGroups[member.NodeID],
 				DisplayName: member.Name,
 				Email:       member.Email,
 			}
+			if p.cfg.useNodeIDs {
+				du.ID = member.NodeID
+			} else {
+				du.ID = member.Login
+			}
 			sort.Strings(du.GroupIDs)
-			allUsers = append(allUsers, du)
+			userLookup[du.ID] = du
 		}
 	}
-	sort.Slice(allUsers, func(i, j int) bool {
-		return allUsers[i].ID < allUsers[j].ID
+
+	allGroups := slices.SortedFunc(maps.Values(groupLookup), func(dg1, dg2 directory.Group) int {
+		return strings.Compare(dg1.ID, dg2.ID)
+	})
+	allUsers := slices.SortedFunc(maps.Values(userLookup), func(du1, du2 directory.User) int {
+		return strings.Compare(du1.ID, du2.ID)
 	})
 
 	return allGroups, allUsers, nil
@@ -105,7 +118,7 @@ func (p *Provider) listOrgs(ctx context.Context) (orgSlugs []string, err error) 
 	return orgSlugs, nil
 }
 
-func (p *Provider) api(ctx context.Context, apiURL string, out interface{}) (http.Header, error) {
+func (p *Provider) api(ctx context.Context, apiURL string, out any) (http.Header, error) {
 	username := p.cfg.username
 	if username == "" {
 		return nil, ErrUsernameRequired
@@ -141,7 +154,7 @@ func (p *Provider) api(ctx context.Context, apiURL string, out interface{}) (htt
 	return res.Header, nil
 }
 
-func (p *Provider) graphql(ctx context.Context, query string, out interface{}) (http.Header, error) {
+func (p *Provider) graphql(ctx context.Context, query string, out any) (http.Header, error) {
 	username := p.cfg.username
 	if username == "" {
 		return nil, ErrUsernameRequired

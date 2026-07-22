@@ -81,10 +81,12 @@ func directoryCommand(logger zerolog.Logger) *cobra.Command {
 			func(flags *pflag.FlagSet) func() directory.Provider {
 				personalAccessToken := requiredStringFlag(flags, "personal-access-token", "personal access token")
 				username := requiredStringFlag(flags, "username", "username")
+				useNodeIDs := optionalBoolFlag(flags, "use-node-ids", "use node ids instead of logins for ids")
 				return func() directory.Provider {
 					return github.New(
 						github.WithLogger(logger),
 						github.WithPersonalAccessToken(*personalAccessToken),
+						github.WithUseNodeIDs(*useNodeIDs),
 						github.WithUsername(*username),
 					)
 				}
@@ -226,6 +228,12 @@ func directoryUploadSubCommand(
 	}
 
 	return cmd
+}
+
+func optionalBoolFlag(flags *pflag.FlagSet, name, usage string) *bool {
+	ptr := new(bool)
+	flags.BoolVar(ptr, name, false, usage)
+	return ptr
 }
 
 func optionalBytesFlag(flags *pflag.FlagSet, name, usage string) *[]byte {

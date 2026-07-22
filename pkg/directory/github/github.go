@@ -3,7 +3,8 @@ package github
 
 // see: https://docs.github.com/en/free-pro-team@latest/rest/reference/users#get-a-user
 type apiUserObject struct {
-	Login string `json:"login"`
-	Name  string `json:"name"`
-	Email string `json:"email"`
+	NodeID string `json:"node_id"`
+	Login  string `json:"login"`
+	Name   string `json:"name"`
+	Email  string `json:"email"`
 }

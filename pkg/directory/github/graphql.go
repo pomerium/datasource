@@ -29,7 +29,7 @@ type (
 		Data *qlData `json:"data"`
 	}
 	qlTeam struct {
-		ID      string                  `json:"id"`
+		NodeID  string                  `json:"id"`
 		Name    string                  `json:"name"`
 		Slug    string                  `json:"slug"`
 		Members *qlTeamMemberConnection `json:"members"`
@@ -49,16 +49,16 @@ type (
 		Node qlUser `json:"node"`
 	}
 	qlUser struct {
-		ID    string `json:"id"`
-		Login string `json:"login"`
-		Name  string `json:"name"`
-		Email string `json:"email"`
+		NodeID string `json:"id"`
+		Login  string `json:"login"`
+		Name   string `json:"name"`
+		Email  string `json:"email"`
 	}
 	teamWithMemberIDs struct {
-		ID        string
-		Slug      string
-		Name      string
-		MemberIDs []string
+		NodeID        string
+		Slug          string
+		Name          string
+		MemberNodeIDs []string
 	}
 )
 
@@ -152,15 +152,15 @@ func (p *Provider) listOrganizationTeamsWithMemberIDs(ctx context.Context, orgSl
 		}
 
 		for _, teamEdge := range res.Data.Organization.Teams.Edges {
-			var memberIDs []string
+			var memberNodeIDs []string
 			for _, memberEdge := range teamEdge.Node.Members.Edges {
-				memberIDs = append(memberIDs, memberEdge.Node.ID)
+				memberNodeIDs = append(memberNodeIDs, memberEdge.Node.NodeID)
 			}
 			results = append(results, teamWithMemberIDs{
-				ID:        teamEdge.Node.ID,
-				Slug:      teamEdge.Node.Slug,
-				Name:      teamEdge.Node.Name,
-				MemberIDs: memberIDs,
+				NodeID:        teamEdge.Node.NodeID,
+				Slug:          teamEdge.Node.Slug,
+				Name:          teamEdge.Node.Name,
+				MemberNodeIDs: memberNodeIDs,
 			})
 			pageInfos = append(pageInfos, teamEdge.Node.Members.PageInfo)
 		}
@@ -174,8 +174,6 @@ func (p *Provider) listOrganizationTeamsWithMemberIDs(ctx context.Context, orgSl
 	// it's possible we didn't get all the members if the initial query, so go through each team and
 	// check the member pageInfo. If there are still remaining members, query those.
 	for i, pageInfo := range pageInfos {
-		i, pageInfo := i, pageInfo
-
 		if !pageInfo.HasNextPage {
 			continue
 		}
@@ -206,7 +204,7 @@ func (p *Provider) listOrganizationTeamsWithMemberIDs(ctx context.Context, orgSl
 			}
 
 			for _, memberEdge := range res.Data.Organization.Team.Members.Edges {
-				results[i].MemberIDs = append(results[i].MemberIDs, memberEdge.Node.ID)
+				results[i].MemberNodeIDs = append(results[i].MemberNodeIDs, memberEdge.Node.NodeID)
 			}
 
 			if !res.Data.Organization.Team.Members.PageInfo.HasNextPage {
@@ -219,7 +217,7 @@ func (p *Provider) listOrganizationTeamsWithMemberIDs(ctx context.Context, orgSl
 	return results, nil
 }
 
-func encode(obj interface{}) string {
+func encode(obj any) string {
 	bs, _ := json.Marshal(obj)
 	return string(bs)
 }

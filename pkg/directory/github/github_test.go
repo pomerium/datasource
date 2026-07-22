@@ -66,13 +66,13 @@ func newMockAPI(t *testing.T, _ *httptest.Server) http.Handler {
 				case "org1":
 					membersWithRole.PageInfo = qlPageInfo{EndCursor: "TOKEN1", HasNextPage: true}
 					membersWithRole.Nodes = []qlUser{
-						{ID: "user1", Login: "user1", Name: "User 1", Email: "user1@example.com"},
-						{ID: "user2", Login: "user2", Name: "User 2", Email: "user2@example.com"},
+						{NodeID: "nodeid-user1", Login: "user1", Name: "User 1", Email: "user1@example.com"},
+						{NodeID: "nodeid-user2", Login: "user2", Name: "User 2", Email: "user2@example.com"},
 					}
 				case "org2":
 					membersWithRole.PageInfo = qlPageInfo{HasNextPage: false}
 					membersWithRole.Nodes = []qlUser{
-						{ID: "user4", Login: "user4", Name: "User 4", Email: "user4@example.com"},
+						{NodeID: "nodeid-user4", Login: "user4", Name: "User 4", Email: "user4@example.com"},
 					}
 				default:
 					t.Errorf("unexpected org slug: %s", orgSlug)
@@ -80,7 +80,7 @@ func newMockAPI(t *testing.T, _ *httptest.Server) http.Handler {
 			case `TOKEN1`:
 				membersWithRole.PageInfo = qlPageInfo{HasNextPage: false}
 				membersWithRole.Nodes = []qlUser{
-					{ID: "user3", Login: "user3", Name: "User 3", Email: "user3@example.com"},
+					{NodeID: "nodeid-user3", Login: "user3", Name: "User 3", Email: "user3@example.com"},
 				}
 			default:
 				t.Errorf("unexpected cursor: %s", cursor)
@@ -96,7 +96,7 @@ func newMockAPI(t *testing.T, _ *httptest.Server) http.Handler {
 			switch teamSlug {
 			case "team3":
 				result.Data.Organization.Team.Members.Edges = []qlTeamMemberEdge{
-					{Node: qlUser{ID: "user3"}},
+					{Node: qlUser{NodeID: "nodeid-user3"}},
 				}
 			}
 		}
@@ -163,14 +163,14 @@ func newMockAPI(t *testing.T, _ *httptest.Server) http.Handler {
 					teams.PageInfo = qlPageInfo{HasNextPage: true, EndCursor: "TOKEN1"}
 					teams.Edges = []qlTeamEdge{
 						{Node: qlTeam{
-							ID:   renderNodeField(field, []string{"edges", "node", "id"}, "MDQ6VGVhbTE="),
-							Slug: renderNodeField(field, []string{"edges", "node", "slug"}, "team1"),
-							Name: renderNodeField(field, []string{"edges", "node", "name"}, "Team 1"),
+							NodeID: renderNodeField(field, []string{"edges", "node", "id"}, "nodeid-team1"),
+							Slug:   renderNodeField(field, []string{"edges", "node", "slug"}, "team1"),
+							Name:   renderNodeField(field, []string{"edges", "node", "name"}, "Team 1"),
 							Members: &qlTeamMemberConnection{
 								PageInfo: qlPageInfo{HasNextPage: false},
 								Edges: []qlTeamMemberEdge{
-									{Node: qlUser{ID: "user1"}},
-									{Node: qlUser{ID: "user2"}},
+									{Node: qlUser{NodeID: "nodeid-user1", Login: "user1"}},
+									{Node: qlUser{NodeID: "nodeid-user2", Login: "user2"}},
 								},
 							},
 						}},
@@ -179,14 +179,14 @@ func newMockAPI(t *testing.T, _ *httptest.Server) http.Handler {
 					teams.PageInfo = qlPageInfo{HasNextPage: false}
 					teams.Edges = []qlTeamEdge{
 						{Node: qlTeam{
-							ID:   renderNodeField(field, []string{"edges", "node", "id"}, "MDQ6VGVhbTM="),
-							Slug: renderNodeField(field, []string{"edges", "node", "slug"}, "team3"),
-							Name: renderNodeField(field, []string{"edges", "node", "name"}, "Team 3"),
+							NodeID: renderNodeField(field, []string{"edges", "node", "id"}, "nodeid-team3"),
+							Slug:   renderNodeField(field, []string{"edges", "node", "slug"}, "team3"),
+							Name:   renderNodeField(field, []string{"edges", "node", "name"}, "Team 3"),
 							Members: &qlTeamMemberConnection{
 								PageInfo: qlPageInfo{HasNextPage: true, EndCursor: "TOKEN1"},
 								Edges: []qlTeamMemberEdge{
-									{Node: qlUser{ID: "user1"}},
-									{Node: qlUser{ID: "user2"}},
+									{Node: qlUser{NodeID: "nodeid-user1", Login: "user1"}},
+									{Node: qlUser{NodeID: "nodeid-user2", Login: "user2"}},
 								},
 							},
 						}},
@@ -194,13 +194,13 @@ func newMockAPI(t *testing.T, _ *httptest.Server) http.Handler {
 					if userLogin == "" || userLogin == "user4" {
 						teams.Edges = append(teams.Edges, qlTeamEdge{
 							Node: qlTeam{
-								ID:   renderNodeField(field, []string{"edges", "node", "id"}, "MDQ6VGVhbTQ="),
-								Slug: renderNodeField(field, []string{"edges", "node", "slug"}, "team4"),
-								Name: renderNodeField(field, []string{"edges", "node", "name"}, "Team 4"),
+								NodeID: renderNodeField(field, []string{"edges", "node", "id"}, "nodeid-team4"),
+								Slug:   renderNodeField(field, []string{"edges", "node", "slug"}, "team4"),
+								Name:   renderNodeField(field, []string{"edges", "node", "name"}, "Team 4"),
 								Members: &qlTeamMemberConnection{
 									PageInfo: qlPageInfo{HasNextPage: false},
 									Edges: []qlTeamMemberEdge{
-										{Node: qlUser{ID: "user4"}},
+										{Node: qlUser{NodeID: "nodeid-user4", Login: "user4"}},
 									},
 								},
 							},
@@ -213,13 +213,13 @@ func newMockAPI(t *testing.T, _ *httptest.Server) http.Handler {
 				teams.PageInfo = qlPageInfo{HasNextPage: false}
 				teams.Edges = []qlTeamEdge{
 					{Node: qlTeam{
-						ID:   renderNodeField(field, []string{"edges", "node", "id"}, "MDQ6VGVhbTI="),
-						Slug: renderNodeField(field, []string{"edges", "node", "slug"}, "team2"),
-						Name: renderNodeField(field, []string{"edges", "node", "name"}, "Team 2"),
+						NodeID: renderNodeField(field, []string{"edges", "node", "id"}, "nodeid-team2"),
+						Slug:   renderNodeField(field, []string{"edges", "node", "slug"}, "team2"),
+						Name:   renderNodeField(field, []string{"edges", "node", "name"}, "Team 2"),
 						Members: &qlTeamMemberConnection{
 							PageInfo: qlPageInfo{HasNextPage: false},
 							Edges: []qlTeamMemberEdge{
-								{Node: qlUser{ID: "user1"}},
+								{Node: qlUser{NodeID: "nodeid-user1", Login: "user1"}},
 							},
 						},
 					}},
@@ -280,12 +280,12 @@ func newMockAPI(t *testing.T, _ *httptest.Server) http.Handler {
 	r.Get("/orgs/{org_id}/teams", func(w http.ResponseWriter, r *http.Request) {
 		teams := map[string][]M{
 			"org1": {
-				{"slug": "team1", "id": 1},
-				{"slug": "team2", "id": 2},
+				{"slug": "team1", "id": 1, "node_id": "nodeid-team1"},
+				{"slug": "team2", "id": 2, "node_id": "nodeid-team2"},
 			},
 			"org2": {
-				{"slug": "team3", "id": 3},
-				{"slug": "team4", "id": 4},
+				{"slug": "team3", "id": 3, "node_id": "nodeid-team3"},
+				{"slug": "team4", "id": 4, "node_id": "nodeid-team4"},
 			},
 		}
 		orgID := chi.URLParam(r, "org_id")
@@ -295,21 +295,21 @@ func newMockAPI(t *testing.T, _ *httptest.Server) http.Handler {
 		members := map[string]map[string][]M{
 			"org1": {
 				"team1": {
-					{"login": "user1"},
-					{"login": "user2"},
+					{"id": "nodeid-user1", "login": "user1"},
+					{"id": "nodeid-user2", "login": "user2"},
 				},
 				"team2": {
-					{"login": "user1"},
+					{"id": "nodeid-user1", "login": "user1"},
 				},
 			},
 			"org2": {
 				"team3": {
-					{"login": "user1"},
-					{"login": "user2"},
-					{"login": "user3"},
+					{"id": "nodeid-user1", "login": "user1"},
+					{"id": "nodeid-user2", "login": "user2"},
+					{"id": "nodeid-user3", "login": "user3"},
 				},
 				"team4": {
-					{"login": "user4"},
+					{"id": "nodeid-user4", "login": "user4"},
 				},
 			},
 		}
@@ -319,10 +319,10 @@ func newMockAPI(t *testing.T, _ *httptest.Server) http.Handler {
 	})
 	r.Get("/users/{user_id}", func(w http.ResponseWriter, r *http.Request) {
 		users := map[string]apiUserObject{
-			"user1": {Login: "user1", Name: "User 1", Email: "user1@example.com"},
-			"user2": {Login: "user2", Name: "User 2", Email: "user2@example.com"},
-			"user3": {Login: "user3", Name: "User 3", Email: "user3@example.com"},
-			"user4": {Login: "user4", Name: "User 4", Email: "user4@example.com"},
+			"user1": {NodeID: "nodeid-user1", Login: "user1", Name: "User 1", Email: "user1@example.com"},
+			"user2": {NodeID: "nodeid-user2", Login: "user2", Name: "User 2", Email: "user2@example.com"},
+			"user3": {NodeID: "nodeid-user3", Login: "user3", Name: "User 3", Email: "user3@example.com"},
+			"user4": {NodeID: "nodeid-user4", Login: "user4", Name: "User 4", Email: "user4@example.com"},
 		}
 		userID := chi.URLParam(r, "user_id")
 		_ = json.NewEncoder(w).Encode(users[userID])
@@ -337,28 +337,106 @@ func TestProvider_GetDirectory(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		mockAPI.ServeHTTP(w, r)
 	}))
-	defer srv.Close()
+	t.Cleanup(srv.Close)
 	mockAPI = newMockAPI(t, srv)
 
-	p := New(
-		WithPersonalAccessToken("xyz"),
-		WithURL(mustParseURL(srv.URL)),
-		WithUsername("abc"),
-	)
-	groups, users, err := p.GetDirectory(t.Context())
-	assert.NoError(t, err)
-	assert.Equal(t, []directory.Group{
-		{ID: "team1", Name: "team1"},
-		{ID: "team2", Name: "team2"},
-		{ID: "team3", Name: "team3"},
-		{ID: "team4", Name: "team4"},
-	}, groups)
-	assert.Equal(t, []directory.User{
-		{ID: "user1", GroupIDs: []string{"team1", "team2", "team3"}, DisplayName: "User 1", Email: "user1@example.com"},
-		{ID: "user2", GroupIDs: []string{"team1", "team3"}, DisplayName: "User 2", Email: "user2@example.com"},
-		{ID: "user3", GroupIDs: []string{"team3"}, DisplayName: "User 3", Email: "user3@example.com"},
-		{ID: "user4", GroupIDs: []string{"team4"}, DisplayName: "User 4", Email: "user4@example.com"},
-	}, users)
+	t.Run("logins", func(t *testing.T) {
+		t.Parallel()
+		p := New(
+			WithPersonalAccessToken("xyz"),
+			WithURL(mustParseURL(srv.URL)),
+			WithUsername("abc"),
+		)
+		groups, users, err := p.GetDirectory(t.Context())
+		assert.NoError(t, err)
+		assert.Equal(t, []directory.Group{
+			{ID: "team1", Name: "team1"},
+			{ID: "team2", Name: "team2"},
+			{ID: "team3", Name: "team3"},
+			{ID: "team4", Name: "team4"},
+		}, groups)
+		assert.Equal(t, []directory.User{
+			{
+				ID:          "user1",
+				GroupIDs:    []string{"team1", "team2", "team3"},
+				DisplayName: "User 1",
+				Email:       "user1@example.com",
+			},
+			{
+				ID:          "user2",
+				GroupIDs:    []string{"team1", "team3"},
+				DisplayName: "User 2",
+				Email:       "user2@example.com",
+			},
+			{
+				ID:          "user3",
+				GroupIDs:    []string{"team3"},
+				DisplayName: "User 3",
+				Email:       "user3@example.com",
+			},
+			{
+				ID:          "user4",
+				GroupIDs:    []string{"team4"},
+				DisplayName: "User 4",
+				Email:       "user4@example.com",
+			},
+		}, users)
+	})
+	t.Run("node ids", func(t *testing.T) {
+		t.Parallel()
+		p := New(
+			WithPersonalAccessToken("xyz"),
+			WithURL(mustParseURL(srv.URL)),
+			WithUseNodeIDs(true),
+			WithUsername("abc"),
+		)
+		groups, users, err := p.GetDirectory(t.Context())
+		assert.NoError(t, err)
+		assert.Equal(t, []directory.Group{
+			{
+				ID:   "nodeid-team1",
+				Name: "team1",
+			},
+			{
+				ID:   "nodeid-team2",
+				Name: "team2",
+			},
+			{
+				ID:   "nodeid-team3",
+				Name: "team3",
+			},
+			{
+				ID:   "nodeid-team4",
+				Name: "team4",
+			},
+		}, groups)
+		assert.Equal(t, []directory.User{
+			{
+				ID:          "nodeid-user1",
+				GroupIDs:    []string{"nodeid-team1", "nodeid-team2", "nodeid-team3"},
+				DisplayName: "User 1",
+				Email:       "user1@example.com",
+			},
+			{
+				ID:          "nodeid-user2",
+				GroupIDs:    []string{"nodeid-team1", "nodeid-team3"},
+				DisplayName: "User 2",
+				Email:       "user2@example.com",
+			},
+			{
+				ID:          "nodeid-user3",
+				GroupIDs:    []string{"nodeid-team3"},
+				DisplayName: "User 3",
+				Email:       "user3@example.com",
+			},
+			{
+				ID:          "nodeid-user4",
+				GroupIDs:    []string{"nodeid-team4"},
+				DisplayName: "User 4",
+				Email:       "user4@example.com",
+			},
+		}, users)
+	})
 }
 
 func mustParseURL(rawurl string) *url.URL {
