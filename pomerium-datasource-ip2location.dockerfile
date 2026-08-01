@@ -1,4 +1,4 @@
-FROM ubuntu:latest@sha256:53958ec7b67c2c9355df922dd08dbf0360611f8c3cdb656875e81873db9ffdba AS curl
+FROM ubuntu:latest@sha256:3131b4cc82a783df6c9df078f86e01819a13594b865c2cad47bd1bca2b7063bb AS curl
 
 RUN apt-get update && apt-get install -y curl
 
@@ -23,7 +23,7 @@ COPY ./internal/ ./internal/
 COPY ./pkg/ ./pkg/
 RUN make build
 
-FROM gcr.io/distroless/base-debian12:debug@sha256:b2a854c5f5b6d9441084b66628335fb9c66ae2ee93d719746b60ff1add99654a
+FROM gcr.io/distroless/base-debian12:debug@sha256:db9a19954a9f79ef814bb204aa7788cfcfd3e00a4bfd755ad93d2e88721125b6
 
 COPY --from=build /build/bin/* /bin/
 COPY --from=curl /download/IP2LOCATION-LITE-DB1.CSV.ZIP /usr/share/IP2LOCATION-LITE-DB1.CSV.ZIP
