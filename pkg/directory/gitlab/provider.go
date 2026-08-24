@@ -111,7 +111,7 @@ func (p *Provider) listGroupMembers(ctx context.Context, groupID string) (users 
 	return users, nil
 }
 
-func (p *Provider) api(ctx context.Context, uri string, out interface{}) (http.Header, error) {
+func (p *Provider) api(ctx context.Context, uri string, out any) (http.Header, error) {
 	privateToken := p.cfg.privateToken
 	if privateToken == "" {
 		return nil, ErrPrivateTokenRequired

@@ -33,7 +33,6 @@ func TestTags(t *testing.T) {
 			[]string{"one", "two", "four"},
 		},
 	} {
-		tc := tc
 		t.Run(strings.Join(tc.tags, ","), func(t *testing.T) {
 			t.Parallel()
 

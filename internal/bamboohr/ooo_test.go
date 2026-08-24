@@ -21,7 +21,6 @@ func TestOOO(t *testing.T) {
 			{Start: now.Add(-time.Second), End: now.Add(time.Second)},
 		}},
 	} {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 

@@ -46,7 +46,7 @@ func TestAPI(t *testing.T) {
 		resp, err := zenefits.GetEmployees(ctx, client, zenefits.PeopleRequest{Auth: auth})
 		require.NoError(t, err, "get employees")
 
-		var dst []map[string]interface{}
+		var dst []map[string]any
 		require.NoError(t, mapstructure.Decode(resp, &dst))
 		_, err = json.Marshal(dst)
 		require.NoError(t, err)

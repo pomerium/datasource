@@ -33,7 +33,7 @@ func NewRemapFromPairs(src []string) ([]FieldRemap, error) {
 }
 
 // Remap is used to rename map keys in-place
-func Remap(src []map[string]interface{}, fieldMap []FieldRemap) error {
+func Remap(src []map[string]any, fieldMap []FieldRemap) error {
 	for _, m := range src {
 		if err := remap(m, fieldMap); err != nil {
 			return fmt.Errorf("%+v: %w", m, err)
@@ -43,7 +43,7 @@ func Remap(src []map[string]interface{}, fieldMap []FieldRemap) error {
 }
 
 // Filter removes fields that are not part of the list
-func Filter(src []map[string]interface{}, fields []string) {
+func Filter(src []map[string]any, fields []string) {
 	keep := make(map[string]struct{})
 	for _, field := range fields {
 		keep[field] = struct{}{}
@@ -58,7 +58,7 @@ func Filter(src []map[string]interface{}, fields []string) {
 	}
 }
 
-func remap(src map[string]interface{}, fieldMap []FieldRemap) error {
+func remap(src map[string]any, fieldMap []FieldRemap) error {
 	for _, fm := range fieldMap {
 		val, there := src[fm.From]
 		if !there {

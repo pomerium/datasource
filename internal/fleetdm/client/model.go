@@ -33,7 +33,7 @@ type hostRecord struct {
 		FailingPoliciesCount         uint64  `json:"failing_policies_count"`
 		CriticalVulnerabilitiesCount *uint64 `json:"critical_vulnerabilities_count,omitempty"`
 		TotalIssuesCount             uint64  `json:"total_issues_count"`
-	} `json:"issues,omitempty"`
+	} `json:"issues"`
 	Policies []struct {
 		ID       uint   `json:"id"`
 		Response string `json:"response"`

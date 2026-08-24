@@ -40,7 +40,6 @@ func TestLoggingClient(t *testing.T) {
 		{"error", "/500", "NOT OK\n", 500},
 		{"not-found", "/400", "404 page not found\n", 404},
 	} {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 

@@ -61,7 +61,6 @@ func TestUserAgent(t *testing.T) {
 		{"good user agent", "1.0.0", "314501b", "dev", "pomerium", "github.com/pomerium", fmt.Sprintf("pomerium/1.0.0 (+github.com/pomerium; 314501b; %s)", runtime.Version())},
 	}
 	for _, tt := range tests {
-		tt := tt
 		Version = tt.Version
 		GitCommit = tt.GitCommit
 		BuildMeta = tt.BuildMeta

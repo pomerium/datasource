@@ -17,7 +17,7 @@ import (
 	"github.com/pomerium/datasource/pkg/directory"
 )
 
-type M = map[string]interface{}
+type M = map[string]any
 
 func newMockOkta(userEmailToGroups map[string][]string) http.Handler {
 	getAllGroups := func() map[string]struct{} {

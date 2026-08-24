@@ -60,7 +60,7 @@ func (srv *apiServer) serveEmployees(w http.ResponseWriter, r *http.Request) {
 	srv.serveJSON(w, data)
 }
 
-func (srv *apiServer) getEmployeesJSON(ctx context.Context) ([]map[string]interface{}, error) {
+func (srv *apiServer) getEmployeesJSON(ctx context.Context) ([]map[string]any, error) {
 	persons, err := GetEmployees(ctx, srv.client, srv.pr)
 	if err != nil {
 		return nil, fmt.Errorf("get people: %w", err)
@@ -73,7 +73,7 @@ func (srv *apiServer) getEmployeesJSON(ctx context.Context) ([]map[string]interf
 		}
 	}
 
-	var dst []map[string]interface{}
+	var dst []map[string]any
 	if err = mapstructure.Decode(persons, &dst); err != nil {
 		return nil, fmt.Errorf("transform response: %w", err)
 	}
@@ -107,7 +107,7 @@ func (srv *apiServer) serveError(w http.ResponseWriter, err error, msg string) {
 	w.WriteHeader(http.StatusInternalServerError)
 }
 
-func (srv *apiServer) serveJSON(w http.ResponseWriter, src interface{}) {
+func (srv *apiServer) serveJSON(w http.ResponseWriter, src any) {
 	w.Header().Add("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(src); err != nil {
 		srv.log.Err(err).Msg("json marshal")
