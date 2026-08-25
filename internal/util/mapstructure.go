@@ -23,8 +23,8 @@ func (d *DateTime) Time() time.Time {
 
 var (
 	_              = json.Marshaler(new(DateTime))
-	DateType       = reflect.TypeOf(DateTime{})
-	JSONNumberType = reflect.TypeOf(json.Number(""))
+	DateType       = reflect.TypeFor[DateTime]()
+	JSONNumberType = reflect.TypeFor[json.Number]()
 )
 
 // MarshalJSON implements json.Marshaler
@@ -53,7 +53,7 @@ func NewDateTime(tm time.Time, layout string) DateTime {
 // DateTimeDecodeHook parses date time that's supplied in a non-standard layout
 // if layout does not contain a time zone, a location need be provided
 func DateTimeDecodeHook(layout string, location *time.Location) mapstructure.DecodeHookFuncType {
-	return func(_, dstT reflect.Type, data interface{}) (interface{}, error) {
+	return func(_, dstT reflect.Type, data any) (any, error) {
 		if dstT != DateType {
 			return data, nil
 		}
@@ -83,7 +83,7 @@ func DateTimeDecodeHook(layout string, location *time.Location) mapstructure.Dec
 }
 
 // JSONNumberDecodeHook helps mapstructure to deal with
-func JSONNumberDecodeHook(_, dstT reflect.Type, data interface{}) (interface{}, error) {
+func JSONNumberDecodeHook(_, dstT reflect.Type, data any) (any, error) {
 	if dstT != JSONNumberType {
 		return data, nil
 	}

@@ -28,7 +28,6 @@ func TestDate(t *testing.T) {
 		{`{"date":"2022-04-21"}`, "2006-01-02", "UTC", time.Date(2022, 4, 21, 0, 0, 0, 0, time.UTC)},
 		{`{"date":null}`, "2006-01-02", "EST", time.Time{}},
 	} {
-		tc := tc
 		t.Run(tc.json, func(t *testing.T) {
 			t.Parallel()
 
@@ -44,7 +43,7 @@ func TestDate(t *testing.T) {
 			})
 			require.NoError(t, err)
 
-			m := make(map[string]interface{})
+			m := make(map[string]any)
 			require.NoError(t, json.Unmarshal([]byte(tc.json), &m))
 			require.NoError(t, dec.Decode(m))
 

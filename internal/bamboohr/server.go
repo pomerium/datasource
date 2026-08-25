@@ -57,7 +57,7 @@ func (srv *apiServer) serveError(w http.ResponseWriter, err error, msg string) {
 	_, _ = w.Write([]byte(err.Error()))
 }
 
-func (srv *apiServer) serveJSON(w http.ResponseWriter, src interface{}) {
+func (srv *apiServer) serveJSON(w http.ResponseWriter, src any) {
 	w.Header().Add("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(src); err != nil {
 		srv.Err(err).Msg("json marshal")

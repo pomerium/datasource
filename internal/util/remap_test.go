@@ -14,15 +14,15 @@ func TestRemap(t *testing.T) {
 
 	for name, tc := range map[string]struct {
 		remap    []util.FieldRemap
-		src, dst []map[string]interface{}
+		src, dst []map[string]any
 	}{
 		"none": {
 			remap: nil,
-			src: []map[string]interface{}{{
+			src: []map[string]any{{
 				"a": 1,
 				"b": 2,
 			}},
-			dst: []map[string]interface{}{{
+			dst: []map[string]any{{
 				"b": 2,
 				"a": 1,
 			}},
@@ -31,11 +31,11 @@ func TestRemap(t *testing.T) {
 			remap: []util.FieldRemap{
 				{"a", "k"},
 			},
-			src: []map[string]interface{}{{
+			src: []map[string]any{{
 				"a": 1,
 				"b": 2,
 			}},
-			dst: []map[string]interface{}{{
+			dst: []map[string]any{{
 				"b": 2,
 				"k": 1,
 			}},
@@ -45,17 +45,16 @@ func TestRemap(t *testing.T) {
 				{"id", "new_id"},
 				{"email", "id"},
 			},
-			src: []map[string]interface{}{{
+			src: []map[string]any{{
 				"id":    1,
 				"email": "me@corp.com",
 			}},
-			dst: []map[string]interface{}{{
+			dst: []map[string]any{{
 				"new_id": 1,
 				"id":     "me@corp.com",
 			}},
 		},
 	} {
-		tc := tc
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 

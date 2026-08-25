@@ -114,7 +114,7 @@ func (p *Provider) listUsers(ctx context.Context, accessToken string) ([]apiUser
 	return users, nil
 }
 
-func (p *Provider) apiGet(ctx context.Context, accessToken string, uri string, out interface{}) (nextLink string, err error) {
+func (p *Provider) apiGet(ctx context.Context, accessToken string, uri string, out any) (nextLink string, err error) {
 	req, err := http.NewRequestWithContext(ctx, "GET", uri, nil)
 	if err != nil {
 		return "", err

@@ -14,7 +14,7 @@ linters:
     - errorlint
     - exhaustive
     - goheader
-    - gomodguard
+    - gomodguard_v2
     - goprintffuncname
     - gosec
     - govet
@@ -63,7 +63,6 @@ formatters:
   enable:
     - gci
     - gofumpt
-    - goimports
   settings:
     gci:
       sections:

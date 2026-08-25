@@ -75,7 +75,6 @@ func (p *Provider) GetDirectory(ctx context.Context) ([]directory.Group, []direc
 	userLookup := map[string]apiUserObject{}
 	userIDToGroups := map[string][]string{}
 	for _, group := range groups {
-		group := group
 		err = apiClient.Members.List(group.ID).
 			Context(ctx).
 			Pages(ctx, func(res *admin.Members) error {

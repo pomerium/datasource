@@ -133,8 +133,8 @@ type field struct {
 
 func parseEmployeesResponse(src io.Reader) ([]Employee, error) {
 	var dst struct {
-		Fields    []field                  `json:"fields"`
-		Employees []map[string]interface{} `json:"employees"`
+		Fields    []field          `json:"fields"`
+		Employees []map[string]any `json:"employees"`
 	}
 	if err := json.NewDecoder(src).Decode(&dst); err != nil {
 		return nil, err

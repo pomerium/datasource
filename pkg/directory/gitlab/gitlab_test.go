@@ -14,7 +14,7 @@ import (
 	"github.com/pomerium/datasource/pkg/directory"
 )
 
-type M = map[string]interface{}
+type M = map[string]any
 
 func newMockAPI(t *testing.T, _ *httptest.Server) http.Handler {
 	t.Helper()

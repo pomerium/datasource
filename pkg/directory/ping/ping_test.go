@@ -18,7 +18,7 @@ import (
 	"github.com/pomerium/datasource/pkg/directory"
 )
 
-type M = map[string]interface{}
+type M = map[string]any
 
 func newMockAPI(userIDToGroupIDs map[string][]string) http.Handler {
 	lookup := map[string]struct{}{}

@@ -19,7 +19,6 @@ func TestURL(t *testing.T) {
 		{`{"url":"http://company.com/path?query"}`},
 		{`{"url":null}`},
 	} {
-		tc := tc
 		t.Run(tc.JSON, func(t *testing.T) {
 			t.Parallel()
 

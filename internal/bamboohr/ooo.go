@@ -94,7 +94,7 @@ type Period struct {
 
 // returns map of employeeID to period when one is out
 func parseWhoIsOutResponse(r io.Reader, location *time.Location) (map[string][]Period, error) {
-	var objs []map[string]interface{}
+	var objs []map[string]any
 	if err := json.NewDecoder(r).Decode(&objs); err != nil {
 		return nil, fmt.Errorf("decode json: %w", err)
 	}

@@ -55,7 +55,7 @@ UVsDaSelBqpsfmetXSH8KC3XkbgCtHvgAnJDkGkp84VmJvMr5ukv
 -----END RSA PRIVATE KEY-----
 `
 
-type M = map[string]interface{}
+type M = map[string]any
 
 func newMockAPI(t *testing.T, _ *httptest.Server) http.Handler {
 	t.Helper()
