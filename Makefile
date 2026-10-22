@@ -46,7 +46,7 @@ build: ## Build everything.
 
 .PHONY: snapshot
 snapshot: ## Create release snapshot
-	APPARITOR_GITHUB_TOKEN=foo goreleaser release --snapshot --rm-dist
+	goreleaser release --snapshot --rm-dist
 
 .PHONY: lint
 lint:
